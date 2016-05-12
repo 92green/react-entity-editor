@@ -1,7 +1,7 @@
 import React from 'react';
 import {History} from 'react-router';
 import ClassMixin from 'bd-stampy/mixins/ClassMixin';
-import NavigationActions from 'trc/global/NavigationActions';
+import NavigationActions from 'trc-client-core/src/global/NavigationActions';
 
 var Tag = React.createClass({
     displayName: 'Tag',

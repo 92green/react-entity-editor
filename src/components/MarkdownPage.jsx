@@ -1,8 +1,8 @@
 import React from 'react';
-import UserStore from 'trc/user/UserStore';
-import Markdown from 'trc/components/Markdown';
-import Site from 'trc/constants/Site';
-import * as url from 'trc/constants/url';
+import UserStore from 'trc-client-core/src/user/UserStore';
+import Markdown from 'trc-client-core/src/components/Markdown';
+import Site from 'trc-client-core/src/constants/Site';
+import * as url from 'trc-client-core/src/constants/url';
 
 import {defaults} from 'lodash';
 

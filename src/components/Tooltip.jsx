@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import {getCourseStatus} from 'trc/mixins/CourseMixin';
+import {getCourseStatus} from 'trc-client-core/src/mixins/CourseMixin';
 import PureRender from 'react-addons-pure-render-mixin';
 
 var Tooltip = React.createClass({

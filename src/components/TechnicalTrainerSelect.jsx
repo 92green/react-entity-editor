@@ -2,11 +2,11 @@ var React = require('react');
 var moment = require('moment');
 var Reflux = require('reflux');
 var StoreMixin = require('reflux-immutable/StoreMixin');
-var {JAPANESE_FISCAL_YEAR} = require('trc/constants/QueryParameters');
+var {JAPANESE_FISCAL_YEAR} = require('trc-client-core/src/constants/QueryParameters');
 
-var ParticipantStore = require('trc/participant/ParticipantStore');
-var ParticipantActions = require('trc/participant/ParticipantActions');
-var Select = require('trc/components/Select');
+var ParticipantStore = require('trc-client-core/src/participant/ParticipantStore');
+var ParticipantActions = require('trc-client-core/src/participant/ParticipantActions');
+var Select = require('trc-client-core/src/components/Select');
 
 var ANY_TRAINER = [{
     value:'ANY_TRAINER', 

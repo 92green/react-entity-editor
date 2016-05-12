@@ -2,8 +2,8 @@ import React from 'react';
 import {Link} from 'react-router';
 import Reflux from 'reflux';
 import StoreMixin from 'reflux-immutable/StoreMixin';
-import ParticipantStore from 'trc/participant/ParticipantStore';
-import ParticipantActions from 'trc/participant/ParticipantActions';
+import ParticipantStore from 'trc-client-core/src/participant/ParticipantStore';
+import ParticipantActions from 'trc-client-core/src/participant/ParticipantActions';
 
 
 var TechnicalStaffWidget = React.createClass({

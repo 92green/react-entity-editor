@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import FileUpload from 'trc/components/FileUpload';
-import {requestFileUpload} from 'trc/media/FileUploadDuck';
+import FileUpload from 'trc-client-core/src/components/FileUpload';
+import {requestFileUpload} from 'trc-client-core/src/media/FileUploadDuck';
 
 var FileUploadForm = React.createClass({
     displayName: 'FileUploadForm',

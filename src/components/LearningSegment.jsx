@@ -1,5 +1,5 @@
 import React from 'react';
-import CourseButton from 'trc/components/CourseButton';
+import CourseButton from 'trc-client-core/src/components/CourseButton';
 
 class LearningSegment extends React.Component {
     constructor(props) {

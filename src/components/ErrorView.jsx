@@ -1,5 +1,5 @@
 import React from 'react';
-import ErrorMessage from 'trc/components/ErrorMessage';
+import ErrorMessage from 'trc-client-core/src/components/ErrorMessage';
 
 var ErrorView = React.createClass({
     displayName: 'ErrorView',

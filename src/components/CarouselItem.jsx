@@ -1,6 +1,6 @@
 import React from 'react';
-import {STATIC_ASSETS} from 'trc/constants/url';
-import Auth from 'trc/components/Auth';
+import {STATIC_ASSETS} from 'trc-client-core/src/constants/url';
+import Auth from 'trc-client-core/src/components/Auth';
 import ClassMixin from 'bd-stampy/mixins/ClassMixin';
 
 var CarouselItem = React.createClass({

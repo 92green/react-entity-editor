@@ -1,5 +1,5 @@
 var React = require('react');
-var ErrorMessage = require('trc/components/ErrorMessage'); 
+var ErrorMessage = require('trc-client-core/src/components/ErrorMessage'); 
 
 var UnauthorizedView = React.createClass({
     displayName: 'UnauthorizedView',

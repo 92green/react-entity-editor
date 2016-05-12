@@ -1,5 +1,5 @@
 import React from 'react';
-import CourseCalendar from 'trc/course/CourseCalendar';
+import CourseCalendar from 'trc-client-core/src/course/CourseCalendar';
 
 var DepartmentPage = React.createClass({
     displayName: 'DepartmentPage',

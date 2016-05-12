@@ -1,5 +1,5 @@
 import React from 'react';
-import Loader from 'trc/components/Loader';
+import Loader from 'trc-client-core/src/components/Loader';
 import DataTable from 'bd-stampy/components/DataTable';
 import {History} from 'react-router';
 

@@ -1,4 +1,4 @@
-import BaseComponent from 'trc/components/BaseComponent';
+import BaseComponent from 'trc-client-core/src/components/BaseComponent';
 
 class Toggle extends BaseComponent {
     constructor(props) {

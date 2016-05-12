@@ -1,12 +1,12 @@
 import React from 'react';
 import {Link} from 'react-router';
-import UserStore from 'trc/user/UserStore';
-import Auth from 'trc/components/Auth';
-import Permissions from 'trc/user/Permissions';
-import Col from 'trc/components/Col';
-import Icon from 'trc/components/Icon';
-import {STATIC_ASSETS, learningPlanUrl} from 'trc/constants/url';
-import LearningPlanList from 'trc/learningPlan/LearningPlanList';
+import UserStore from 'trc-client-core/src/user/UserStore';
+import Auth from 'trc-client-core/src/components/Auth';
+import Permissions from 'trc-client-core/src/user/Permissions';
+import Col from 'trc-client-core/src/components/Col';
+import Icon from 'trc-client-core/src/components/Icon';
+import {STATIC_ASSETS, learningPlanUrl} from 'trc-client-core/src/constants/url';
+import LearningPlanList from 'trc-client-core/src/learningPlan/LearningPlanList';
 
 var Navigation = React.createClass({
     displayName: 'Navigation',

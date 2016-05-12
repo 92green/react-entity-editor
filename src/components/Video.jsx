@@ -3,13 +3,13 @@ import {History} from 'react-router';
 import Reflux from 'reflux';
 import StoreMixin from 'reflux-immutable/StoreMixin';
 
-import VideoActions from 'trc/media/VideoActions';
-import VideoStore from 'trc/media/VideoStore';
+import VideoActions from 'trc-client-core/src/media/VideoActions';
+import VideoStore from 'trc-client-core/src/media/VideoStore';
 
-import Time from 'trc/components/Time';
-import Vimeo from 'trc/components/Vimeo';
+import Time from 'trc-client-core/src/components/Time';
+import Vimeo from 'trc-client-core/src/components/Vimeo';
 import Media from 'bd-stampy/components/Media';
-import Icon from 'trc/components/Icon';
+import Icon from 'trc-client-core/src/components/Icon';
 
 var Video = React.createClass({
     displayName: 'Video',

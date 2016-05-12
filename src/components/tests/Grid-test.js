@@ -1,6 +1,6 @@
 import React from 'react';
 var TestUtils = require('react/lib/ReactTestUtils');
-var Grid = require('trc/components/Grid');
+var Grid = require('trc-client-core/src/components/Grid');
 
 
 describe('Grid', () => {

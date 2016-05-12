@@ -1,5 +1,5 @@
 var React = require('react');
-var Select = require('trc/components/Select');
+var Select = require('trc-client-core/src/components/Select');
 
 var YearTypeSelect = React.createClass({
     displayName: 'YearTypeSelect',

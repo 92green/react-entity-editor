@@ -1,8 +1,8 @@
 import React from 'react';
-import Auth from 'trc/components/Auth';
-import UserStore from 'trc/user/UserStore';
-import {STATIC_ASSETS} from 'trc/constants/url';
-import DepartmentSidebarDefault from 'trc/components/DepartmentSidebarDefault';
+import Auth from 'trc-client-core/src/components/Auth';
+import UserStore from 'trc-client-core/src/user/UserStore';
+import {STATIC_ASSETS} from 'trc-client-core/src/constants/url';
+import DepartmentSidebarDefault from 'trc-client-core/src/components/DepartmentSidebarDefault';
 
 var PartsSidebar = React.createClass({
     displayName: 'PartsSidebar',

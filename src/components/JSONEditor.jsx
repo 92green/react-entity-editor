@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import CodeEditor from 'trc/components/CodeEditor';
+import CodeEditor from 'trc-client-core/src/components/CodeEditor';
 
 require('codemirror/mode/javascript/javascript');
 

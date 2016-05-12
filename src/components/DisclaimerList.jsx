@@ -1,5 +1,5 @@
 import React from 'react';
-import Media from 'trc/components/Media';
+import Media from 'trc-client-core/src/components/Media';
 
 export default function renderDisclaimers(props) {
     if(props.data) {

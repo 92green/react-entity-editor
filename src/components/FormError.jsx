@@ -1,6 +1,6 @@
 var React = require('react');
 var _ = require('lodash');
-var Icon = require('trc/components/Icon');
+var Icon = require('trc-client-core/src/components/Icon');
 
 
 var TestComponent = React.createClass({

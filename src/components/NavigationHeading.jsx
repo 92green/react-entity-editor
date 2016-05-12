@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router';
-import UserStore from 'trc/user/UserStore';
+import UserStore from 'trc-client-core/src/user/UserStore';
 
 export default function NavigationHeading(props) {
     return (

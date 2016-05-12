@@ -1,5 +1,5 @@
 import React from 'react';
-import {ConditionalChildren} from 'trc/components/ConditionalChildren';
+import {ConditionalChildren} from 'trc-client-core/src/components/ConditionalChildren';
 import {State} from 'react-router';
 
 var RouteIsActive = React.createClass({

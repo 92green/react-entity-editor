@@ -1,7 +1,7 @@
 var React = require('react');
 var Textarea = require('bd-stampy/components/Textarea');
-var MarkdownToolbar = require('trc/components/MarkdownToolbar');
-var TextareaMixin = require('trc/mixins/TextareaMixin');
+var MarkdownToolbar = require('trc-client-core/src/components/MarkdownToolbar');
+var TextareaMixin = require('trc-client-core/src/mixins/TextareaMixin');
 
 function addhttp(url) {
    if (!/^(f|ht)tps?:\/\//i.test(url)) {

@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
-import Icon from 'trc/components/Icon';
+import Icon from 'trc-client-core/src/components/Icon';
 import Button from 'bd-stampy/components/Button';
-import FormError from 'trc/forms/FormError';
+import FormError from 'trc-client-core/src/forms/FormError';
 import classnames from 'classnames';
 
 //

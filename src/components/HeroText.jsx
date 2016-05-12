@@ -1,6 +1,6 @@
 import classnames from 'classnames';
-import Color from 'trc/components/Color';
-import {TOYOTA} from 'trc/constants/Color';
+import Color from 'trc-client-core/src/components/Color';
+import {TOYOTA} from 'trc-client-core/src/constants/Color';
 
 export default function HeroText(props) {
     var className = classnames('HeroText margin-left', props.className);

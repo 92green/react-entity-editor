@@ -1,6 +1,6 @@
 // import test from 'tape';
 // import React from 'react';
-// import Col from 'trc/components/Col';
+// import Col from 'trc-client-core/src/components/Col';
 
 // import {createRenderer} from 'react-addons-test-utils';
 

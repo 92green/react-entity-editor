@@ -1,6 +1,6 @@
 import React from 'react';
-import Select from 'trc/components/Select';
-import regions from 'trc/constants/Regions';
+import Select from 'trc-client-core/src/components/Select';
+import regions from 'trc-client-core/src/constants/Regions';
 
 var RegionSelect = React.createClass({
     displayName: 'Region Select',

@@ -3,9 +3,9 @@ var React = require('react');
 var Reflux = require('reflux');
 
 var ClassMixin = require('bd-stampy/mixins/ClassMixin');
-var LoadingActions = require('trc/global/LoadingActions');
-var LoadingStore = require('trc/global/LoadingStore');
-var Loader = require('trc/components/Loader');
+var LoadingActions = require('trc-client-core/src/global/LoadingActions');
+var LoadingStore = require('trc-client-core/src/global/LoadingStore');
+var Loader = require('trc-client-core/src/components/Loader');
 
 var StoreMixin = require('reflux-immutable/StoreMixin');
 

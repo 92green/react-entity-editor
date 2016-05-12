@@ -1,10 +1,10 @@
 import React from 'react';
-import AskForm from 'trc/components/AskForm';
-import Auth from 'trc/components/Auth';
-import LearningPlanListCurrentParticipant from 'trc/learningPlan/LearningPlanListCurrentParticipant';
-import IconList from 'trc/components/IconList';
-import IconListItem from 'trc/components/IconListItem';
-import SearchCourses from 'trc/components/SearchCourses';
+import AskForm from 'trc-client-core/src/components/AskForm';
+import Auth from 'trc-client-core/src/components/Auth';
+import LearningPlanListCurrentParticipant from 'trc-client-core/src/learningPlan/LearningPlanListCurrentParticipant';
+import IconList from 'trc-client-core/src/components/IconList';
+import IconListItem from 'trc-client-core/src/components/IconListItem';
+import SearchCourses from 'trc-client-core/src/components/SearchCourses';
 
 var DepartmentSidebarDefault = React.createClass({
     displayName: 'DepartmentSidebarDefault',

@@ -1,9 +1,9 @@
 import React from 'react';
-import ModalView from 'trc/components/ModalView';
-import LearningSegment from 'trc/components/LearningSegment';
-import Icon from 'trc/components/Icon';
+import ModalView from 'trc-client-core/src/components/ModalView';
+import LearningSegment from 'trc-client-core/src/components/LearningSegment';
+import Icon from 'trc-client-core/src/components/Icon';
 import Button from 'bd-stampy/components/Button';
-import history from 'trc/global/history';
+import history from 'trc-client-core/src/global/history';
 
 
 class CourseGroupActivityModal extends React.Component {

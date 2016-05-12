@@ -1,9 +1,9 @@
 // import React from 'react';
 // import TestUtils from 'react/lib/ReactTestUtils';
 
-// import Auth from 'trc/components/Auth';
-// import UserStore from 'trc/user/UserStore';
-// import Permissions from 'trc/user/Permissions';
+// import Auth from 'trc-client-core/src/components/Auth';
+// import UserStore from 'trc-client-core/src/user/UserStore';
+// import Permissions from 'trc-client-core/src/user/Permissions';
 
 // describe('Auth', () => {
 

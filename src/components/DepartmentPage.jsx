@@ -1,6 +1,6 @@
 import React from 'react';
-import Grid from 'trc/components/Grid';
-import Col from 'trc/components/Col';
+import Grid from 'trc-client-core/src/components/Grid';
+import Col from 'trc-client-core/src/components/Col';
 
 var DepartmentPage = React.createClass({
     displayName: 'DepartmentPage',

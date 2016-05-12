@@ -1,7 +1,7 @@
 
 import React from 'react';
 import ClassMixin from 'bd-stampy/mixins/ClassMixin.jsx';
-import Icons from 'trc/constants/Icon';
+import Icons from 'trc-client-core/src/constants/Icon';
 
 function getUnicodeCharacter(cp) {
     if (cp >= 0 && cp <= 0xD7FF || cp >= 0xE000 && cp <= 0xFFFF) {

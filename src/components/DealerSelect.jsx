@@ -1,8 +1,8 @@
 import React from 'react';
-import Select from 'trc/components/Select';
+import Select from 'trc-client-core/src/components/Select';
 import {connect} from 'react-redux';
-import {fetchDealerCodes} from 'trc/participant/DealerActions';
-import {ALL_REGIONS} from 'trc/constants/Region';
+import {fetchDealerCodes} from 'trc-client-core/src/participant/DealerActions';
+import {ALL_REGIONS} from 'trc-client-core/src/constants/Region';
 
 var DealerSelect = React.createClass({
     displayName: 'Dealer Select',

@@ -1,8 +1,8 @@
 import React from 'react';
 import {Link} from 'react-router'
-import Widget from 'trc/components/Widget';
-import Icon from 'trc/components/Icon';
-import Col from 'trc/components/Col';
+import Widget from 'trc-client-core/src/components/Widget';
+import Icon from 'trc-client-core/src/components/Icon';
+import Col from 'trc-client-core/src/components/Col';
 
 var HomeCourseWidget = React.createClass({
     displayName: 'HomeCourseWidget',

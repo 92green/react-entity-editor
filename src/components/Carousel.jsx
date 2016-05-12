@@ -1,7 +1,7 @@
 import React from 'react';
 import BasicCarousel from 'react-basic-carousel';
 import classNames from 'classnames';
-import UserStore from 'trc/user/UserStore';
+import UserStore from 'trc-client-core/src/user/UserStore';
 
 var Carousel = React.createClass({
     displayName: 'Carousel',

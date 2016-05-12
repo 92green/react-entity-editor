@@ -1,5 +1,5 @@
 import React from 'react';
-import UserStore from 'trc/user/UserStore';
+import UserStore from 'trc-client-core/src/user/UserStore';
 
 var AskForm = React.createClass({
     displayName: 'AskForm',

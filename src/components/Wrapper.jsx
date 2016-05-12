@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {withSettings} from 'trc/settings/SettingsSelector';
+import {withSettings} from 'trc-client-core/src/settings/SettingsSelector';
 
 var Wrapper = React.createClass({
     displayName: 'Wrapper',

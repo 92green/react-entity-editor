@@ -1,11 +1,11 @@
 // import React from 'react';
 // import TestUtils from 'react/lib/ReactTestUtils';
 
-// import {ASK_FORM} from 'trc/constants/Endpoints';
+// import {ASK_FORM} from 'trc-client-core/src/constants/Endpoints';
 
-// import AskForm from 'trc/components/AskForm';
-// import UserStore from 'trc/user/UserStore';
-// import Permissions from 'trc/user/Permissions';
+// import AskForm from 'trc-client-core/src/components/AskForm';
+// import UserStore from 'trc-client-core/src/user/UserStore';
+// import Permissions from 'trc-client-core/src/user/Permissions';
 
 // describe('AskForm', () => {
 

@@ -1,4 +1,4 @@
-import {STATIC_ASSETS} from 'trc/constants/url';
+import {STATIC_ASSETS} from 'trc-client-core/src/constants/url';
 
 export default function TrainingCalendars(props) {
     var tech = (props.location.query.page === 'technical') ? 'tech' : '';

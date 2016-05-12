@@ -5,8 +5,8 @@ var key = require('bd-stampy/utils/Key');
 var ReactSelect = require('react-select');
 
 import {History} from 'react-router';
-import RouterContainer from 'trc/global/RouterContainer';
-import UserStore from 'trc/user/UserStore';
+import RouterContainer from 'trc-client-core/src/global/RouterContainer';
+import UserStore from 'trc-client-core/src/user/UserStore';
 import Label from 'bd-stampy/components/Label';
 import Input from 'bd-stampy/components/Input';
 

@@ -1,10 +1,10 @@
-import Carousel from 'trc/components/Carousel';
-import CarouselItem from 'trc/components/CarouselItem';
-import Col from 'trc/components/Col';
-import Grid from 'trc/components/Grid';
+import Carousel from 'trc-client-core/src/components/Carousel';
+import CarouselItem from 'trc-client-core/src/components/CarouselItem';
+import Col from 'trc-client-core/src/components/Col';
+import Grid from 'trc-client-core/src/components/Grid';
 import React from 'react';
-import UserStore from 'trc/user/UserStore';
-import {FDLP_BANNER} from 'trc/media/CarouselContent';
+import UserStore from 'trc-client-core/src/user/UserStore';
+import {FDLP_BANNER} from 'trc-client-core/src/media/CarouselContent';
 
 var DepartmentHandler = React.createClass({
     displayName: 'DepartmentHandler',

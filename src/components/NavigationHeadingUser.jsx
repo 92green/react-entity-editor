@@ -1,11 +1,11 @@
 import React from 'react';
 import {Link} from 'react-router';
-import UserStore from 'trc/user/UserStore';
-import Icon from 'trc/components/Icon';
-import Auth from 'trc/components/Auth';
-import NavigationHeading from 'trc/components/NavigationHeading';
+import UserStore from 'trc-client-core/src/user/UserStore';
+import Icon from 'trc-client-core/src/components/Icon';
+import Auth from 'trc-client-core/src/components/Auth';
+import NavigationHeading from 'trc-client-core/src/components/NavigationHeading';
 import {connect} from 'react-redux';
-import {trainingActivitySummaryRequest} from 'trc/participant/DealerActions';
+import {trainingActivitySummaryRequest} from 'trc-client-core/src/participant/DealerActions';
 
 var NavigationHeadingUser = React.createClass({
     displayName: 'NavigationHeadingUser',

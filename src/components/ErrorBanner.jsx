@@ -1,5 +1,5 @@
 import React from 'react';
-import Markdown from 'trc/components/Markdown';
+import Markdown from 'trc-client-core/src/components/Markdown';
 
 var ErrorBanner = React.createClass({
     displayName: 'ErrorBanner',

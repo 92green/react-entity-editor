@@ -1,7 +1,7 @@
 var React = require('react');
 var _ = require('lodash');
 var moment = require('moment');
-var Select = require('trc/components/Select');
+var Select = require('trc-client-core/src/components/Select');
 
 var MonthSelect = React.createClass({
     displayName: 'Month Select',

@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from 'bd-stampy/components/Button';
 import ProgressBar from 'bd-stampy/components/ProgressBar';
-import HumanFileSize from 'trc/utils/HumanFileSize';
+import HumanFileSize from 'trc-client-core/src/utils/HumanFileSize';
 import classnames from 'classnames';
 
 var FileUpload = React.createClass({

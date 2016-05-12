@@ -2,11 +2,11 @@ import React from 'react';
 import {State} from 'react-router';
 import _ from 'lodash';
 
-import Markdown from 'trc/components/Markdown';
+import Markdown from 'trc-client-core/src/components/Markdown';
 import PartialsCollection from 'trc_copy/PartialsCollection';
-import Site from 'trc/constants/Site';
-import UserStore from 'trc/user/UserStore';
-import StaticCollection from 'trc/media/StaticCollection';
+import Site from 'trc-client-core/src/constants/Site';
+import UserStore from 'trc-client-core/src/user/UserStore';
+import StaticCollection from 'trc-client-core/src/media/StaticCollection';
 
 
 var StaticPage = React.createClass({

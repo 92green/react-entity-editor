@@ -1,6 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
-import UserStore from 'trc/user/UserStore';
+import UserStore from 'trc-client-core/src/user/UserStore';
 
 export default function CourseButton(props) {
     var {course} = props;

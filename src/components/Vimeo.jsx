@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import froogaloop from 'vimeo-froogaloop';
-import theme from 'trc/global/ThemeStore';
+import theme from 'trc-client-core/src/global/ThemeStore';
 import UrlStore from 'bd-stampy/utils/UrlStore';
 
 var Vimeo = React.createClass({

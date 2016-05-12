@@ -1,12 +1,12 @@
 import React from 'react';
-import Auth from 'trc/components/Auth';
-import UserStore from 'trc/user/UserStore';
-import {STATIC_ASSETS} from 'trc/constants/url';
-import DepartmentSidebarDefault from 'trc/components/DepartmentSidebarDefault';
+import Auth from 'trc-client-core/src/components/Auth';
+import UserStore from 'trc-client-core/src/user/UserStore';
+import {STATIC_ASSETS} from 'trc-client-core/src/constants/url';
+import DepartmentSidebarDefault from 'trc-client-core/src/components/DepartmentSidebarDefault';
 const SITE = UserStore.get('site');
-import IconList from 'trc/components/IconList';
-import IconListItem from 'trc/components/IconListItem';
-import {fromHexCode} from 'trc/utils/Strings';
+import IconList from 'trc-client-core/src/components/IconList';
+import IconListItem from 'trc-client-core/src/components/IconListItem';
+import {fromHexCode} from 'trc-client-core/src/utils/Strings';
 
 var ServiceSidebar = React.createClass({
     displayName: 'ServiceSidebar',

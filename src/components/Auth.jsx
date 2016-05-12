@@ -1,7 +1,7 @@
 import React from 'react';
-import Permissions from 'trc/user/Permissions';
-import {ConditionalChildren} from 'trc/components/ConditionalChildren';
-import AuthMap from 'trc/constants/AuthMap';
+import Permissions from 'trc-client-core/src/user/Permissions';
+import {ConditionalChildren} from 'trc-client-core/src/components/ConditionalChildren';
+import AuthMap from 'trc-client-core/src/constants/AuthMap';
 
 var Auth = React.createClass({
     displayName: 'Auth',

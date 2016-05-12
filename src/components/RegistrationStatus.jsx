@@ -1,6 +1,6 @@
 import React from 'react';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
-import CourseMixin from 'trc/mixins/CourseMixin';
+import CourseMixin from 'trc-client-core/src/mixins/CourseMixin';
 
 var RegistrationStatus = React.createClass({
     displayName: 'RegistrationStatus',

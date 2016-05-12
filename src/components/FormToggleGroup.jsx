@@ -2,7 +2,7 @@
 var React = require('react');
 var _ = require('lodash');
 
-var ToggleGroup = require('trc/components/ToggleGroup');
+var ToggleGroup = require('trc-client-core/src/components/ToggleGroup');
 
 var FormToggleGroup = React.createClass({
     displayName: 'FormToggleGroup',

@@ -1,13 +1,13 @@
-import {STATIC_ASSETS} from 'trc/constants/url';
+import {STATIC_ASSETS} from 'trc-client-core/src/constants/url';
 import AboutCopy from 'trc_copy/About.md';
 
-import UserStore from 'trc/user/UserStore';
-import Markdown from 'trc/components/Markdown';
-import Site from 'trc/constants/Site';
+import UserStore from 'trc-client-core/src/user/UserStore';
+import Markdown from 'trc-client-core/src/components/Markdown';
+import Site from 'trc-client-core/src/constants/Site';
 
-import Auth from 'trc/components/Auth';
-import Grid from 'trc/components/Grid';
-import Col from 'trc/components/Col';
+import Auth from 'trc-client-core/src/components/Auth';
+import Grid from 'trc-client-core/src/components/Grid';
+import Col from 'trc-client-core/src/components/Col';
 
 function Trainer(props) {
     return <div className="Media margin-bottom2 margin-top2">

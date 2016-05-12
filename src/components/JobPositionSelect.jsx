@@ -1,7 +1,7 @@
 import React from 'react';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import _ from 'lodash';
-import Select from 'trc/components/Select';
+import Select from 'trc-client-core/src/components/Select';
 
 var JobPositionSelect = React.createClass({
     displayName: 'JobPositionSelect',

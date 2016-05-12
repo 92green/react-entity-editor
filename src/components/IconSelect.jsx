@@ -1,5 +1,5 @@
 import React from 'react';
-import Strings from 'trc/utils/Strings';
+import Strings from 'trc-client-core/src/utils/Strings';
 
 var IconSelect = React.createClass({
     displayName: 'IconSelect',

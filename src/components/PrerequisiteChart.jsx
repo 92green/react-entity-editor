@@ -1,10 +1,10 @@
 import React from 'react';
 import {Map, List} from 'immutable';
 import {Link} from 'react-router';
-import Widget from 'trc/components/Widget';
-import Grid from 'trc/components/Grid';
-import Col from 'trc/components/Col';
-import {IconPlus} from 'trc/components/Icons';
+import Widget from 'trc-client-core/src/components/Widget';
+import Grid from 'trc-client-core/src/components/Grid';
+import Col from 'trc-client-core/src/components/Col';
+import {IconPlus} from 'trc-client-core/src/components/Icons';
 
 class PrerequisiteChart extends React.Component {
     constructor(props) {

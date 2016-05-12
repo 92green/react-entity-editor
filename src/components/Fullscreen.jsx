@@ -1,5 +1,5 @@
 import React from 'react';
-import Fullscreen from 'trc/utils/Fullscreen';
+import Fullscreen from 'trc-client-core/src/utils/Fullscreen';
 
 export default (ComposedComponent) => {
     const component = React.createClass({

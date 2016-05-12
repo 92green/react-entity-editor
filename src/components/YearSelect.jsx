@@ -3,7 +3,7 @@ var React = require('react');
 var moment = require('moment');
 var _ = require('lodash');
 
-var Select = require('trc/components/Select');
+var Select = require('trc-client-core/src/components/Select');
 
 var YearSelect = React.createClass({
     displayName: 'Year Select',

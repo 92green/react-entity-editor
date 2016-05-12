@@ -1,7 +1,7 @@
 import React from 'react';
-import Grid from 'trc/components/Grid';
-import Col from 'trc/components/Col';
-import Auth from 'trc/components/Auth';
+import Grid from 'trc-client-core/src/components/Grid';
+import Col from 'trc-client-core/src/components/Col';
+import Auth from 'trc-client-core/src/components/Auth';
 import {Link} from 'react-router';
 
 var Footer = React.createClass({

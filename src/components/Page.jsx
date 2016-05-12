@@ -1,6 +1,6 @@
 import React, { Children } from 'react';
 import withSideEffect from 'react-side-effect';
-import UserStore from 'trc/user/UserStore';
+import UserStore from 'trc-client-core/src/user/UserStore';
 
 var Page = React.createClass({
     displayName: 'Page',
