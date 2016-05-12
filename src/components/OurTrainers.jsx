@@ -1,5 +1,5 @@
 import {STATIC_ASSETS} from 'trc-client-core/src/constants/url';
-import AboutCopy from 'trc_copy/About.md';
+import AboutCopy from 'trc-client-core/src/copy/About.md';
 
 import UserStore from 'trc-client-core/src/user/UserStore';
 import Markdown from 'trc-client-core/src/components/Markdown';

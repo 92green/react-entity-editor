@@ -3,7 +3,7 @@ import {State} from 'react-router';
 import _ from 'lodash';
 
 import Markdown from 'trc-client-core/src/components/Markdown';
-import PartialsCollection from 'trc_copy/PartialsCollection';
+import PartialsCollection from 'trc-client-core/src/copy/PartialsCollection';
 import Site from 'trc-client-core/src/constants/Site';
 import UserStore from 'trc-client-core/src/user/UserStore';
 import StaticCollection from 'trc-client-core/src/media/StaticCollection';
