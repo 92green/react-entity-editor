@@ -1,6 +1,6 @@
 import tape from 'tape';
-import TestFakeDom from 'trc/utils/TestFakeDom';
-import UserStore from 'trc/user/UserStore';
+import TestFakeDom from 'trc-client-core/src/utils/TestFakeDom';
+import UserStore from 'trc-client-core/src/user/UserStore';
 import {stub} from 'sinon';
 
 stub(document, 'getElementById', () => ({

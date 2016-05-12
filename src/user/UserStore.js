@@ -1,7 +1,7 @@
 import Reflux from 'reflux';
-import xhr from 'trc/utils/xhr';
+import xhr from 'trc-client-core/src/utils/xhr';
 import {fromJS, List} from 'immutable';
-import AuthMap from 'trc/constants/AuthMap';
+import AuthMap from 'trc-client-core/src/constants/AuthMap';
 
 // Make strings a stringy array.
 function makeList(data) {

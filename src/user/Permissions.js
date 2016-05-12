@@ -1,5 +1,5 @@
-import UserStore from 'trc/user/UserStore';
-import Permission from 'trc/constants/Permission';
+import UserStore from 'trc-client-core/src/user/UserStore';
+import Permission from 'trc-client-core/src/constants/Permission';
 
 // A small api for the Permission constants
 // Applies the current UserStore object for tests
