@@ -1,7 +1,7 @@
 import React from'react';
 
-import NewsCollection from'trc/media/NewsCollection';
-import UserStore from'trc/user/UserStore';
+import NewsCollection from 'trc-client-core/src/media/NewsCollection';
+import UserStore from 'trc-client-core/src/user/UserStore';
 
 import _ from'lodash';
 import moment from'moment';
@@ -48,7 +48,7 @@ var NewsFeed = React.createClass({
                 </li>;
             }
         });
-    } 
+    }
 });
 
 module.exports = NewsFeed;
