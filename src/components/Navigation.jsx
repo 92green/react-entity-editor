@@ -70,6 +70,15 @@ var Navigation = React.createClass({
 
     },
     renderTab(department) {
+        function filterLearningPlans(department) {
+            switch (department.value) {
+                case 'technical':
+                    return plan => plan.get('careerPlanId') === 'technical_career_plan';
+
+                default:
+                    return plan => true
+            }
+        }
         return (
             <li key={department.value} onMouseOver={this.onTabOver.bind(null, department.value)} onMouseOut={this.onTabOut}>
                 <div className="NavigationView_dropdown">
@@ -85,7 +94,7 @@ var Navigation = React.createClass({
                                     <div><Link to="/portal/training_activity_summary">Training Activity Summary</Link></div>
                                 </Auth>
                                 <div className="NavigationView_dropdown_title margin-top05">My Learning Plans</div>
-                                <LearningPlanList linkClassName="Icon Icon-smallSize Icon-inline whitespace-nowrap" learningPlans={UserStore.get('learningPlans')}/>
+                                <LearningPlanList linkClassName="Icon Icon-smallSize Icon-inline whitespace-nowrap" learningPlans={UserStore.get('learningPlans').filter(filterLearningPlans(department))}/>
                             </Col>
                         </li>
                     </ul>
