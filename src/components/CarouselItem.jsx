@@ -33,19 +33,19 @@ var CarouselItem = React.createClass({
         }
         return (
             <Auth {...this.props.auth} component="li">
-                <div>        
+                <div>
                     <a href={link}>
                         <img src={`${STATIC_ASSETS}img/content/${this.props.image}`} width="1024" height="320" />
                     </a>
                 </div>
-                {this.renderContent()}   
+                {this.renderContent()}
             </Auth>
         );
     },
     renderContent() {
         var content;
         var captionClass = this.createClassName('Caption').add('ui-opacity--80');
-        
+
         this.props.captionModifier.split(' ').forEach(cc => {
             captionClass.modifier(cc);
         });
@@ -56,15 +56,15 @@ var CarouselItem = React.createClass({
                 {this.props.children}
             </div>;
         } else {
-            content = <div className={`Carousel-hero_text w${this.props.width} right`}>
-                <h3 className="hug-top">{this.props.title}</h3>  
+            content = <div className={`Carousel-hero_text w${this.props.width}`}>
+                <h3 className="hug-top">{this.props.title}</h3>
                 {this.props.children}
             </div>;
         }
 
         return <div>
-            {content}            
-            <div className={captionClass.className}>{this.props.caption}</div>         
+            {content}
+            <div className={captionClass.className}>{this.props.caption}</div>
         </div>
     }
 });
