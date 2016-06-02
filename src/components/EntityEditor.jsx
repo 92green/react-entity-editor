@@ -3,8 +3,8 @@ import { Route, Link } from 'react-router';
 import { List, Map, fromJS } from 'immutable';
 
 import Loader from 'toyota-styles/lib/components/Loader';
-// import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
-import AutoRequest from 'trc-client-core/src/components/AutoRequest';
+import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
+import AutoRequest from 'toyota-styles/lib/components/AutoRequest';
 
 //import ModalManager from 'trc-client-core/src/Modal/ModalManager';
 //import ModalConfirm from 'trc-client-core/src/Modal/ModalConfirm';
