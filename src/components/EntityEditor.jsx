@@ -4,7 +4,7 @@ import { List, Map, fromJS } from 'immutable';
 
 import Loader from 'toyota-styles/lib/components/Loader';
 import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
-import AutoRequest from 'toyota-styles/lib/components/AutoRequest';
+import AutoRequest from 'bd-stampy/components/AutoRequest';
 
 //import ModalManager from 'trc-client-core/src/Modal/ModalManager';
 //import ModalConfirm from 'trc-client-core/src/Modal/ModalConfirm';
