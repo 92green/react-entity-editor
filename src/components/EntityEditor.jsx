@@ -1,15 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import { Route, Link } from 'react-router';
 import { List, Map, fromJS } from 'immutable';
+import AutoRequest from 'bd-stampy/components/AutoRequest';
 
 import Loader from 'toyota-styles/lib/components/Loader';
 import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
-import AutoRequest from 'bd-stampy/components/AutoRequest';
-
-//import ModalManager from 'trc-client-core/src/Modal/ModalManager';
-//import ModalConfirm from 'trc-client-core/src/Modal/ModalConfirm';
-//import LoadingActions from 'trc-client-core/src/global/LoadingActions';
-
+import Button from 'toyota-styles/lib/components/Button';
+// todo modals
 
 //
 // Function to create a routing pattern for use with this editor
@@ -22,18 +19,9 @@ export function createEditorRoutes(params) {
     }
     return (
         <Route path={params.path}>
-            {params['new'] !== false && 
-                <Route path="new" component={params.component}/>
-            }
-            {params['edit'] !== false && 
-                <Route path=":id/edit" component={params.component} savesToExisting={true} />
-            }
-            {params['copy'] !== false && 
-                <Route path=":id/copy" component={params.component} />
-            }
-            {params['delete'] !== false && 
-                <Route path=":id/delete" component={params.component} />
-            }
+            <Route path="new" component={params.component}/>
+            <Route path=":id/edit" component={params.component}/>
+            <Route path=":id/copy" component={params.component}/>
         </Route>
     );
 };
@@ -50,178 +38,191 @@ class EntityEditor extends Component {
 
     initialState() {
         return {
-            created: false,
-            copied: false,
-            deleted: false,
-            saveError: false
+            prompt: false,
+            promptMessage: false,
+            newId: false
         };
     }
 
     constructor(props) {
         super(props);
         this.state = this.initialState();
+        this.prompts = {
+            created:        this.renderCreated.bind(this),
+            updated:        this.renderUpdated.bind(this),
+            copied:         this.renderCopied.bind(this),
+            deleted:        this.renderDeleted.bind(this),
+            writeError:     this.renderWriteError.bind(this),
+            confirmClose:   this.renderConfirmClose.bind(this)
+        };
     }
 
-    ///componentWillMount() {
-        //this.props.dispatch(jobPositionRequest());
-        // this.props.dispatch(requestCourseList());
-    ///}
-
-    /*componentWillReceiveProps(newProps) {
-
-        // reset state if a new contractor's info is to be shown in the form
-        if(this.loadsFromExisting(newProps)) {
+    componentWillReceiveProps(newProps) {
+        // reset state if we're moving to a new entity
+        if(this.props.id != newProps.id) {
             this.setState(this.initialState());
         }
     }
+
 
     //
     // helpers
     //
 
-    currentUser() {
-        // gets the current contractor object (an immutable map), or null if none correspond to current id prop
-        return this.props.user.get(this.props.params.id);
+    willCreateNew(props = this.props) {
+        return !props.id;
     }
 
-    loadsFromExisting(props = this.props) {
-        // returns true if the form loads from an existing record, false if the form starts blank
-        return !!props.params.id; // true if a id exists
+    willCopy(props = this.props) {
+        const split = fromJS(props.routes)
+            .last()
+            .get('path')
+            .split('/');
+
+        return fromJS(split).last() == "copy";
     }
 
-    savesToExisting(props = this.props) {
-        // returns true if the form saves to an existing record, false if the form is to create a new record on save
-        return !!props.route.savesToExisting; // true if savesToExisting is true on the route
+    createsOnSave(props = this.props) {
+        return this.willCreateNew(props) || this.willCopy(props);
     }
+    
+    //
+    // naming / text labels
+    //
 
-    copiesExisting(props = this.props) {
-        return this.loadsFromExisting() && !this.savesToExisting();
-    }
-
-    getInitialFormValues(currentUser) {
-        if(!currentUser) {
-            return {
-                brand: "Toyota"
-            };
+    entityName(modifications) {
+        var name = this.props.entityName;
+        if(!modifications) {
+            return name;
         }
+        if(modifications.includes('plural')) {
+            name = this.props.entityNamePlural || this.props.entityName+"s";
+        }
+        return this.genericNameTransform(name, modifications);
+    }
 
-        var plan = currentUser.toJS();
-        return plan;
+    actionName(modifications) {
+        var name = "edit";
+        if(this.willCreateNew()) {
+            name = "new";
+        } else if(this.willCopy()) {
+            name = "copy";
+        }
+        return this.genericNameTransform(name, modifications);
+    }
+
+    genericNameTransform(name, modifications) {
+        if(modifications.includes('first')) {
+            name = name.charAt(0).toUpperCase() + name.slice(1);
+        }
+        return name;
     }
 
     //
-    // event and click handlers
+    // UI states
     //
 
-    handleSubmit(values, dispatch) {
-        this.saveUser(values);
-    }
+    showPrompt(type, additionalState = {}) {
+        if(this.prompts[type]) {
+            const {
+                promptMessage,
+                newId
+            } = additionalState;
 
-    handleResetClick(resetForm) {
-        ModalManager.showModal(ModalConfirm, {
-            title: 'Are you sure you want to reset?',
-            message: 'Are you sure you want to reset? Any changes since your last save will be lost.',
-            yes: 'Yes I\'m sure',
-            onYes: resetForm,
-            no: 'Cancel'
-        });
-    }
-
-    handleCloseClick(ee, dirty = false) {
-        ee.preventDefault();
-        if(dirty) {
-            ModalManager.showModal(ModalConfirm, {
-                title: 'Unsaved changes',
-                message: 'You may have unsaved changes, are you sure you want to leave this page?',
-                yes: 'Leave page',
-                onYes: this.closeContractor.bind(this),
-                no: 'Cancel'
+            this.setState({
+                prompt: type,
+                promptMessage,
+                newId
             });
         } else {
-            this.closeContractor();
+            console.warn("No prompt called "+type);
         }
     }
 
-    handleDeleteClick(ee) {
-        ee.preventDefault();
-        ModalManager.showModal(ModalConfirm, {
-            title: 'Delete contractor',
-            message: 'Are you sure you want to delete this? This action cannot be undone',
-            yes: 'Yes I\'m sure',
-            onYes: this.deleteContractor.bind(this),
-            no: 'Cancel'
+    hidePrompt() {
+        this.setState({
+            prompt: false,
+            promptMessage: false
         });
     }
 
     //
-    // form actions
+    // navigation
     //
 
-    closeContractor() {
-        this.props.history.push('/admin');
+    getEditLink() {
+        if(!this.state.newId) {
+            return null;
+        }
+        const link = "/"+fromJS(this.props.routes)
+            .filter(ii => ii.has('path') && ii.get('path') != "/")
+            .map(ii => ii.get('path'))
+            .join("/");
+
+        return link.replace(/(\/new|\/:id\/(edit|copy))/i, "/"+this.state.newId+"/edit");
     }
+    
+    //
+    // handlers
+    //
 
-    saveContractor(userObject) {
-
-        console.log("saving "+userObject);
-
-        const { id } = this.props.params;
-
-        if(this.copiesExisting()) {
-            this.props.dispatch(userRequestUpdate(id,userObject)).then(
-                (data) => {
-                    this.setState({
-                        copied: data.payload.careerPlanId
-                    });
-                }
-            );
-
-        } else if(this.savesToExisting()) {
-
-            LoadingActions.startLoading();
-            this.props.dispatch(userRequestUpdate(id,userObject)).then(
-                (data) => {
-                    if(data.type == LEARNING_PLAN_UPDATE_ERROR) {
-                        LoadingActions.flashMessage('failure long', 'An error occurred. Your work is not yet saved.\n'+data.payload.message, 5000);
+    handleSubmitForm(values, callback) {
+        if(this.createsOnSave()) {
+            this.props.onCreate(values, 
+                (newId) => {
+                    if(this.props.writeError) {
+                        this.showPrompt('writeError', {promptMessage:'There was a problem while saving, please try again.'});
+                    } else if(this.willCopy()) {
+                        this.showPrompt('copied', {newId});
                     } else {
-                        LoadingActions.flashMessage('success', 'Save complete');
+                        this.showPrompt('created', {newId});
+                    }
+                    if(callback) {
+                        callback();
                     }
                 }
             );
-
         } else {
-            this.props.dispatch(userRequestCreate(userObject)).then(
-                (data) => {
-                    this.setState({
-                        created: data.payload.careerPlanId
-                    });
+            this.props.onUpdate(this.props.id, values, 
+                () => {
+                    if(this.props.writeError) {
+                        this.showPrompt('writeError', {promptMessage:'There was a problem while saving, please try again.'});
+                    } else {
+                        this.showPrompt('updated');
+                    }
+                    if(callback) {
+                        callback();
+                    }
                 }
             );
+        }        
+    }
+
+    handleDelete() {
+        this.props.onDelete(this.props.id, () => {
+            if(this.props.writeError) {
+                this.showPrompt('writeError', {promptMessage:'There was a problem while deleting, please try again.'});
+            } else {
+                this.showPrompt('deleted');
+            }
+            if(callback) {
+                callback();
+            }
+        });
+    }
+
+    handleClose(unsavedChanges = false) {
+        if(unsavedChanges) {
+            // todo - replace with modal
+            this.showPrompt('confirmClose');
+        } else {
+            this.props.onClose();
         }
     }
 
-    deleteContractor() {
-
-        console.log("Delete the man!");
-
-        /*const { id } = this.props.params;
-        LoadingActions.startLoading();
-        this.props.dispatch(userRequestDelete(id)).then(
-            (data) => {
-                if(data.type == LEARNING_PLAN_DELETE_ERROR) {
-                    LoadingActions.flashMessage('failure long', 'An error occurred. This contractor is not yet deleted.\n'+data.payload.message, 5000);
-                } else {
-                    LoadingActions.clearAll();
-                    this.setState({
-                        deleted: true
-                    });
-                }
-            }
-        );
-    }*/
-
-    handleSubmitForm(values) {
-        console.log("Values", values);
+    handleReset(callback) {
+        // todo - replace with modal and only call callback if you're sure you want to reset
+        callback();
     }
 
     //
@@ -229,138 +230,161 @@ class EntityEditor extends Component {
     //
 
     render() {
-        const childrenWithProps = React.Children.map(this.props.children,
-            (child) => React.cloneElement(child, {
-                onSubmitForm: this.handleSubmitForm.bind(this),
-                form: "TEST",
-                fields: [
-                    'id',
-                    'firstName',
-                    'lastName',
-                    'company'
-                ],
-                validate: (data) => ({})
-            })
-        );
+        const {
+            // react props
+            children,
+            // custom props
+            reading,
+            creating,
+            updating,
+            deleting,
+            readError,
+            writeError
+        } = this.props;
 
-        return <div>{childrenWithProps}</div>
-    }
-
-    renderEditor() {
-
-        return '...';
-
-        /*const { params: { id }, fetching, saving, deleting, error, handleSubmit, courses, jobPositions } = this.props;
-        const { created, copied, deleted } = this.state;
-        var showErrorPage = false;
-
-        if(fetching) {
+        if(reading) {
             return <Loader />;
-
-        } else if(error) {
-            // if there's an error we'll usually want to show an error page, except if the error happens on save
-            showErrorPage = true;
-
-        } else if (created) {
-            return (
-                <div>
-                    <h2 className="hug-top">Contractor created</h2>
-                    <p><Button onClick={this.handleCloseClick.bind(this)}>Back to list</Button>&nbsp;<Link to={`/admin/contractors/${created}/edit`} activeClassName="is-active" className="Button Button-edit">Edit contractor</Link></p>
-                </div>
-            );
-
-        } else if (copied) {
-            return (
-                <div>
-                    <h2 className="hug-top">Contractor copied</h2>
-                    <p><Button onClick={this.handleCloseClick.bind(this)}>Back to list</Button>&nbsp;<Link to={`/admin/contractors/${copied}/edit`} activeClassName="is-active" className="Button Button-edit">Edit contractor</Link></p>
-                </div>
-            );
-
-        } else if(deleted) {
-            return (
-                <div>
-                    <h2 className="hug-top">Contractor deleted</h2>
-                    <p><Button onClick={this.handleCloseClick.bind(this)}>Back to list</Button></p>
-                </div>
-            );
         }
 
-        var title, id, contractor;
-
-        // if trying to display a contractor, get contractor details
-
-        if(id) {
-            contractor = {} // todo this! this.currentContractor();
-
-            if(!contractor) {
-                // contractor at this URL doesn't exist
-                return (
-                    <div>
-                        <h2 className="hug-top">No contractor found at this URL</h2>
-                        <p><Button onClick={this.handleCloseClick.bind(this)}>Back to list</Button></p>
-                    </div>
-                );
-            }
-
-            var contractorJS = contractor; // =.toJS()
-            title = contractorJS.displayName || "Unnamed contractor";
-            id = contractorJS.careerPlanId;
-            showErrorPage = false;
-
-        } else {
-            // no contractor id means this must be a new one
-            title = "New contractor";
+        if(readError) {
+            return <ErrorMessage />;
         }
 
-        if(this.copiesExisting()) {
-            title = "New copy of " + title;
-        }
+        const propsToAddToChildren = {
+            onSubmitForm: this.handleSubmitForm.bind(this),
+            onClose: this.handleClose.bind(this),
+            onDelete: this.handleDelete.bind(this),
+            onReset: this.handleReset.bind(this),
+            reading,
+            creating,
+            updating,
+            deleting,
+            saving: creating || updating,
+            fetching: reading || creating || updating || deleting,
+            willCreateNew: this.willCreateNew(),
+            willCopy: this.willCopy()
+        };
 
-        if(showErrorPage) {
-            return <ErrorMessage code={400} message={error.message} />;
-        }
+        const childrenWithProps = React.Children.map(children, (child) => React.cloneElement(child, propsToAddToChildren));
 
-        var initialValues = this.getInitialFormValues(contractor);
-
+        // set syle of editor div to hide so children don't lose state while a prompt is open
+        const style = this.state.prompt ? {display: 'none'} : {};
         return (
             <div>
-                <h1 className="hug-top">{title}</h1>
-
-                <AdminContractorForm
-                    onSubmit={this.handleSubmit}
-                    savesToExisting={this.savesToExisting()}
-                    copiesExisting={this.copiesExisting()}
-                    isSaving={saving}
-                    isDeleting={deleting}
-                    onCloseClick={this.handleCloseClick.bind(this)}
-                    onDeleteClick={this.handleDeleteClick.bind(this)}
-                    onResetClick={this.handleResetClick.bind(this)}
-                    onSubmitForm={this.handleSubmit.bind(this)}
-                    initialValues={initialValues} />
+                <div>
+                    {this.state.prompt ? this.prompts[this.state.prompt]() : null}
+                </div>
+                <div style={style}>
+                    <h2 className="hug-top">{this.actionName(['first'])} {this.entityName()}</h2>
+                    <div>{this.state.prompt ? this.prompts[this.state.prompt]() : ''}</div>
+                    {childrenWithProps}
+                </div>
             </div>
-        );*/
+        );
+    }
+
+    renderWriteError() {
+        const promptMessage = this.state.promptMessage ? <p>this.state.promptMessage</p> : null;
+        return (
+            <div>
+                <h2 className="hug-top">Error</h2>
+                {promptMessage}
+                <p>
+                    <Button onClick={this.hidePrompt.bind(this)} modifier="grey">Close</Button>
+                </p>
+            </div>
+        );
+    }
+
+    renderCreated() {
+        const editLink = this.getEditLink();
+        return (
+            <div>
+                <h2 className="hug-top">{this.entityName(['first'])} created</h2>
+                <p>
+                    <Button onClick={this.handleClose.bind(this, false)}>Back to list</Button>&nbsp;
+                    {editLink &&
+                        <Link to={editLink} className="Button Button-grey">Edit {this.entityName()}</Link>
+                    }
+                </p>
+            </div>
+        );
+    }
+
+    renderUpdated() {
+        return (
+            <div>
+                <h2 className="hug-top">{this.entityName(['first'])} saved</h2>
+                <p>
+                    <Button onClick={this.handleClose.bind(this, false)}>Back to list</Button>&nbsp;
+                    <Button onClick={this.hidePrompt.bind(this)} modifier="grey">Keep editing</Button>
+                </p>
+            </div>
+        );
+    }
+
+    renderCopied() {
+        const editLink = this.getEditLink();
+        return (
+            <div>
+                <h2 className="hug-top">{this.entityName(['first'])} copied</h2>
+                <p>
+                    <Button onClick={this.handleClose.bind(this, false)}>Back to list</Button>&nbsp;
+                    {editLink &&
+                        <Link to={editLink} className="Button Button-grey">Edit {this.entityName()}</Link>
+                    }
+                </p>
+            </div>
+        );
+    }
+
+    renderDeleted() {
+        return (
+            <div>
+                <h2 className="hug-top">{this.entityName(['first'])} deleted</h2>
+                <p>
+                    <Button onClick={this.handleClose.bind(this, false)}>Back to list</Button>
+                </p>
+            </div>
+        );
+    }
+
+    renderConfirmClose() {
+        return (
+            <div>
+                <h2 className="hug-top">Unsaved changes</h2>
+                <p>You may have unsaved changes, are you sure you want to leave this page?</p>
+                <p>
+                    <Button onClick={this.handleClose.bind(this, false)}>Leave page</Button>&nbsp; 
+                    <Button onClick={this.hidePrompt.bind(this)} modifier="grey">Cancel</Button>
+                </p>
+            </div>
+        );
     }
 }
 
-/*
 EntityEditor.propTypes = {
-    userEdit: PropTypes.object,
-    fetching: PropTypes.bool,
-    saving: PropTypes.bool,
+    id: PropTypes.any,
+    entityName: PropTypes.string,
+    entityNamePlural: PropTypes.string,
+    reading: PropTypes.bool,
+    creating: PropTypes.bool,
+    updating: PropTypes.bool,
     deleting: PropTypes.bool,
-    error: PropTypes.object
+    readError: PropTypes.any,
+    writeError: PropTypes.any,
+    onRead: PropTypes.func.isRequired,
+    onCreate: PropTypes.func,
+    onUpdate: PropTypes.func,
+    onDelete: PropTypes.func,
+    onClose: PropTypes.func.isRequired,
+    routes: PropTypes.array.isRequired
 };
-*/
 
 const autoRequest = AutoRequest(['params.id'], (props) => {
-    // get contractor info
-    console.log(props);
-
-    /*if(props.params.id) {
-        console.log(id);
-        //props.dispatch(userRequestGet(props.params.id));
-    }*/
+    if(props.id) {
+        props.onRead();
+    }
 });
 
-export default autoRequest(EntityEditor);
+export default autoRequest(EntityEditor)
