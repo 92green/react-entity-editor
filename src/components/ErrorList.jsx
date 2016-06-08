@@ -50,17 +50,17 @@ class ErrorList extends Component {
             className
         );
 
-        var errorList = this.flattenErrors(fromJS(errors)).map(ii => {
+        var errorList = this.flattenErrors(fromJS(errors)).map((ee, ii) => {
 
             /*
-            ii.get('keys') allows you to get a List of the nested error object keys
+            ee.get('keys') allows you to get a List of the nested error object keys
             e.g. ['courses', '2', 'name']
             it's not used yet because while the keys can help show the origin of a generic error message, it only uses field names from code and in some cases this isn't helpful to the user
             */
 
-            const message = ii.get('errorMessage');
+            const message = ee.get('errorMessage');
             return (
-                <li>
+                <li key={ii}>
                     {message}
                 </li>
             );
@@ -77,7 +77,7 @@ class ErrorList extends Component {
 }
 
 ErrorList.propTypes = {
-    errors: PropTypes.array,
+    errors: PropTypes.any,
     modifier: PropTypes.string
 };
 

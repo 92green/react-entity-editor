@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import Select from 'toyota-styles/lib/components/Select';
+import Select from 'trc-client-core/src/components/Select';
 
 class CourseSelect extends Component {
 
@@ -28,7 +28,7 @@ class CourseSelect extends Component {
 }
 
 CourseSelect.propTypes = {
-    courses: PropTypes.array
+    courses: PropTypes.object // immutable list
 };
 
 export default CourseSelect;
