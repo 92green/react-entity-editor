@@ -6,7 +6,6 @@ import AutoRequest from 'bd-stampy/components/AutoRequest';
 import Loader from 'toyota-styles/lib/components/Loader';
 import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
 import Button from 'toyota-styles/lib/components/Button';
-// todo modals
 
 //
 // Function to create a routing pattern for use with this editor
@@ -267,7 +266,7 @@ class EntityEditor extends Component {
 
         const childrenWithProps = React.Children.map(children, (child) => React.cloneElement(child, propsToAddToChildren));
 
-        // set syle of editor div to hide so children don't lose state while a prompt is open
+        // set style of editor div to hide so children don't lose state while a prompt is open
         const style = this.state.prompt ? {display: 'none'} : {};
         return (
             <div>
