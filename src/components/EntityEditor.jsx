@@ -246,7 +246,7 @@ class EntityEditor extends Component {
         }
 
         if(readError) {
-            return <ErrorMessage />;
+            return <ErrorMessage message={readError.message} />;
         }
 
         const propsToAddToChildren = {
@@ -382,7 +382,7 @@ EntityEditor.propTypes = {
 
 const autoRequest = AutoRequest(['params.id'], (props) => {
     if(props.id) {
-        props.onRead();
+        props.onRead(props.id);
     }
 });
 
