@@ -128,11 +128,12 @@ class EntityEditorReduxForm extends Component {
                     disabled={disableReset}
                 >Reset</Button> &nbsp;
 
-                <Button
-                    modifier="edit"
-                    onClick={this.handleDeleteClick.bind(this)}
-                    disabled={disableDelete}
-                >{deleting ? "Deleting" : "Delete"}</Button>
+                {!disableDelete && 
+                    <Button
+                        modifier="edit"
+                        onClick={this.handleDeleteClick.bind(this)}
+                        disabled={disableDelete}>{deleting ? "Deleting" : "Delete"}</Button>
+                }
             </p>
         );
     }
