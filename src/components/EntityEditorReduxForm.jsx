@@ -9,7 +9,7 @@ import ErrorList from 'trc-client-core/src/components/ErrorList';
 
 //
 // EntityEditorReduxForm class
-//t
+//
 // Provides a redux form shell that works with EntityEditor
 // Give it child props of your form fields
 //
@@ -60,6 +60,9 @@ class EntityEditorReduxForm extends Component {
         const {
             // react props
             children,
+            // own props
+            topButtons,
+            bottomButtons,
             // props required for redux form
             fields,
             // props provided by redux form
@@ -86,10 +89,10 @@ class EntityEditorReduxForm extends Component {
 
         return (
             <form onSubmit={handleSubmit(this.handleSubmitForm.bind(this))}>
-                {this.renderButtons()}
+                {topButtons && this.renderButtons()}
                 {childrenWithProps}
                 <ErrorList {...this.props} />
-                {this.renderButtons()}
+                {bottomButtons && this.renderButtons()}
             </form>
         );
     }
@@ -98,17 +101,17 @@ class EntityEditorReduxForm extends Component {
         const {
             // props provided by redux form
             dirty,
-            // props from entity editor - data
+            // props from entity editor - data transation states
             deleting,
             saving,
             fetching,
-            willCreateNew
+            // props from entity editor - abilities
+            canSave,
+            canDelete
 
         } = this.props;
 
-        const disableSave = fetching;
-        const disableReset = !dirty || fetching;
-        const disableDelete = willCreateNew || fetching;
+        const canReset = dirty && !fetching;
 
         return (
             <p>
@@ -120,19 +123,24 @@ class EntityEditorReduxForm extends Component {
                 <Button
                     modifier="edit"
                     type="submit"
-                    disabled={disableSave}
-                >{saving ? "Saving" : "Save"}</Button> &nbsp;
+                    disabled={!canSave}>
+                    {saving ? "Saving" : "Save"}
+                </Button> &nbsp;
 
-                <Button
-                    onClick={this.handleResetClick.bind(this)}
-                    disabled={disableReset}
-                >Reset</Button> &nbsp;
+                {canReset &&
+                    <span>
+                        <Button
+                            modifier="grey"
+                            onClick={this.handleResetClick.bind(this)}>Reset</Button> &nbsp;
+                    </span>
+                }
 
-                {!disableDelete && 
+                {canDelete && 
                     <Button
                         modifier="edit"
-                        onClick={this.handleDeleteClick.bind(this)}
-                        disabled={disableDelete}>{deleting ? "Deleting" : "Delete"}</Button>
+                        onClick={this.handleDeleteClick.bind(this)}>
+                        {deleting ? "Deleting" : "Delete"}
+                    </Button>
                 }
             </p>
         );
@@ -140,6 +148,9 @@ class EntityEditorReduxForm extends Component {
 }
 
 EntityEditorReduxForm.propTypes = {
+    // own props
+    topButtons: PropTypes.bool,
+    bottomButtons: PropTypes.bool,
     // props required for redux form
     form: PropTypes.string, // isRequired, but react never seems to recognise this
     fields: PropTypes.any.isRequired,
@@ -149,15 +160,22 @@ EntityEditorReduxForm.propTypes = {
     onClose: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onReset: PropTypes.func,
-    // props from entity editor - data
+    // props from entity editor - data transaction states
     reading: PropTypes.bool,
     creating: PropTypes.bool,
     updating: PropTypes.bool,
     deleting: PropTypes.bool,
     saving: PropTypes.bool,
     fetching: PropTypes.bool,
-    willCreateNew: PropTypes.bool,
+    // props from entity editor - abilities
     willCopy: PropTypes.bool,
+    canSave: PropTypes.bool,
+    canDelete: PropTypes.bool
+};
+
+EntityEditorReduxForm.defaultProps = {
+    topButtons: false,
+    bottomButtons: true
 };
 
 export default reduxForm({},
