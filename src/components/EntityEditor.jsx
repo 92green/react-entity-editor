@@ -150,6 +150,7 @@ class EntityEditor extends Component {
     //
 
     getEditLink() {
+        // only used to allow people to navigate from a newly created item to its edit page
         if(!this.state.newId) {
             return null;
         }
@@ -238,7 +239,8 @@ class EntityEditor extends Component {
             updating,
             deleting,
             readError,
-            writeError
+            writeError,
+            onDelete
         } = this.props;
 
         if(reading) {
@@ -249,17 +251,29 @@ class EntityEditor extends Component {
             return <ErrorMessage message={readError.message} />;
         }
 
+        // inferred data transaction states
+        const saving = creating || updating;
+        const fetching = reading || creating || updating || deleting;
+
         const propsToAddToChildren = {
+
+            // callbacks
             onSubmitForm: this.handleSubmitForm.bind(this),
             onClose: this.handleClose.bind(this),
             onDelete: this.handleDelete.bind(this),
             onReset: this.handleReset.bind(this),
+
+            // data transaction states
             reading,
             creating,
             updating,
             deleting,
-            saving: creating || updating,
-            fetching: reading || creating || updating || deleting,
+            saving,
+            fetching,
+
+            // abilities
+            canSave: !fetching,
+            canDelete: typeof onDelete == "function" && !fetching && !this.willCreateNew(),
             willCreateNew: this.willCreateNew(),
             willCopy: this.willCopy()
         };
@@ -274,7 +288,7 @@ class EntityEditor extends Component {
                     {this.state.prompt ? this.prompts[this.state.prompt]() : null}
                 </div>
                 <div style={style}>
-                    <h2 className="hug-top">{this.actionName(['first'])} {this.entityName()}</h2>
+                    {this.renderHeading()}
                     <div>{this.state.prompt ? this.prompts[this.state.prompt]() : ''}</div>
                     {childrenWithProps}
                 </div>
@@ -282,8 +296,12 @@ class EntityEditor extends Component {
         );
     }
 
+    renderHeading() {
+        return this.props.showHeading ? <h1 className="hug-top">{this.actionName(['first'])} {this.entityName()}</h1> : null;
+    }
+
     renderWriteError() {
-        const promptMessage = this.state.promptMessage ? <p>this.state.promptMessage</p> : null;
+        const promptMessage = this.state.promptMessage ? <p>{this.state.promptMessage}</p> : null;
         return (
             <div>
                 <h2 className="hug-top">Error</h2>
@@ -363,25 +381,37 @@ class EntityEditor extends Component {
 }
 
 EntityEditor.propTypes = {
+    // id
     id: PropTypes.any,
+    // naming
     entityName: PropTypes.string,
     entityNamePlural: PropTypes.string,
+    // data transaction states
     reading: PropTypes.bool,
     creating: PropTypes.bool,
     updating: PropTypes.bool,
     deleting: PropTypes.bool,
+    // errors
     readError: PropTypes.any,
     writeError: PropTypes.any,
-    onRead: PropTypes.func.isRequired,
+    // callbacks
+    onRead: PropTypes.func,
     onCreate: PropTypes.func,
     onUpdate: PropTypes.func,
     onDelete: PropTypes.func,
     onClose: PropTypes.func.isRequired,
-    routes: PropTypes.array.isRequired
+    // routes
+    routes: PropTypes.array.isRequired,
+    // options
+    showHeading: PropTypes.bool
+};
+
+EntityEditor.defaultProps = {
+    showHeading: true
 };
 
 const autoRequest = AutoRequest(['params.id'], (props) => {
-    if(props.id) {
+    if(props.id && props.onRead) {
         props.onRead(props.id);
     }
 });
