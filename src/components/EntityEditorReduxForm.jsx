@@ -115,22 +115,23 @@ class EntityEditorReduxForm extends Component {
 
         return (
             <div className="t-right margin-bottom">
-                {canDelete &&
-                    <Button
-                        modifier="grey"
-                        className="margin-right05"
-                        onClick={this.handleDeleteClick.bind(this)}>
-                        {deleting ? "Deleting" : "Delete"}
-                    </Button>
-                }
 
                 {canReset &&
                     <span>
                         <Button
-                            modifier="grey"
+                            modifier="clear"
                             className="margin-right05"
                             onClick={this.handleResetClick.bind(this)}>Reset</Button>
                     </span>
+                }
+
+                {canDelete &&
+                    <Button
+                        modifier="clear"
+                        className="margin-right05"
+                        onClick={this.handleDeleteClick.bind(this)}>
+                        {deleting ? "Deleting" : "Delete"}
+                    </Button>
                 }
 
                 <Button
