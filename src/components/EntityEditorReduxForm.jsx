@@ -114,35 +114,39 @@ class EntityEditorReduxForm extends Component {
         const canReset = dirty && !fetching;
 
         return (
-            <p>
+            <div className="t-right margin-bottom">
+                {canDelete &&
+                    <Button
+                        modifier="grey"
+                        className="margin-right05"
+                        onClick={this.handleDeleteClick.bind(this)}>
+                        {deleting ? "Deleting" : "Delete"}
+                    </Button>
+                }
+
+                {canReset &&
+                    <span>
+                        <Button
+                            modifier="grey"
+                            className="margin-right05"
+                            onClick={this.handleResetClick.bind(this)}>Reset</Button>
+                    </span>
+                }
+
                 <Button
                     modifier="grey"
+                    className="margin-right05"
                     onClick={this.handleCloseClick.bind(this)}
-                >Close</Button> &nbsp;
+                >Close</Button>
 
                 <Button
                     modifier="edit"
                     type="submit"
                     disabled={!canSave}>
                     {saving ? "Saving" : "Save"}
-                </Button> &nbsp;
+                </Button>
 
-                {canReset &&
-                    <span>
-                        <Button
-                            modifier="grey"
-                            onClick={this.handleResetClick.bind(this)}>Reset</Button> &nbsp;
-                    </span>
-                }
-
-                {canDelete && 
-                    <Button
-                        modifier="edit"
-                        onClick={this.handleDeleteClick.bind(this)}>
-                        {deleting ? "Deleting" : "Delete"}
-                    </Button>
-                }
-            </p>
+            </div>
         );
     }
 }
