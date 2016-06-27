@@ -319,7 +319,7 @@ class EntityEditor extends Component {
             <div>
                 <h2 className="hug-top">{this.entityName(['first'])} created</h2>
                 <p>
-                    <Button onClick={this.handleClose.bind(this, false)}>Back to list</Button>&nbsp;
+                    <Button onClick={this.handleClose.bind(this, false)}>Done</Button>&nbsp;
                     {editLink &&
                         <Link to={editLink} className="Button Button-grey">Edit {this.entityName()}</Link>
                     }
@@ -333,7 +333,7 @@ class EntityEditor extends Component {
             <div>
                 <h2 className="hug-top">{this.entityName(['first'])} saved</h2>
                 <p>
-                    <Button onClick={this.handleClose.bind(this, false)}>Back to list</Button>&nbsp;
+                    <Button onClick={this.handleClose.bind(this, false)}>Done</Button>&nbsp;
                     <Button onClick={this.hidePrompt.bind(this)} modifier="grey">Keep editing</Button>
                 </p>
             </div>
@@ -346,7 +346,7 @@ class EntityEditor extends Component {
             <div>
                 <h2 className="hug-top">{this.entityName(['first'])} copied</h2>
                 <p>
-                    <Button onClick={this.handleClose.bind(this, false)}>Back to list</Button>&nbsp;
+                    <Button onClick={this.handleClose.bind(this, false)}>Done</Button>&nbsp;
                     {editLink &&
                         <Link to={editLink} className="Button Button-grey">Edit {this.entityName()}</Link>
                     }
@@ -360,7 +360,7 @@ class EntityEditor extends Component {
             <div>
                 <h2 className="hug-top">{this.entityName(['first'])} deleted</h2>
                 <p>
-                    <Button onClick={this.handleClose.bind(this, false)}>Back to list</Button>
+                    <Button onClick={this.handleClose.bind(this, false)}>Done</Button>
                 </p>
             </div>
         );
