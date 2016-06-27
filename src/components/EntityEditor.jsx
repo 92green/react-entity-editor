@@ -84,7 +84,7 @@ class EntityEditor extends Component {
     createsOnSave(props = this.props) {
         return this.willCreateNew(props) || this.willCopy(props);
     }
-    
+
     //
     // naming / text labels
     //
@@ -161,14 +161,14 @@ class EntityEditor extends Component {
 
         return link.replace(/(\/new|\/:id\/(edit|copy))/i, "/"+this.state.newId+"/edit");
     }
-    
+
     //
     // handlers
     //
 
     handleSubmitForm(values, callback) {
         if(this.createsOnSave()) {
-            this.props.onCreate(values, 
+            this.props.onCreate(values,
                 (newId) => {
                     if(this.props.writeError) {
                         this.showPrompt('writeError', {promptMessage:'There was a problem while saving, please try again.'});
@@ -183,7 +183,7 @@ class EntityEditor extends Component {
                 }
             );
         } else {
-            this.props.onUpdate(this.props.id, values, 
+            this.props.onUpdate(this.props.id, values,
                 () => {
                     if(this.props.writeError) {
                         this.showPrompt('writeError', {promptMessage:'There was a problem while saving, please try again.'});
@@ -195,7 +195,7 @@ class EntityEditor extends Component {
                     }
                 }
             );
-        }        
+        }
     }
 
     handleDelete() {
@@ -372,7 +372,7 @@ class EntityEditor extends Component {
                 <h2 className="hug-top">Unsaved changes</h2>
                 <p>You may have unsaved changes, are you sure you want to leave this page?</p>
                 <p>
-                    <Button onClick={this.handleClose.bind(this, false)}>Leave page</Button>&nbsp; 
+                    <Button onClick={this.handleClose.bind(this, false)}>Leave page</Button>&nbsp;
                     <Button onClick={this.hidePrompt.bind(this)} modifier="grey">Cancel</Button>
                 </p>
             </div>

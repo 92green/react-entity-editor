@@ -16,21 +16,21 @@ var Footer = React.createClass({
                                 <Auth site="TOYOTA">TIA</Auth>
                                 <Auth site="LEXUS">Lexus Academy</Auth>
                             </div>
-                            <ul>                    
-                                <li><a href="/#/about"> 
+                            <ul>
+                                <li><a href="/#/about">
                                     <Auth site="TOYOTA">About TIA</Auth>
                                     <Auth site="LEXUS">About Lexus Academy</Auth>
                                 </a></li>
 
                                 <li><a href="/#/media/news">News</a></li>
                                 <li><a href="/#/vision-and-mission">Vision and Mission</a></li>
-                               
+
                             </ul>
                         </Col>
                         <Col>
                             <div className="delta hug t-uppercase">Training</div>
                             <ul>
-                                <li><a href="/#/course-fees">Course Fees</a></li>                    
+                                <li><a href="/#/course-fees">Course Fees</a></li>
                                 <li><a href="/#/our-trainers">Our Trainers</a></li>
                             </ul>
                         </Col>
@@ -47,10 +47,9 @@ var Footer = React.createClass({
                                 <li><a href="/#/ask">Contact Us</a></li>
                                 <li><a href="/help/faq">FAQ</a></li>
                                 <li><a href="/help">Help</a></li>
-                            </ul>                                    
+                            </ul>
                         </Col>
                     </Grid>
-                    
                     <small className="l-block t-muted row hug-bottom"><em>Powered by Blue Flag</em></small>
                 </div>
                 <Auth site="TOYOTA">
