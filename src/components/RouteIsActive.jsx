@@ -1,5 +1,5 @@
 import React from 'react';
-import {ConditionalChildren} from 'trc-client-core/src/components/ConditionalChildren';
+import ConditionalChildren from 'trc-client-core/src/components/ConditionalChildren';
 import {State} from 'react-router';
 
 var RouteIsActive = React.createClass({
@@ -16,7 +16,7 @@ var RouteIsActive = React.createClass({
             return this.props.safelyRenderChildren();
         }
         return null;
-    }    
+    }
 });
 
-export default ConditionalChildren(RouteIsActive);
+export default ConditionalChildren()(RouteIsActive);
