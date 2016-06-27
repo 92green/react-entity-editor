@@ -91,7 +91,6 @@ class EntityEditorReduxForm extends Component {
             <form onSubmit={handleSubmit(this.handleSubmitForm.bind(this))}>
                 {topButtons && this.renderButtons()}
                 {childrenWithProps}
-                <ErrorList {...this.props} />
                 {bottomButtons && this.renderButtons()}
             </form>
         );
