@@ -10,7 +10,7 @@ Showdown.setOption('simplifiedAutoLink', true);
 var converter = new Showdown.Converter();
 
 class MarkdownViewer extends React.Component {
-    
+
     constructor(props) {
         super(props);
     }
@@ -31,7 +31,7 @@ class MarkdownViewer extends React.Component {
         }
 
         if(content) {
-            return <div className={markdownClassNames + ' ' + this.props.className} dangerouslySetInnerHTML={{ __html: converter.makeHtml(content)}}></div>;            
+            return <div className={markdownClassNames + ' ' + this.props.className} dangerouslySetInnerHTML={{ __html: converter.makeHtml(content)}}></div>;
         }
         return null;
     }
