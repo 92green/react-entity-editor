@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { Route, IndexRoute, Link } from 'react-router';
+import { Route, IndexRoute } from 'react-router';
 import { fromJS } from 'immutable';
 
 //
