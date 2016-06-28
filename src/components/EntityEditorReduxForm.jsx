@@ -30,26 +30,46 @@ class EntityEditorReduxForm extends Component {
     // event and click handlers
     //
 
+    handleSubmitForm(values) {
+        this.props
+            .onSave(values)
+            .then(
+                (data) => this.setCurrentFormDataAsDefault(),
+                (err) => {}
+            );
+    }
+
     handleCloseClick(ee) {
-        this.props.onClose(this.props.dirty);
+        this.props
+            .onClose(this.props.dirty)
+            .then(
+                (data) => {},
+                (err) => {}
+            ); 
     }
 
     handleResetClick(ee) {
         if(this.props.onReset) {
-            this.props.onReset(this.props.resetForm);
+            // if an onReset prop has been supplied, then call it and wait for the promise to return to actually reset the form
+            this.props
+                .onReset()
+                .then(
+                    (data) => this.props.resetForm(),
+                    (err) => Promise.resolve()
+                );
         } else {
+            // or else just reset the form
             this.props.resetForm();
         }
     }
 
     handleDeleteClick(ee) {
-        this.props.onDelete();
-    }
-
-    handleSubmitForm(values) {
-        this.props.onSubmitForm(values, () => {
-            this.setCurrentFormDataAsDefault();
-        });
+        this.props
+            .onDelete()
+            .then(
+                (data) => {},
+                (err) => {}
+            ); 
     }
 
     //
@@ -69,7 +89,7 @@ class EntityEditorReduxForm extends Component {
             handleSubmit,
             errors,
             // props from entity editor - callbacks
-            onSubmitForm,
+            onSave,
             onClose,
             onDelete,
             onReset,
@@ -160,7 +180,7 @@ EntityEditorReduxForm.propTypes = {
     fields: PropTypes.any.isRequired,
     validate: PropTypes.func,
     // props from entity editor - callbacks
-    onSubmitForm: PropTypes.func.isRequired,
+    onSave: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
     onDelete: PropTypes.func.isRequired,
     onReset: PropTypes.func,
