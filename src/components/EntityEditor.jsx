@@ -1,29 +1,10 @@
 import React, { Component, PropTypes } from 'react';
-import { Route, Link } from 'react-router';
 import { List, Map, fromJS } from 'immutable';
 import AutoRequest from 'bd-stampy/components/AutoRequest';
 
 import Loader from 'toyota-styles/lib/components/Loader';
 import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
 import Button from 'toyota-styles/lib/components/Button';
-
-//
-// Function to create a routing pattern for use with this editor
-//
-
-export function createEditorRoutes(params) {
-    if(!params || !params.path || !params.component) {
-        console.warn("Create editor routes must be passed an object with 'path' and 'component' keys, where the path is a string of the route path, and the component is the editor component to be used in the routes.");
-        return null;
-    }
-    return (
-        <Route path={params.path}>
-            <Route path="new" component={params.component}/>
-            <Route path=":id/edit" component={params.component}/>
-            <Route path=":id/copy" component={params.component}/>
-        </Route>
-    );
-};
 
 //
 // EntityEditor class
@@ -71,18 +52,9 @@ class EntityEditor extends Component {
     willCreateNew(props = this.props) {
         return !props.id;
     }
-
-    willCopy(props = this.props) {
-        const split = fromJS(props.routes)
-            .last()
-            .get('path')
-            .split('/');
-
-        return fromJS(split).last() == "copy";
-    }
-
+    
     createsOnSave(props = this.props) {
-        return this.willCreateNew(props) || this.willCopy(props);
+        return this.willCreateNew(props) || props.willCopy;
     }
 
     //
@@ -104,7 +76,7 @@ class EntityEditor extends Component {
         var name = "edit";
         if(this.willCreateNew()) {
             name = "new";
-        } else if(this.willCopy()) {
+        } else if(this.props.willCopy) {
             name = "copy";
         }
         return this.genericNameTransform(name, modifications);
@@ -146,23 +118,6 @@ class EntityEditor extends Component {
     }
 
     //
-    // navigation
-    //
-
-    getEditLink() {
-        // only used to allow people to navigate from a newly created item to its edit page
-        if(!this.state.newId) {
-            return null;
-        }
-        const link = "/"+fromJS(this.props.routes)
-            .filter(ii => ii.has('path') && ii.get('path') != "/")
-            .map(ii => ii.get('path'))
-            .join("/");
-
-        return link.replace(/(\/new|\/:id\/(edit|copy))/i, "/"+this.state.newId+"/edit");
-    }
-
-    //
     // handlers
     //
 
@@ -172,7 +127,7 @@ class EntityEditor extends Component {
                 (newId) => {
                     if(this.props.writeError) {
                         this.showPrompt('writeError', {promptMessage:'There was a problem while saving, please try again.'});
-                    } else if(this.willCopy()) {
+                    } else if(this.props.willCopy) {
                         this.showPrompt('copied', {newId});
                     } else {
                         this.showPrompt('created', {newId});
@@ -234,6 +189,7 @@ class EntityEditor extends Component {
             // react props
             children,
             // custom props
+            willCopy,
             reading,
             creating,
             updating,
@@ -275,7 +231,7 @@ class EntityEditor extends Component {
             canSave: !fetching,
             canDelete: typeof onDelete == "function" && !fetching && !this.willCreateNew(),
             willCreateNew: this.willCreateNew(),
-            willCopy: this.willCopy()
+            willCopy
         };
 
         const childrenWithProps = React.Children.map(children, (child) => React.cloneElement(child, propsToAddToChildren));
@@ -314,7 +270,7 @@ class EntityEditor extends Component {
     }
 
     renderCreated() {
-        const editLink = this.getEditLink();
+        const editLink = null; // todo - get this from entity editor router
         return (
             <div>
                 <h2 className="hug-top">{this.entityName(['first'])} created</h2>
@@ -341,7 +297,7 @@ class EntityEditor extends Component {
     }
 
     renderCopied() {
-        const editLink = this.getEditLink();
+        const editLink = null; // todo - get this from entity editor router
         return (
             <div>
                 <h2 className="hug-top">{this.entityName(['first'])} copied</h2>
@@ -381,8 +337,9 @@ class EntityEditor extends Component {
 }
 
 EntityEditor.propTypes = {
-    // id
+    // id and abilites (editor will edit item if this is set, or create new if this is not set)
     id: PropTypes.any,
+    willCopy: PropTypes.bool,
     // naming
     entityName: PropTypes.string,
     entityNamePlural: PropTypes.string,
@@ -400,17 +357,18 @@ EntityEditor.propTypes = {
     onUpdate: PropTypes.func,
     onDelete: PropTypes.func,
     onClose: PropTypes.func.isRequired,
-    // routes
-    routes: PropTypes.array.isRequired,
     // options
     showHeading: PropTypes.bool
 };
 
 EntityEditor.defaultProps = {
+    willCopy: false,
+    entityName: "item",
+    entityNamePlural: "items",
     showHeading: true
 };
 
-const autoRequest = AutoRequest(['params.id'], (props) => {
+const autoRequest = AutoRequest(['id'], (props) => {
     if(props.id && props.onRead) {
         props.onRead(props.id);
     }
