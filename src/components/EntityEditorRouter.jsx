@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { Route, IndexRoute, Link } from 'react-router';
-import { List, Map, fromJS } from 'immutable';
+import { fromJS } from 'immutable';
 
 //
 // Function to create a routing pattern for use with this editor
@@ -32,25 +32,35 @@ export function createEditorRoutes(params) {
 
 class EntityEditorRouter extends Component {
 
-    //
-    // helpers
-    //
-
-    willCreateNew(props = this.props) {
-        return !props.id;
-    }
-
     willCopy(props = this.props) {
         const split = fromJS(props.routes)
-            .last()
+            .get(props.routes.length - 2) // route containing :id and edit / copy
             .get('path')
             .split('/');
 
         return fromJS(split).last() == "copy";
     }
 
-    createsOnSave(props = this.props) {
-        return this.willCreateNew(props) || this.willCopy(props);
+    //
+    // navigation
+    //
+
+    getEditorRoute(type, id) {
+
+        return "TEST:"+type+"..."+id;
+
+        /*
+
+        // only used to allow people to navigate from a newly created item to its edit page
+        if(!id) {
+            return null;
+        }
+        const link = "/"+fromJS(this.props.routes)
+            .filter(ii => ii.has('path') && ii.get('path') != "/")
+            .map(ii => ii.get('path'))
+            .join("/");
+
+        return link.replace(/(\/new|\/:id\/(edit|copy))/i, "/"+id+"/edit");*/
     }
 
     //
@@ -58,45 +68,21 @@ class EntityEditorRouter extends Component {
     //
 
     render() {
-        return <div>???</div>;
+        const propsToAddToChildren = {
+            id: this.props.params.id,
+            willCopy: this.willCopy(),
+            getEditorRoute: this.getEditorRoute
+        };
+
+        const childrenWithProps = React.Children.map(this.props.children, (child) => React.cloneElement(child, propsToAddToChildren));
+        return <div>{childrenWithProps}</div>;
     }
 }
 
-/*
 EntityEditorRouter.propTypes = {
-    // id
-    id: PropTypes.any,
-    // naming
-    entityName: PropTypes.string,
-    entityNamePlural: PropTypes.string,
-    // data transaction states
-    reading: PropTypes.bool,
-    creating: PropTypes.bool,
-    updating: PropTypes.bool,
-    deleting: PropTypes.bool,
-    // errors
-    readError: PropTypes.any,
-    writeError: PropTypes.any,
-    // callbacks
-    onRead: PropTypes.func,
-    onCreate: PropTypes.func,
-    onUpdate: PropTypes.func,
-    onDelete: PropTypes.func,
-    onClose: PropTypes.func.isRequired,
     // routes
     routes: PropTypes.array.isRequired,
-    // options
-    showHeading: PropTypes.bool
+    params: PropTypes.array.isRequired
 };
-
-EntityEditorRouter.defaultProps = {
-    showHeading: true
-};
-
-const autoRequest = AutoRequest(['params.id'], (props) => {
-    if(props.id && props.onRead) {
-        props.onRead(props.id);
-    }
-});*/
 
 export default EntityEditorRouter;
