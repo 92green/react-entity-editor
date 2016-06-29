@@ -28,10 +28,10 @@ const userFieldMap = {
     mobile: "Please enter a valid mobile number",
     jobTitle: "Please enter a job title", // todo autocomplete
     organizationId: "Please select an organization",
-    addressStreetAddress: false,
-    addressSuburb: false,
-    addressState: false,  // todo select
-    addressPostcode: false
+    'address.streetAddress': false,
+    'address.suburb': false,
+    'address.state': false,  // todo select
+    'address.postcode': false
 };
 
 class UserEntityEditorForm extends Component {
@@ -63,10 +63,12 @@ class UserEntityEditorForm extends Component {
                 mobile,
                 jobTitle,
                 organizationId,
-                addressStreetAddress,
-                addressSuburb,
-                addressState,
-                addressPostcode
+                address: {
+                    streetAddress,
+                    suburb,
+                    state,
+                    postcode
+                }
             },
             willCreateNew
 
@@ -119,23 +121,23 @@ class UserEntityEditorForm extends Component {
                
 
                 <InputRow label="Street address">
-                    <Input type="text" {...addressStreetAddress} />
-                    <FormError {...addressStreetAddress} />
+                    <Input type="text" {...streetAddress} />
+                    <FormError {...streetAddress} />
                 </InputRow>
 
                 <InputRow label="Suburb">
-                    <Input type="text" {...addressSuburb} />
-                    <FormError {...addressSuburb} />
+                    <Input type="text" {...suburb} />
+                    <FormError {...suburb} />
                 </InputRow>
 
                 <InputRow label="State">
-                    <Input type="text" {...addressState} />
-                    <FormError {...addressState} />
+                    <Input type="text" {...state} />
+                    <FormError {...state} />
                 </InputRow>
 
                 <InputRow label="Postcode">
-                    <Input type="tel" {...addressPostcode} />
-                    <FormError {...addressPostcode} />
+                    <Input type="tel" {...postcode} />
+                    <FormError {...postcode} />
                 </InputRow>
             </div>
         );
