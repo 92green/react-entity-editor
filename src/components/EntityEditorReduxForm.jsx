@@ -2,6 +2,8 @@ import React, { Component, PropTypes } from 'react';
 import { List, Map, fromJS } from 'immutable';
 import { reduxForm, initialize } from 'redux-form';
 
+import EntityEditorTRC from 'trc-client-core/src/components/EntityEditorTRC';
+
 import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
 import Button from 'toyota-styles/lib/components/Button';
 
@@ -194,10 +196,12 @@ export default (reduxFormConfig) => (ComposedComponent) => {
         bottomButtons: true
     };
 
-    return reduxForm(reduxFormConfig, (state, props) => {
+    const withReduxForm = reduxForm(reduxFormConfig, (state, props) => {
         return {
             initialValues: props.initialValues
         };
     })(EntityEditorReduxForm);
+
+    return EntityEditorTRC()(withReduxForm);
 };
 

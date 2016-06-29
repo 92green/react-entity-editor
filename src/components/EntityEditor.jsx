@@ -7,6 +7,12 @@ import AutoRequest from 'bd-stampy/components/AutoRequest';
 // Base entity editor functionality without UI elements
 //
 
+//
+// TODO - some logic such as confirmations are currently handled in EntityEditorTRC where it should really be handled here and the UI implemented by EntityEditorTRC
+// This is only because the current modal's state isn't based off props - changing the modal to a PortalModal used by BigDatr will fix this
+// and allow EntityEditor to be prescriptive about the entire UI state
+//
+
 export default (config) => (ComposedComponent) => {
     class EntityEditor extends Component {
 
@@ -116,6 +122,9 @@ export default (config) => (ComposedComponent) => {
                 // errors
                 readError,
                 writeError,
+                // callbacks
+                onCreate,
+                onUpdate,
                 onDelete
             } = this.props;
 
@@ -127,11 +136,22 @@ export default (config) => (ComposedComponent) => {
 
             // inferred abilities
             const canSave = !fetching;
+
             const canDelete = typeof onDelete == "function" && !fetching && !willCreateNew;
+
+            if(willCreateNew && typeof onCreate != "function") { // prohibit creating if onCreate is undefined
+                console.warn("EntityEditor: Can't display form, no onCreate function defined. This might be caused by permitCreate being a non-true value");
+                return null;
+            }
+
+            if(!willCreateNew && typeof onUpdate != "function") { // prohibit updating if onUpdate is undefined
+                console.warn("EntityEditor: Can't display form, no onUpdate function defined. This might be caused by permitUpdate being a non-true value");
+                return null;
+            }
 
             return (
                 <ComposedComponent
-                    children={children}
+                    {...this.props}
 
                     id={id}
                     willCopy={willCopy}
