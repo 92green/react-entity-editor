@@ -11,209 +11,210 @@ import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
 import Button from 'toyota-styles/lib/components/Button';
 
 //
-// EntityEditorTRC class
+// EntityEditorTRC higher order component
+//
+// TRC specific UI for entity editor 
 //
 
-class EntityEditorTRC extends Component {
+export default (config) => (ComposedComponent) => {
 
-    handleSave(values) {
-        const {
-            entityName,
-            willCreateNew,
-            onClose
-        } = this.props;
+    class EntityEditorTRC extends Component {
 
-        return this.props
-            .onSave(values)
-            .then(
-                (data) => {
-                    ModalManager.showModal(
-                        <ModalConfirm 
-                            title="Success"
-                            message={`${entityName('first')} ${data.action}.`}
-                            yes="Okay"
-                            no={null}
-                            onYes={willCreateNew ? onClose : null}
-                        />
-                    );
-                    return Promise.resolve();
-                },
-                (error) => {
-                    ModalManager.showModal(
-                        <ModalConfirm 
-                            title={`Error saving ${entityName()}`}
-                            message={`${error.payload.status} - ${error.payload.statusText}`}
-                            yes="Okay"
-                            no={null}
-                        />
-                    );
-                    return Promise.reject();
-                }
-            );
-    }
+        handleSave(values) {
+            const {
+                entityName,
+                willCreateNew,
+                onClose
+            } = this.props;
 
-    handleDelete() {
-        const {
-            entityName,
-            onDelete,
-            onClose
-        } = this.props;
-
-        return new Promise((resolve, reject) => {
-            const onYes = () => {
-                onDelete().then(
+            return this.props
+                .onSave(values)
+                .then(
                     (data) => {
                         ModalManager.showModal(
                             <ModalConfirm 
                                 title="Success"
-                                message={`${this.props.entityName('first')} deleted`}
+                                message={`${entityName('first')} ${data.action}.`}
                                 yes="Okay"
                                 no={null}
-                                onYes={onClose}
+                                onYes={willCreateNew ? onClose : null}
                             />
                         );
-                        resolve();
+                        return Promise.resolve();
                     },
                     (error) => {
-                        console.log(error);
                         ModalManager.showModal(
                             <ModalConfirm 
-                                title={`Error deleting ${this.props.entityName()}`}
+                                title={`Error saving ${entityName()}`}
                                 message={`${error.payload.status} - ${error.payload.statusText}`}
                                 yes="Okay"
                                 no={null}
                             />
                         );
-                        reject();
+                        return Promise.reject();
                     }
                 );
-            };
+        }
 
-            ModalManager.showModal(
-                <ModalConfirm 
-                    title="Warning" 
-                    message={`Are you sure you want to delete this ${entityName()}? You will lose any changes since your last save.`}
-                    yes="Delete"
-                    no="Cancel"
-                    onYes={onYes}
-                    onNo={reject}
-                />
-            );
-        });
-    }
+        handleDelete() {
+            const {
+                entityName,
+                onDelete,
+                onClose
+            } = this.props;
 
-    handleClose(dirty) {
-        return new Promise((resolve, reject) => {
-            if(!dirty) {
-                resolve();
-                return this.props.onClose();
+            return new Promise((resolve, reject) => {
+                const onYes = () => {
+                    onDelete().then(
+                        (data) => {
+                            ModalManager.showModal(
+                                <ModalConfirm 
+                                    title="Success"
+                                    message={`${this.props.entityName('first')} deleted`}
+                                    yes="Okay"
+                                    no={null}
+                                    onYes={onClose}
+                                />
+                            );
+                            resolve();
+                        },
+                        (error) => {
+                            console.log(error);
+                            ModalManager.showModal(
+                                <ModalConfirm 
+                                    title={`Error deleting ${this.props.entityName()}`}
+                                    message={`${error.payload.status} - ${error.payload.statusText}`}
+                                    yes="Okay"
+                                    no={null}
+                                />
+                            );
+                            reject();
+                        }
+                    );
+                };
+
+                ModalManager.showModal(
+                    <ModalConfirm 
+                        title="Warning" 
+                        message={`Are you sure you want to delete this ${entityName()}? You will lose any changes since your last save.`}
+                        yes="Delete"
+                        no="Cancel"
+                        onYes={onYes}
+                        onNo={reject}
+                    />
+                );
+            });
+        }
+
+        handleClose(dirty) {
+            return new Promise((resolve, reject) => {
+                if(!dirty) {
+                    resolve();
+                    return this.props.onClose();
+                }
+
+                const quitWithoutSaving = () => {
+                    this.props.onClose();
+                    resolve();
+                };
+
+                ModalManager.showModal(
+                    <ModalConfirm 
+                        title="Warning" 
+                        message="Are you sure you want to close? You will lose your changes."
+                        yes="Keep editing"
+                        no="Quit without saving"
+                        onYes={reject}
+                        onNo={quitWithoutSaving}
+                    />
+                );
+            });
+        }
+
+        handleReset() {
+            return new Promise((resolve, reject) => {
+                ModalManager.showModal(
+                    <ModalConfirm 
+                        title="Warning" 
+                        message="Are you sure you want to reset? You will lose any changes since your last save."
+                        yes="Reset"
+                        no="Cancel"
+                        onYes={resolve}
+                        onNo={reject}
+                    />
+                );
+            });
+        }
+
+        //
+        // render
+        //
+
+        render() {
+            const {
+                reading,
+                readError,
+                children
+            } = this.props;
+
+            if(reading) {
+                return <Loader />;
             }
 
-            const quitWithoutSaving = () => {
-                this.props.onClose();
-                resolve();
-            };
-
-            ModalManager.showModal(
-                <ModalConfirm 
-                    title="Warning" 
-                    message="Are you sure you want to close? You will lose your changes."
-                    yes="Keep editing"
-                    no="Quit without saving"
-                    onYes={reject}
-                    onNo={quitWithoutSaving}
-                />
+            if(readError) {
+                return <ErrorMessage message={readError.message} />;
+            }
+            
+            return (
+                <div>
+                    {this.renderHeading()}
+                    <ComposedComponent
+                        {...this.props}
+                        onSave={this.handleSave.bind(this)}
+                        onClose={this.handleClose.bind(this)}
+                        onDelete={this.handleDelete.bind(this)}
+                        onReset={this.handleReset.bind(this)}
+                    />
+                </div>
             );
-        });
-    }
-
-    handleReset() {
-        return new Promise((resolve, reject) => {
-            ModalManager.showModal(
-                <ModalConfirm 
-                    title="Warning" 
-                    message="Are you sure you want to reset? You will lose any changes since your last save."
-                    yes="Reset"
-                    no="Cancel"
-                    onYes={resolve}
-                    onNo={reject}
-                />
-            );
-        });
-    }
-
-    //
-    // render
-    //
-
-    render() {
-        const {
-            reading,
-            readError,
-            children
-        } = this.props;
-
-        if(reading) {
-            return <Loader />;
         }
 
-        if(readError) {
-            return <ErrorMessage message={readError.message} />;
+        renderHeading() {
+            return this.props.showHeading ? <h1 className="hug-top">{this.props.actionName(['first'])} {this.props.entityName()}</h1> : null;
         }
-
-        const propsToAddToChildren = fromJS(this.props)
-            .delete('children') // don't clone children into children
-            .set('onSave', this.handleSave.bind(this))
-            .set('onClose', this.handleClose.bind(this))
-            .set('onDelete', this.handleDelete.bind(this))
-            .set('onReset', this.handleReset.bind(this))
-            .toJS();
-
-        const childrenWithProps = React.Children.map(children, (child) => React.cloneElement(child, propsToAddToChildren));
-
-        return (
-            <div>
-                {this.renderHeading()}
-                {childrenWithProps}
-            </div>
-        );
     }
 
-    renderHeading() {
-        return this.props.showHeading ? <h1 className="hug-top">{this.props.actionName(['first'])} {this.props.entityName()}</h1> : null;
-    }
-}
+    EntityEditorTRC.propTypes = {
+        // id and abilites
+        id: PropTypes.any, // (editor will edit item if this is set, or create new if this is not set)
+        willCopy: PropTypes.bool,
+        willCreateNew: PropTypes.bool,
+        canSave: PropTypes.bool,
+        canDelete: PropTypes.bool,
+        // data transaction states
+        reading: PropTypes.bool,
+        creating: PropTypes.bool,
+        updating: PropTypes.bool,
+        deleting: PropTypes.bool,
+        saving: PropTypes.bool,
+        fetching: PropTypes.bool,
+        // errors
+        readError: PropTypes.any,
+        writeError: PropTypes.any,
+        // callbacks
+        onSave: PropTypes.func,
+        onClose: PropTypes.func.isRequired,
+        onDelete: PropTypes.func,
+        // naming
+        entityName: PropTypes.func,
+        actionName: PropTypes.func,
+        // options
+        showHeading: PropTypes.bool
+    };
 
-EntityEditorTRC.propTypes = {
-    // id and abilites
-    id: PropTypes.any, // (editor will edit item if this is set, or create new if this is not set)
-    willCopy: PropTypes.bool,
-    willCreateNew: PropTypes.bool,
-    canSave: PropTypes.bool,
-    canDelete: PropTypes.bool,
-    // data transaction states
-    reading: PropTypes.bool,
-    creating: PropTypes.bool,
-    updating: PropTypes.bool,
-    deleting: PropTypes.bool,
-    saving: PropTypes.bool,
-    fetching: PropTypes.bool,
-    // errors
-    readError: PropTypes.any,
-    writeError: PropTypes.any,
-    // callbacks
-    onSave: PropTypes.func,
-    onClose: PropTypes.func.isRequired,
-    onDelete: PropTypes.func,
-    // naming
-    entityName: PropTypes.func,
-    actionName: PropTypes.func,
-    // options
-    showHeading: PropTypes.bool
+    EntityEditorTRC.defaultProps = {
+        showHeading: true
+    };
+
+    return EntityEditor()(EntityEditorTRC);
 };
-
-EntityEditorTRC.defaultProps = {
-    showHeading: true
-};
-
-export default EntityEditor()(EntityEditorTRC);
