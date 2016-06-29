@@ -3,14 +3,15 @@ import { List, Map, fromJS } from 'immutable';
 import AutoRequest from 'bd-stampy/components/AutoRequest';
 
 //
-// EntityEditor class
+// EntityEditor higher order component
+// Base entity editor functionality without UI elements
 //
 
 export default (config) => (ComposedComponent) => {
     class EntityEditor extends Component {
 
         //
-        // helpers
+        // helpers - these are inferred from this.props, and passed down as props to child elements
         //
 
         willCreateNew(props = this.props) {
@@ -24,6 +25,10 @@ export default (config) => (ComposedComponent) => {
         //
         // naming / text labels
         //
+        // child elements will receive a entityName and actionName prop
+        // both are functions that can optionally accept an array of strings to set which text trransforms to perform
+        // so if the current entityName="dog" and child.props.entityName(['first','plural']), then the string "Dogs" will be returned
+        // 
 
         entityName(modifications) {
             var name = this.props.entityName;
@@ -38,7 +43,7 @@ export default (config) => (ComposedComponent) => {
 
         actionName(modifications) {
             var name = "edit";
-            if(this.props.willCreateNew) {
+            if(this.willCreateNew()) {
                 name = "new";
             } else if(this.props.willCopy) {
                 name = "copy";
