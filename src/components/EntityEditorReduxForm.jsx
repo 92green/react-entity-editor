@@ -26,7 +26,8 @@ export default (reduxFormConfig) => (ComposedComponent) => {
                 fields,
                 dispatch
             } = this.props;
-            dispatch(initialize(reduxFormConfig.form, values, fromJS(fields).keySeq().toJS()));
+
+            dispatch(initialize(reduxFormConfig.form, values, reduxFormConfig.fields));
         }
 
         //
