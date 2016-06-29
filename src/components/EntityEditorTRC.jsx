@@ -180,7 +180,7 @@ export default (config) => (ComposedComponent) => {
         }
 
         renderHeading() {
-            return this.props.showHeading ? <h1 className="hug-top">{this.props.actionName(['first'])} {this.props.entityName()}</h1> : null;
+            return this.props.showHeading ? <h1 className="hug-top">{this.props.actionName(['first'])} {this.props.entityName(['first'])}</h1> : null;
         }
     }
 
