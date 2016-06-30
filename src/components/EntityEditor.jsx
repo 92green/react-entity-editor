@@ -42,7 +42,7 @@ export default (config) => (ComposedComponent) => {
                 return name;
             }
             if(modifications.includes('plural')) {
-                name = this.props.entityNamePlural || this.props.entityName+"s";
+                name = this.props.entityNamePlural || name+"s";
             }
             return this.genericNameTransform(name, modifications);
         }
@@ -50,7 +50,7 @@ export default (config) => (ComposedComponent) => {
         actionName(modifications) {
             var name = "edit";
             if(this.willCreateNew()) {
-                name = "new";
+                name = "add new";
             } else if(this.props.willCopy) {
                 name = "copy";
             }
@@ -59,7 +59,18 @@ export default (config) => (ComposedComponent) => {
 
         genericNameTransform(name, modifications) {
             if(modifications.includes('first')) {
-                name = name.charAt(0).toUpperCase() + name.slice(1);
+                name = name
+                    .charAt(0)
+                    .toUpperCase() + name.slice(1);
+            }
+            if(modifications.includes('titleCase')) {
+                name = name
+                    .split(" ")
+                    .map(word => word
+                        .charAt(0)
+                        .toUpperCase() + word.slice(1)
+                    )
+                    .join(" ");
             }
             return name;
         }

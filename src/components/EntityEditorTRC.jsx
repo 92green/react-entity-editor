@@ -180,7 +180,10 @@ export default (config) => (ComposedComponent) => {
         }
 
         renderHeading() {
-            return this.props.showHeading ? <h1 className="hug-top">{this.props.actionName(['first'])} {this.props.entityName(['first'])}</h1> : null;
+            if(!this.props.showHeading) {
+                return null;
+            }
+            return React.createElement(this.props.headingTag, {className: 'hug-top'}, `${this.props.actionName(['titleCase'])} ${this.props.entityName(['first'])}`);
         }
     }
 
@@ -209,11 +212,13 @@ export default (config) => (ComposedComponent) => {
         entityName: PropTypes.func,
         actionName: PropTypes.func,
         // options
-        showHeading: PropTypes.bool
+        showHeading: PropTypes.bool,
+        headingTag: PropTypes.string
     };
 
     EntityEditorTRC.defaultProps = {
-        showHeading: true
+        showHeading: true,
+        headingTag: "h1"
     };
 
     return EntityEditor()(EntityEditorTRC);

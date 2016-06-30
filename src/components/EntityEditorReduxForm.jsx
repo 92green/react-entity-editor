@@ -90,13 +90,12 @@ export default (reduxFormConfig) => (ComposedComponent) => {
                 // props required for redux form
                 fields,
                 // props provided by redux form
-                handleSubmit,
                 errors
 
             } = this.props;
 
             return (
-                <form onSubmit={handleSubmit(this.handleSubmitForm.bind(this))}>
+                <fieldset className="hug-bottom">
                     {topButtons && this.renderButtons()}
                     <ComposedComponent
                         {...this.props}
@@ -104,13 +103,14 @@ export default (reduxFormConfig) => (ComposedComponent) => {
                         willCreateNew={willCreateNew}
                     />
                     {bottomButtons && this.renderButtons()}
-                </form>
+                </fieldset>
             );
         }
 
         renderButtons() {
             const {
                 // props provided by redux form
+                handleSubmit,
                 dirty,
                 // props from entity editor - data transation states
                 deleting,
@@ -153,8 +153,8 @@ export default (reduxFormConfig) => (ComposedComponent) => {
 
                     <Button
                         modifier="edit"
-                        type="submit"
-                        disabled={!canSave}>
+                        disabled={!canSave}
+                        onClick={handleSubmit(this.handleSubmitForm.bind(this))}>
                         {saving ? "Saving" : "Save"}
                     </Button>
 
