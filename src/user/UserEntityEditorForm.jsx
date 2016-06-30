@@ -10,6 +10,7 @@ import EntityEditorReduxForm from 'trc-client-core/src/components/EntityEditorRe
 import UserEntityEditorConnect from 'trc-client-core/src/user/UserEntityEditorConnect';
 import {getFields, getValidate} from 'trc-client-core/src/utils/reduxFormFieldMap';
 
+import AutosuggestInput from 'toyota-styles/lib/components/AutosuggestInput';
 import Button from 'toyota-styles/lib/components/Button';
 import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
 import FormError from 'toyota-styles/lib/components/FormError';
@@ -45,14 +46,6 @@ class UserEntityEditorForm extends Component {
             .toJS();
     }
 
-    getJobTitleOptions() {
-        return this.props.jobTitles.map(ii => Map({
-                label: ii,
-                value: ii
-            }))
-            .toJS();
-    }
-
     render() {
         const {
             fields: {
@@ -70,7 +63,8 @@ class UserEntityEditorForm extends Component {
                     postcode
                 }
             },
-            willCreateNew
+            willCreateNew,
+            jobTitles
 
         } = this.props;
 
@@ -104,7 +98,14 @@ class UserEntityEditorForm extends Component {
                 </InputRow>
 
                 <InputRow label="Job title">
-                    <Input type="text" {...jobTitle} />
+                    <AutosuggestInput
+                        {...jobTitle}
+                        onChangeString
+                        suggestions={jobTitles.sort().toJS()}
+                        showSuggestionsWhenEmpty={true}
+                        debounce
+                        debounceTime={500}
+                    />
                     <FormError {...jobTitle} />
                 </InputRow>
 
