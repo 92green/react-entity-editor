@@ -7,7 +7,7 @@ import {
     REFRESHED,
     ENROLL,
     WAITLIST
-} from 'trc-client-core/src/constants/learningEvent';
+} from 'trc-client-core/src/constants/LearningEvent';
 
 var eventMap = {
     [PREPARED]: 'Assigned',
