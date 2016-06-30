@@ -9,6 +9,7 @@ import InputRow from 'bd-stampy/components/InputRow';
 import EntityEditorReduxForm from 'trc-client-core/src/components/EntityEditorReduxForm';
 import UserEntityEditorConnect from 'trc-client-core/src/user/UserEntityEditorConnect';
 import {getFields, getValidate} from 'trc-client-core/src/utils/reduxFormFieldMap';
+import OrganizationEntityEditorForm from 'trc-client-core/src/organization/OrganizationEntityEditorForm';
 
 import AutosuggestInput from 'toyota-styles/lib/components/AutosuggestInput';
 import Button from 'toyota-styles/lib/components/Button';
@@ -37,6 +38,13 @@ const userFieldMap = {
 
 class UserEntityEditorForm extends Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            addingOrganization: false
+        };
+    }
+
     getOrganizationOptions() {
         return this.props.organizations
             .map(ii => Map({
@@ -44,6 +52,18 @@ class UserEntityEditorForm extends Component {
                 value: ii.get('_id')
             }))
             .toJS();
+    }
+
+    handleClickAddOrganization() {
+        this.setState({
+            addingOrganization: true
+        });
+    }
+
+    handleCloseOrganization() {
+        this.setState({
+            addingOrganization: false
+        });
     }
 
     render() {
@@ -110,16 +130,28 @@ class UserEntityEditorForm extends Component {
                 </InputRow>
 
                 <InputRow label="Organization">
-                    <Select {...organizationId} onChangeString options={this.getOrganizationOptions()} />
+                    <Select
+                        {...organizationId}
+                        onChangeString
+                        options={this.getOrganizationOptions()}
+                    />
                     <FormError {...organizationId} />
                 </InputRow>
 
-                {/*}
-                    {!this.state.addingOrganization &&
-                        <Button modifier="edit" onClick={this.handleClickAddOrganization.bind(this)}>Add new organization</Button>
-                    }  {this.renderAddOrganizationForm()} */ }
+                {false && !this.state.addingOrganization &&
+                    <Button modifier="edit" className="float-right" onClick={this.handleClickAddOrganization.bind(this)}>Add new organization</Button>
+                }
 
-               
+                {false && this.state.addingOrganization &&
+                    <Widget>
+                        <OrganizationEntityEditorForm
+                            permitCreate={true}
+
+                            onClose={this.handleCloseOrganization.bind(this)}
+                            headingTag="h2"
+                        />
+                    </Widget>
+                }
 
                 <InputRow label="Street address">
                     <Input type="text" {...streetAddress} />
