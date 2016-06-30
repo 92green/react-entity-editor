@@ -51,6 +51,7 @@ class UserEntityEditorForm extends Component {
                 label: ii.get('name'),
                 value: ii.get('_id')
             }))
+            .sortBy(ii => ii.get('label'))
             .toJS();
     }
 
@@ -64,6 +65,11 @@ class UserEntityEditorForm extends Component {
         this.setState({
             addingOrganization: false
         });
+    }
+
+    afterCreateOrganization(data) {
+        this.props.fields.organizationId.onChange(data.newId);
+        return Promise.resolve(data);
     }
 
     render() {
@@ -129,7 +135,7 @@ class UserEntityEditorForm extends Component {
                     <FormError {...jobTitle} />
                 </InputRow>
 
-                <InputRow label="Organization">
+                <InputRow label="Organization" className="hug-bottom">
                     <Select
                         {...organizationId}
                         onChangeString
@@ -138,17 +144,17 @@ class UserEntityEditorForm extends Component {
                     <FormError {...organizationId} />
                 </InputRow>
 
-                {false && !this.state.addingOrganization &&
-                    <Button modifier="edit" className="float-right" onClick={this.handleClickAddOrganization.bind(this)}>Add new organization</Button>
+                {!this.state.addingOrganization &&
+                    <Button modifier="edit" className="float-right margin-bottom2" onClick={this.handleClickAddOrganization.bind(this)}>Add new organization</Button>
                 }
 
-                {false && this.state.addingOrganization &&
-                    <Widget>
+                {this.state.addingOrganization &&
+                    <Widget className="margin-bottom2 padding2">
                         <OrganizationEntityEditorForm
                             permitCreate={true}
-
                             onClose={this.handleCloseOrganization.bind(this)}
-                            headingTag="h2"
+                            afterCreate={this.afterCreateOrganization.bind(this)}
+                            headingTag="h3"
                         />
                     </Widget>
                 }
