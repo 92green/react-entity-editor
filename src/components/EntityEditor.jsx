@@ -13,6 +13,10 @@ import AutoRequest from 'bd-stampy/components/AutoRequest';
 // and allow EntityEditor to be prescriptive about the entire UI state
 //
 
+//
+// TODO - use new modal controlled by props (react-modal) so errors can be displayed from redux rather than from the results of the xhr requests
+//
+
 export default (config) => (ComposedComponent) => {
     class EntityEditor extends Component {
 
@@ -97,9 +101,10 @@ export default (config) => (ComposedComponent) => {
 
         handleSave(values) {
             if(this.createsOnSave()) {
-                if(!this.props.permitCreate) {
-
+                if(!this.permitCreate()) {
+                    return Promise.reject();
                 }
+
                 return this.props
                     .onCreate(values)
                     .then(
@@ -108,22 +113,39 @@ export default (config) => (ComposedComponent) => {
                                 newId,
                                 action: this.props.willCopy ? "copied" : "created"
                             });
+                        },
+                        (error) => {
+                            var errorMessage = error.payload.message;
+                            return Promise.reject(errorMessage);
                         }
                     )
                     .then(this.props.afterCreate);
             }
+
+            if(!this.permitUpdate()) {
+                return Promise.reject();
+            }
+
             return this.props
                 .onUpdate(this.props.id, values)
                 .then(
                     (dataObject) => {
                         dataObject.action = "saved";
                         return Promise.resolve(dataObject);
+                    },
+                    (error) => {
+                        var errorMessage = error.payload.message;
+                        return Promise.reject(errorMessage);
                     }
                 )
                 .then(this.props.afterUpdate);
         }
 
         handleDelete() {
+            if(!this.permitDelete()) {
+                return Promise.reject();
+            }
+
             return this.props
                 .onDelete(this.props.id)
                 .then(
@@ -131,6 +153,10 @@ export default (config) => (ComposedComponent) => {
                         return Promise.resolve({
                             action: "deleted"
                         });
+                    },
+                    (error) => {
+                        var errorMessage = error.payload.message;
+                        return Promise.reject(errorMessage);
                     }
                 )
                 .then(this.props.afterDelete);
