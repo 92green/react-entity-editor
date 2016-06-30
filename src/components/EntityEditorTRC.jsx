@@ -46,7 +46,7 @@ export default (config) => (ComposedComponent) => {
                         ModalManager.showModal(
                             <ModalConfirm 
                                 title={`Error saving ${entityName()}`}
-                                message={`${error.payload.status} - ${error.payload.statusText}`}
+                                message={`${error}`}
                                 yes="Okay"
                                 no={null}
                             />
@@ -79,11 +79,10 @@ export default (config) => (ComposedComponent) => {
                             resolve();
                         },
                         (error) => {
-                            console.log(error);
                             ModalManager.showModal(
                                 <ModalConfirm 
                                     title={`Error deleting ${this.props.entityName()}`}
-                                    message={`${error.payload.status} - ${error.payload.statusText}`}
+                                    message={`${error}`}
                                     yes="Okay"
                                     no={null}
                                 />
