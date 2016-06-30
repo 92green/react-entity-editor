@@ -29,6 +29,22 @@ export default (config) => (ComposedComponent) => {
         }
 
         //
+        // permissions
+        //
+
+        permitCreate() {
+            return this.props.permitCreate && typeof this.props.onCreate == "function";
+        }
+
+        permitUpdate() {
+            return this.props.permitUpdate && typeof this.props.onUpdate == "function";
+        }
+
+        permitDelete() {
+            return this.props.permitDelete && typeof this.props.onDelete == "function";
+        }
+
+        //
         // naming / text labels
         //
         // child elements will receive a entityName and actionName prop
@@ -81,6 +97,9 @@ export default (config) => (ComposedComponent) => {
 
         handleSave(values) {
             if(this.createsOnSave()) {
+                if(!this.props.permitCreate) {
+
+                }
                 return this.props
                     .onCreate(values)
                     .then(
@@ -90,7 +109,8 @@ export default (config) => (ComposedComponent) => {
                                 action: this.props.willCopy ? "copied" : "created"
                             });
                         }
-                    );
+                    )
+                    .then(this.props.afterCreate);
             }
             return this.props
                 .onUpdate(this.props.id, values)
@@ -99,7 +119,8 @@ export default (config) => (ComposedComponent) => {
                         dataObject.action = "saved";
                         return Promise.resolve(dataObject);
                     }
-                );
+                )
+                .then(this.props.afterUpdate);
         }
 
         handleDelete() {
@@ -111,11 +132,15 @@ export default (config) => (ComposedComponent) => {
                             action: "deleted"
                         });
                     }
-                );
+                )
+                .then(this.props.afterDelete);
         }
 
         handleClose() {
             this.props.onClose();
+            return Promise.resolve({
+                action: "closed"
+            });
         }
 
         render() {
@@ -132,11 +157,7 @@ export default (config) => (ComposedComponent) => {
                 deleting,
                 // errors
                 readError,
-                writeError,
-                // callbacks
-                onCreate,
-                onUpdate,
-                onDelete
+                writeError
             } = this.props;
 
             const willCreateNew = this.willCreateNew();
@@ -148,14 +169,14 @@ export default (config) => (ComposedComponent) => {
             // inferred abilities
             const canSave = !fetching;
 
-            const canDelete = typeof onDelete == "function" && !fetching && !willCreateNew;
+            const canDelete = this.permitDelete() && !fetching && !willCreateNew;
 
-            if(willCreateNew && typeof onCreate != "function") { // prohibit creating if onCreate is undefined
+            if(willCreateNew && !this.permitCreate()) { // prohibit creating if onCreate is undefined
                 console.warn("EntityEditor: Can't display form, no onCreate function defined. This might be caused by permitCreate being a non-true value");
                 return null;
             }
 
-            if(!willCreateNew && typeof onUpdate != "function") { // prohibit updating if onUpdate is undefined
+            if(!willCreateNew && !this.permitUpdate()) { // prohibit updating if onUpdate is undefined
                 console.warn("EntityEditor: Can't display form, no onUpdate function defined. This might be caused by permitUpdate being a non-true value");
                 return null;
             }
@@ -203,12 +224,22 @@ export default (config) => (ComposedComponent) => {
         // errors
         readError: PropTypes.any,
         writeError: PropTypes.any,
+        // permissions
+        permitCreate: PropTypes.bool,
+        permitUpdate: PropTypes.bool,
+        permitDelete: PropTypes.bool,
         // callbacks
         onRead: PropTypes.func,
         onCreate: PropTypes.func,
         onUpdate: PropTypes.func,
         onDelete: PropTypes.func,
         onClose: PropTypes.func.isRequired,
+        // after callbacks - fired on success, must each return a resolve promise
+        afterRead: PropTypes.func,
+        afterCreate: PropTypes.func,
+        afterUpdate: PropTypes.func,
+        afterDelete: PropTypes.func,
+        afterClose: PropTypes.func,
         // naming
         entityName: PropTypes.string,
         entityNamePlural: PropTypes.string
@@ -217,16 +248,19 @@ export default (config) => (ComposedComponent) => {
     EntityEditor.defaultProps = {
         willCopy: false,
         entityName: "item",
-        entityNamePlural: "items"
+        entityNamePlural: "items",
+        // after callbacks
+        afterRead: (data) => Promise.resolve(data), 
+        afterCreate: (data) => Promise.resolve(data), 
+        afterUpdate: (data) => Promise.resolve(data), 
+        afterDelete: (data) => Promise.resolve(data), 
+        afterClose: (data) => Promise.resolve(data)
     };
 
     const autoRequest = AutoRequest(['id'], (props) => {
         if(props.id && props.onRead) {
             props.onRead(props.id)
-                .then(
-                    (data) => {},
-                    (error) => {}
-                );
+                .then(props.afterRead);
         }
     });
 

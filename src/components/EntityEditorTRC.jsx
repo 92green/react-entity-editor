@@ -96,7 +96,7 @@ export default (config) => (ComposedComponent) => {
                 ModalManager.showModal(
                     <ModalConfirm 
                         title="Warning" 
-                        message={`Are you sure you want to delete this ${entityName()}? You will lose any changes since your last save.`}
+                        message={`Are you sure you want to delete this ${entityName()}? This action cannot be undone.`}
                         yes="Delete"
                         no="Cancel"
                         onYes={onYes}
@@ -120,12 +120,12 @@ export default (config) => (ComposedComponent) => {
 
                 ModalManager.showModal(
                     <ModalConfirm 
-                        title="Warning" 
-                        message="Are you sure you want to close? You will lose your changes."
-                        yes="Keep editing"
-                        no="Quit without saving"
-                        onYes={reject}
-                        onNo={quitWithoutSaving}
+                        title="Unsaved changes" 
+                        message={`You have unsaved changes on this ${this.props.entityName()}. What would you like to do?`}
+                        yes="Discard changes"
+                        no="Keep editing"
+                        onYes={quitWithoutSaving}
+                        onNo={reject}
                     />
                 );
             });
@@ -136,8 +136,8 @@ export default (config) => (ComposedComponent) => {
                 ModalManager.showModal(
                     <ModalConfirm 
                         title="Warning" 
-                        message="Are you sure you want to reset? You will lose any changes since your last save."
-                        yes="Reset"
+                        message={`Are you sure you want to revert this ${this.props.entityName()}? You will lose any changes since your last save.`}
+                        yes="Revert"
                         no="Cancel"
                         onYes={resolve}
                         onNo={reject}
@@ -204,10 +204,22 @@ export default (config) => (ComposedComponent) => {
         // errors
         readError: PropTypes.any,
         writeError: PropTypes.any,
-        // callbacks
-        onSave: PropTypes.func,
-        onClose: PropTypes.func.isRequired,
+        // permissions
+        permitCreate: PropTypes.bool,
+        permitUpdate: PropTypes.bool,
+        permitDelete: PropTypes.bool,
+        // props from entity editor - callbacks
+        onRead: PropTypes.func,
+        onCreate: PropTypes.func,
+        onUpdate: PropTypes.func,
         onDelete: PropTypes.func,
+        onClose: PropTypes.func.isRequired,
+        // after callbacks - fired on success, must each return a resolve promise
+        afterRead: PropTypes.func,
+        afterCreate: PropTypes.func,
+        afterUpdate: PropTypes.func,
+        afterDelete: PropTypes.func,
+        afterClose: PropTypes.func,
         // naming
         entityName: PropTypes.func,
         actionName: PropTypes.func,

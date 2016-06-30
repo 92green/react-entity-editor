@@ -117,12 +117,13 @@ export default (reduxFormConfig) => (ComposedComponent) => {
                 saving,
                 fetching,
                 // props from entity editor - abilities
+                willCreateNew,
                 canSave,
                 canDelete
 
             } = this.props;
 
-            const canReset = dirty && !fetching;
+            const canReset = !willCreateNew && dirty && !fetching;
 
             return (
                 <div className="t-right margin-bottom">
@@ -132,7 +133,7 @@ export default (reduxFormConfig) => (ComposedComponent) => {
                             <Button
                                 modifier="clear"
                                 className="margin-right05"
-                                onClick={this.handleResetClick.bind(this)}>Reset</Button>
+                                onClick={this.handleResetClick.bind(this)}>Revert</Button>
                         </span>
                     }
 
@@ -177,11 +178,22 @@ export default (reduxFormConfig) => (ComposedComponent) => {
         deleting: PropTypes.bool,
         saving: PropTypes.bool,
         fetching: PropTypes.bool,
+        // permissions
+        permitCreate: PropTypes.bool,
+        permitUpdate: PropTypes.bool,
+        permitDelete: PropTypes.bool,
         // props from entity editor - callbacks
-        onSave: PropTypes.func.isRequired,
+        onRead: PropTypes.func,
+        onCreate: PropTypes.func,
+        onUpdate: PropTypes.func,
+        onDelete: PropTypes.func,
         onClose: PropTypes.func.isRequired,
-        onDelete: PropTypes.func.isRequired,
-        onReset: PropTypes.func,
+        // props from entity editor - after callbacks - fired on success, must each return a resolve promise
+        afterRead: PropTypes.func,
+        afterCreate: PropTypes.func,
+        afterUpdate: PropTypes.func,
+        afterDelete: PropTypes.func,
+        afterClose: PropTypes.func,
         // props required for redux form
         form: PropTypes.string, // isRequired, but react never seems to recognise this
         fields: PropTypes.any.isRequired,
