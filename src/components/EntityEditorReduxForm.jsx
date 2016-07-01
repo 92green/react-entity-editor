@@ -83,7 +83,7 @@ export default (reduxFormConfig) => (ComposedComponent) => {
         render() {
             const {
                 // props from entity editor - abilities
-                willCreateNew,
+                isNew,
                 // own props
                 topButtons,
                 bottomButtons,
@@ -100,7 +100,7 @@ export default (reduxFormConfig) => (ComposedComponent) => {
                     <ComposedComponent
                         {...this.props}
                         fields={fields}
-                        willCreateNew={willCreateNew}
+                        isNew={isNew}
                     />
                     {bottomButtons && this.renderButtons()}
                 </fieldset>
@@ -117,13 +117,13 @@ export default (reduxFormConfig) => (ComposedComponent) => {
                 saving,
                 fetching,
                 // props from entity editor - abilities
-                willCreateNew,
+                isNew,
                 canSave,
                 canDelete
 
             } = this.props;
 
-            const canReset = !willCreateNew && dirty && !fetching;
+            const canReset = !isNew && dirty && !fetching;
 
             return (
                 <div className="t-right margin-bottom">
@@ -168,7 +168,7 @@ export default (reduxFormConfig) => (ComposedComponent) => {
         // props from entity editor - abilities
         id: PropTypes.any,
         willCopy: PropTypes.bool,
-        willCreateNew: PropTypes.bool,
+        isNew: PropTypes.bool,
         canSave: PropTypes.bool,
         canDelete: PropTypes.bool,
         // props from entity editor - routes info
