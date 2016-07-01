@@ -69,7 +69,7 @@ export default (config) => (ComposedComponent) => {
 	            permitCreate,
         		permitUpdate,
         		permitDelete
-        		
+
 	        } = this.props;
 
 			const initialValues = users
@@ -96,7 +96,7 @@ export default (config) => (ComposedComponent) => {
 	UserEntityEditorConnect.propTypes = {
 		// from props list
 		id: PropTypes.any,
-		willCopy: PropTypes.cool,
+		willCopy: PropTypes.bool,
 	    permitCreate: PropTypes.bool,
         permitUpdate: PropTypes.bool,
         permitDelete: PropTypes.bool,
@@ -121,7 +121,7 @@ export default (config) => (ComposedComponent) => {
 	            || state.async.get(TRC_USER_UPDATE_ERROR)
 	            || state.async.get(TRC_USER_DELETE_ERROR),
 	        organizations: state.organization.get('collection').toList(),
-	        jobTitles: state.user.get('jobTitles')
+	        jobTitles: state.user.get('jobTitles').toList()
 	    })
 	);
 
