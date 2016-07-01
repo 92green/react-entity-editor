@@ -29,7 +29,7 @@ const userFieldMap = {
     email: "Please enter a valid email address",
     mobile: "Please enter a valid mobile number",
     jobTitle: "Please enter a job title", // todo autocomplete
-    organizationId: "Please select an organization",
+    organizationId: "Please select an organisation",
     'address.streetAddress': false,
     'address.suburb': false,
     'address.state': false,  // todo select
@@ -135,7 +135,7 @@ class UserEntityEditorForm extends Component {
                     <FormError {...jobTitle} />
                 </InputRow>
 
-                <InputRow label="Organization" className="hug-bottom">
+                <InputRow label="Organisation" className="hug-bottom">
                     <Select
                         {...organizationId}
                         onChangeString
@@ -145,7 +145,7 @@ class UserEntityEditorForm extends Component {
                 </InputRow>
 
                 {!this.state.addingOrganization &&
-                    <Button modifier="edit" className="float-right margin-bottom2" onClick={this.handleClickAddOrganization.bind(this)}>Add new organization</Button>
+                    <Button modifier="edit" className="float-right margin-bottom2" onClick={this.handleClickAddOrganization.bind(this)}>Add new organisation</Button>
                 }
 
                 {this.state.addingOrganization &&
@@ -184,6 +184,12 @@ class UserEntityEditorForm extends Component {
 }
 
 UserEntityEditorForm.propTypes = {
+    // from routes via EntityEditorRouter
+    id: PropTypes.any,
+    willCopy: PropTypes.bool,
+    onClose: PropTypes.func,
+    onGotoEdit: PropTypes.func,
+    // 
     fields: PropTypes.object,
     willCreateNew: PropTypes.bool,
     organizations: ImmutablePropTypes.list,
