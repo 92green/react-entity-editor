@@ -100,7 +100,7 @@ class EntityEditorRouter extends Component {
 EntityEditorRouter.propTypes = {
     // routes
     routes: PropTypes.array.isRequired,
-    params: PropTypes.array.isRequired,
+    params: PropTypes.object.isRequired,
     history: PropTypes.object
 };
 
