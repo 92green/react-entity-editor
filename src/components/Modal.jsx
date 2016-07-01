@@ -1,29 +1,72 @@
-var React = require('react');
+import React, { Component, PropTypes } from 'react';
+import ReactModal from 'react-modal';
 
-var Modal = React.createClass({
-    displayName: 'Modal',
-    propTypes: {
-        tags: React.PropTypes.array.isRequired,
-        formData: React.PropTypes.object
-    },
-    render: function() {
-        var actions = [<div onClick={this.onCancel} className="Button Button-grey">Cancel</div>];
+class Modal extends Component {
 
-        if (this.props.formData) {
-            actions.push(<div onClick={this.onSave} className="Button inline">Save</div>);
-            actions.push(<div onClick={this.onDelete} className="Button Button-clear inline">Delete</div>);
-        } else {
-            actions.push(<div onClick={this.onCreate} className="Button inline">Create</div>);
+    onYes() {
+        if(this.props.onYes) {
+            this.props.onYes();            
         }
-            
-        return (
-            <div className='js-legendModal modal animate-fadein' data-js="modal">
-                <div className="js-modalContent modal_content" data-js="modal_content">
-                
+        this.props.onRequestClose();
+    }
+    onNo() {
+        if(this.props.onNo) {
+            this.props.onNo();            
+        }
+        this.props.onRequestClose();
+    }
+
+    render() {
+        const {
+            // react component props
+            children,
+            // props for react modal
+            isOpen,
+            onAfterOpen,
+            onRequestClose,
+            // props for this component
+            title,
+            yes,
+            no,
+            onYes,
+            onNo
+        } = this.props;
+
+        return <ReactModal
+            isOpen={isOpen}
+            onAfterOpen={onAfterOpen}
+            onRequestClose={this.onNo.bind(this)}
+            className="Modal_content"
+            overlayClassName="Modal">
+            <div className="Modal_title">{title}</div>
+            <div className="Modal_body">
+                {children}
+                <div className="t-right">
+                    {no ? <a className="Button Button-grey " onClick={this.onNo.bind(this)}>{no}</a> : null}
+                    {yes ? <a className="Button" onClick={this.onYes.bind(this)}>{yes}</a> : null}
                 </div>
             </div>
-        );        
+        </ReactModal>;
     }
-});
+}
 
-module.exports = Modal;
+Modal.propTypes = {
+    // props for react modal
+    isOpen: PropTypes.bool,
+    onAfterOpen: PropTypes.func,
+    onRequestClose: PropTypes.func,
+    // props for this component
+    yes: PropTypes.string,
+    no: PropTypes.string,
+    onYes: PropTypes.func,
+    onNo: PropTypes.func,
+    title: PropTypes.string
+};
+
+Modal.defaultProps = {
+    title: 'Confirm',
+    yes: 'Yes',
+    no: 'Cancel'
+};
+
+export default Modal;
