@@ -89,7 +89,7 @@ class UserEntityEditorForm extends Component {
                     postcode
                 }
             },
-            willCreateNew,
+            isNew,
             jobTitles
 
         } = this.props;
@@ -107,11 +107,11 @@ class UserEntityEditorForm extends Component {
                 </InputRow>
 
                 <InputRow label="Email">
-                    <Input type="email" {...email} disabled={!willCreateNew} />
+                    <Input type="email" {...email} disabled={!isNew} />
                     <FormError {...email} />
                 </InputRow>
 
-                {!willCreateNew &&
+                {!isNew &&
                     <InputRow label="User ID">
                         <Input type="text" disabled {...userId} />
                         <FormError {...userId} />
@@ -191,7 +191,7 @@ UserEntityEditorForm.propTypes = {
     onGotoEdit: PropTypes.func,
     // 
     fields: PropTypes.object,
-    willCreateNew: PropTypes.bool,
+    isNew: PropTypes.bool,
     organizations: ImmutablePropTypes.list,
     jobTitles: ImmutablePropTypes.list
 };
