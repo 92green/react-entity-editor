@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { Route, IndexRoute } from 'react-router';
-import { fromJS } from 'immutable';
+import { fromJS, List } from 'immutable';
 
 //
 // Function to create a routing pattern for use with this editor
@@ -45,22 +45,38 @@ class EntityEditorRouter extends Component {
     // navigation
     //
 
-    getEditorRoute(type, id) {
+    getBaseRoute() {
+        const routesLength = this.props.routes.length;
+        return "/" + fromJS(this.props.routes)
+            .filter(ii => !!ii.get('path') && ii.get('path') != "/") // remove routes that don't add to the path
+            .map(ii => ii.get('path')) // get path for each route
+            .pop() // remove last route (the 'new' or 'edit' route) to get base
+            .join("/")
+    }
 
-        return "TEST:"+type+"..."+id;
-
-        /*
-
-        // only used to allow people to navigate from a newly created item to its edit page
+    getEditorRoute(type, id = false) {
+        const base = this.getBaseRoute();
         if(!id) {
-            return null;
+            id = this.props.params.id;
         }
-        const link = "/"+fromJS(this.props.routes)
-            .filter(ii => ii.has('path') && ii.get('path') != "/")
-            .map(ii => ii.get('path'))
-            .join("/");
+        if(type == 'close') {
+            return base;
+        }
+        if(!id || type == 'new') {
+            return `${base}/new`;
+        }
+        if(type == 'edit') {
+            return `${base}/${id}/${type}`;
+        }
+        return null;
+    }
 
-        return link.replace(/(\/new|\/:id\/(edit|copy))/i, "/"+id+"/edit");*/
+    onClose() {
+        this.props.history.push(this.getEditorRoute('close'));
+    }
+
+    onGotoEdit(id = false) {
+        this.props.history.push(this.getEditorRoute('edit', id));
     }
 
     //
@@ -71,7 +87,9 @@ class EntityEditorRouter extends Component {
         const propsToAddToChildren = {
             id: this.props.params.id,
             willCopy: this.willCopy(),
-            getEditorRoute: this.getEditorRoute
+            onClose: this.onClose.bind(this),
+            onGotoEdit: this.onGotoEdit.bind(this),
+            getEditorRoute: this.getEditorRoute.bind(this)
         };
 
         const childrenWithProps = React.Children.map(this.props.children, (child) => React.cloneElement(child, propsToAddToChildren));
@@ -82,7 +100,8 @@ class EntityEditorRouter extends Component {
 EntityEditorRouter.propTypes = {
     // routes
     routes: PropTypes.array.isRequired,
-    params: PropTypes.array.isRequired
+    params: PropTypes.array.isRequired,
+    history: PropTypes.object
 };
 
 export default EntityEditorRouter;

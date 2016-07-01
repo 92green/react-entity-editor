@@ -242,6 +242,8 @@ export default (config) => (ComposedComponent) => {
         // id and abilites
         id: PropTypes.any, // (editor will edit item if this is set, or create new if this is not set)
         willCopy: PropTypes.bool,
+        // routes info
+        getEditorRoute: PropTypes.func,
         // data transaction states
         reading: PropTypes.bool,
         creating: PropTypes.bool,
@@ -260,6 +262,7 @@ export default (config) => (ComposedComponent) => {
         onUpdate: PropTypes.func,
         onDelete: PropTypes.func,
         onClose: PropTypes.func.isRequired,
+        onGotoEdit: PropTypes.func,
         // after callbacks - fired on success, must each return a resolve promise
         afterRead: PropTypes.func,
         afterCreate: PropTypes.func,

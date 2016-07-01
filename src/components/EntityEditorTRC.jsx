@@ -24,22 +24,37 @@ export default (config) => (ComposedComponent) => {
             const {
                 entityName,
                 willCreateNew,
-                onClose
+                permitUpdate,
+                onClose,
+                onGotoEdit
             } = this.props;
 
             return this.props
                 .onSave(values)
                 .then(
                     (data) => {
-                        ModalManager.showModal(
-                            <ModalConfirm 
-                                title="Success"
-                                message={`${entityName('first')} ${data.action}.`}
-                                yes="Okay"
-                                no={null}
-                                onYes={willCreateNew ? onClose : null}
-                            />
-                        );
+                        if(data.action == 'created') {
+                            const triggerGotoEdit = () => onGotoEdit(data.newId);
+
+                            ModalManager.showModal(
+                                <ModalConfirm 
+                                    title="Success"
+                                    message={`${entityName('first')} ${data.action}.`}
+                                    yes="Okay"
+                                    no={null}
+                                    onYes={onGotoEdit && permitUpdate ? triggerGotoEdit : onClose}
+                                />
+                            );
+                        } else {
+                            ModalManager.showModal(
+                                <ModalConfirm 
+                                    title="Success"
+                                    message={`${entityName('first')} ${data.action}.`}
+                                    yes="Close"
+                                    no={null}
+                                />
+                            );
+                        }
                         return Promise.resolve();
                     },
                     (error) => {
@@ -193,6 +208,8 @@ export default (config) => (ComposedComponent) => {
         willCreateNew: PropTypes.bool,
         canSave: PropTypes.bool,
         canDelete: PropTypes.bool,
+        // props from entity editor - routes info
+        getEditorRoute: PropTypes.func,
         // data transaction states
         reading: PropTypes.bool,
         creating: PropTypes.bool,
@@ -208,11 +225,11 @@ export default (config) => (ComposedComponent) => {
         permitUpdate: PropTypes.bool,
         permitDelete: PropTypes.bool,
         // props from entity editor - callbacks
-        onRead: PropTypes.func,
-        onCreate: PropTypes.func,
-        onUpdate: PropTypes.func,
+        onSave: PropTypes.func,
+        onClose: PropTypes.func,
         onDelete: PropTypes.func,
-        onClose: PropTypes.func.isRequired,
+        onReset: PropTypes.func,
+        onGotoEdit: PropTypes.func,
         // after callbacks - fired on success, must each return a resolve promise
         afterRead: PropTypes.func,
         afterCreate: PropTypes.func,

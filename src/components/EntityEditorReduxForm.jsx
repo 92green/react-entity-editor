@@ -171,6 +171,8 @@ export default (reduxFormConfig) => (ComposedComponent) => {
         willCreateNew: PropTypes.bool,
         canSave: PropTypes.bool,
         canDelete: PropTypes.bool,
+        // props from entity editor - routes info
+        getEditorRoute: PropTypes.func,
         // props from entity editor - data transaction states
         reading: PropTypes.bool,
         creating: PropTypes.bool,
@@ -178,16 +180,12 @@ export default (reduxFormConfig) => (ComposedComponent) => {
         deleting: PropTypes.bool,
         saving: PropTypes.bool,
         fetching: PropTypes.bool,
-        // permissions
-        permitCreate: PropTypes.bool,
-        permitUpdate: PropTypes.bool,
-        permitDelete: PropTypes.bool,
         // props from entity editor - callbacks
-        onRead: PropTypes.func,
-        onCreate: PropTypes.func,
-        onUpdate: PropTypes.func,
+        onSave: PropTypes.func,
+        onClose: PropTypes.func,
         onDelete: PropTypes.func,
-        onClose: PropTypes.func.isRequired,
+        onReset: PropTypes.func,
+        onGotoEdit: PropTypes.func,
         // props from entity editor - after callbacks - fired on success, must each return a resolve promise
         afterRead: PropTypes.func,
         afterCreate: PropTypes.func,
