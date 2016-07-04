@@ -18,8 +18,16 @@ var Page = React.createClass({
 });
 
 function defaultTitle() {
-    var name = (UserStore.get('site') === 'TOYOTA') ? 'TIA' : 'Lexus Academy';
-    return `${name} Training Resource Centre`;
+    switch(UserStore.get('site')) {
+        case 'TOYOTA':
+            return `TIA Training Resource Centre`
+
+        case 'LEXUS':
+            return 'Lexus Academy Training Resource Centre';
+
+        default:
+            return 'Training Resource Centre';
+    }
 }
 
 function reducePropsToState(propsList) {
