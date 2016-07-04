@@ -10,6 +10,7 @@ import EntityEditorReduxForm from 'trc-client-core/src/components/EntityEditorRe
 import UserEntityEditorConnect from 'trc-client-core/src/user/UserEntityEditorConnect';
 import {getFields, getValidate} from 'trc-client-core/src/utils/reduxFormFieldMap';
 import OrganizationEntityEditorForm from 'trc-client-core/src/organization/OrganizationEntityEditorForm';
+import Permission from 'trc-client-core/src/auth/Permission';
 
 import AutosuggestInput from 'toyota-styles/lib/components/AutosuggestInput';
 import Button from 'toyota-styles/lib/components/Button';
@@ -135,7 +136,7 @@ class UserEntityEditorForm extends Component {
                     <FormError {...jobTitle} />
                 </InputRow>
 
-                <InputRow label="Organisation" className="hug-bottom">
+                <InputRow label="Organisation">
                     <Select
                         {...organizationId}
                         onChangeString
@@ -144,20 +145,22 @@ class UserEntityEditorForm extends Component {
                     <FormError {...organizationId} />
                 </InputRow>
 
-                {!this.state.addingOrganization &&
-                    <Button modifier="edit" className="float-right margin-bottom2" onClick={this.handleClickAddOrganization.bind(this)}>Add new organisation</Button>
-                }
+                <Permission has="API_ORGANIZATION_CREATE">
+                    {!this.state.addingOrganization &&
+                        <Button modifier="edit" className="float-right margin-bottom2" onClick={this.handleClickAddOrganization.bind(this)}>Add new organisation</Button>
+                    }
 
-                {this.state.addingOrganization &&
-                    <Widget className="margin-bottom2 padding2">
-                        <OrganizationEntityEditorForm
-                            permitCreate={true}
-                            onClose={this.handleCloseOrganization.bind(this)}
-                            afterCreate={this.afterCreateOrganization.bind(this)}
-                            headingTag="h3"
-                        />
-                    </Widget>
-                }
+                    {this.state.addingOrganization &&
+                        <Widget className="margin-bottom2 padding2">
+                            <OrganizationEntityEditorForm
+                                permitCreate={true}
+                                onClose={this.handleCloseOrganization.bind(this)}
+                                afterCreate={this.afterCreateOrganization.bind(this)}
+                                headingTag="h3"
+                            />
+                        </Widget>
+                    }
+                </Permission>
 
                 <InputRow label="Street address">
                     <Input type="text" {...streetAddress} />
