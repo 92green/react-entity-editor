@@ -64,11 +64,30 @@ export default (config) => (ComposedComponent) => {
             const {
                 title,
                 message,
+                status,
+                type,
                 yes,
                 no,
                 onYes,
                 onNo
             } = this.props.prompt;
+
+            if(type == "error") {
+                return <Modal
+                    isOpen={true}
+                    onRequestClose={this.props.closePrompt}
+                    title={title}
+                    yes={yes}
+                    no={no || null}
+                    onYes={onYes}
+                    onNo={onNo || null}>
+                    <ErrorMessage
+                        title={title}
+                        code={status}
+                        message={message}
+                        />
+                </Modal>;
+            }
 
             return <Modal
                 isOpen={true}

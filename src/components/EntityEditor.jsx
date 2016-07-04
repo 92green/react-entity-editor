@@ -113,6 +113,9 @@ export default (config) => (ComposedComponent) => {
                             } else {
                                 this.openPromptCreateSuccess(resolve, reject, newId, "created");
                             }
+                        }),
+                        (error) => new Promise((resolve, reject) => {
+                            this.openPromptWriteError(resolve, reject, this.props.writeError);
                         })
                     )
                     .then(this.props.afterCreate);
@@ -129,6 +132,9 @@ export default (config) => (ComposedComponent) => {
                 .then(
                     (dataObject) => new Promise((resolve, reject) => {
                         this.openPromptUpdateSuccess(resolve, reject);
+                    }),
+                    (error) => new Promise((resolve, reject) => {
+                        this.openPromptWriteError(resolve, reject, this.props.writeError);
                     })
                 )
                 .then(this.props.afterUpdate);
@@ -187,6 +193,7 @@ export default (config) => (ComposedComponent) => {
              this.openPrompt({
                 title: "Success",
                 message: `${this.entityName(['first'])} ${action}.`,
+                type: "success",
                 yes: "Okay",
                 onYes: () => {
                     if(this.props.onGotoEdit && this.props.permitUpdate) {
@@ -203,6 +210,7 @@ export default (config) => (ComposedComponent) => {
              this.openPrompt({
                 title: "Success",
                 message: `${this.entityName(['first'])} saved.`,
+                type: "success",
                 yes: "Okay",
                 onYes: resolve
             });
@@ -212,6 +220,7 @@ export default (config) => (ComposedComponent) => {
              this.openPrompt({
                 title: "Warning",
                 message: `Are you sure you want to delete this ${entityName()}? This action cannot be undone.`,
+                type: "confirm",
                 yes: "Delete",
                 no: "Cancel",
                 onYes: resolve,
@@ -223,6 +232,7 @@ export default (config) => (ComposedComponent) => {
              this.openPrompt({
                 title: "Success",
                 message: `${this.entityName(['first'])} deleted.`,
+                type: "success",
                 yes: "Okay",
                 onYes: () => {
                     this.props.onClose();
@@ -235,6 +245,7 @@ export default (config) => (ComposedComponent) => {
             this.openPrompt({
                 title: "Unsaved changes",
                 message: `You have unsaved changes on this ${this.entityName()}. What would you like to do?`,
+                type: "confirm",
                 yes: "Discard changes",
                 no: "Keep editing",
                 onYes: () => {
@@ -249,10 +260,27 @@ export default (config) => (ComposedComponent) => {
             this.openPrompt({
                 title: "Warning",
                 message: `Are you sure you want to revert this ${this.entityName()}? You will lose any changes since your last save.`,
+                type: "confirm",
                 yes: "Revert",
                 no: "Cancel",
                 onYes: resolve,
                 onNo: reject
+            });
+        }
+
+        openPromptWriteError(resolve, reject, error) {
+            const {
+                status,
+                message
+            } = error.toJS();
+
+            this.openPrompt({
+                title: status == 400 ? "Validation error" : "Error",
+                status,
+                message,
+                type: "error",
+                yes: "Okay",
+                onYes: resolve
             });
         }
 
