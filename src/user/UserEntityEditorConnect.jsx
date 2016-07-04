@@ -85,9 +85,9 @@ export default (config) => (ComposedComponent) => {
 	                entityName="user"
 	                initialValues={initialValues}
 	                onRead={this.handleRead.bind(this)}
-                	onCreate={permitCreate ? this.handleCreate.bind(this) : null}
-                	onUpdate={permitUpdate ? this.handleUpdate.bind(this) : null}
-                	onDelete={permitDelete ? this.handleDelete.bind(this) : null}
+                	onCreate={this.handleCreate.bind(this)}
+                	onUpdate={this.handleUpdate.bind(this)}
+                	onDelete={this.handleDelete.bind(this)}
 				/>
 			);
 		}
