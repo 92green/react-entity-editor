@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { Map } from 'immutable';
+import EntityEditorTRCPermissions from 'trc-client-core/src/components/EntityEditorTRCPermissions';
 
 import {
     requestUserGet,
@@ -65,11 +66,7 @@ export default (config) => (ComposedComponent) => {
 
 			const {
 				id,
-	            users,
-	            permitCreate,
-        		permitUpdate,
-        		permitDelete
-
+	            users
 	        } = this.props;
 
 			const initialValues = users
@@ -125,5 +122,7 @@ export default (config) => (ComposedComponent) => {
 	    })
 	);
 
-	return connectWithRedux(UserEntityEditorConnect);
+	return EntityEditorTRCPermissions({
+		apiPermission: 'USER'
+	})(connectWithRedux(UserEntityEditorConnect));
 };
