@@ -323,18 +323,18 @@ export default (config) => (ComposedComponent) => {
             const fetching = reading || creating || updating || deleting;
 
             // inferred abilities
-            const canSave = !fetching;
+            var canSave = !fetching;
 
             const canDelete = this.permitDelete() && !fetching && !isNew;
 
             if(isNew && !this.permitCreate()) { // prohibit creating if onCreate is undefined
-                console.warn("EntityEditor: Can't display form, no onCreate function defined. This might be caused by permitCreate being a non-true value");
-                return null;
+                console.log("EntityEditor: Can't save form; permitCreate is false, you don't have permission to create, or an onCreate function is not defined.");
+                canSave = false;
             }
 
             if(!isNew && !this.permitUpdate()) { // prohibit updating if onUpdate is undefined
-                console.warn("EntityEditor: Can't display form, no onUpdate function defined. This might be caused by permitUpdate being a non-true value");
-                return null;
+                console.log("EntityEditor: Can't save form; permitUpdate is false, you don't have permission to update, or an onUpdate function is not defined.");
+                canSave = false;
             }
 
             return (
