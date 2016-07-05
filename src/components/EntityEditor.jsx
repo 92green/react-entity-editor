@@ -146,14 +146,19 @@ export default (config) => (ComposedComponent) => {
                 return Promise.reject();
             }
 
-            return this.props
-                .onDelete(this.props.id)
-                .then(
-                    (data) => new Promise((resolve, reject) => {
-                        this.openPromptDeleteSuccess(resolve, reject);
-                    })
-                )
-                .then(this.props.afterDelete);
+            return new Promise((resolve, reject) => {
+                this.openPromptDeleteConfirm(resolve, reject);
+            })
+            .then(
+                () => this.props
+                    .onDelete(this.props.id)
+                    .then(
+                        (data) => new Promise((resolve, reject) => {
+                            this.openPromptDeleteSuccess(resolve, reject);
+                        })
+                    )
+                    .then(this.props.afterDelete)
+            );
         }
 
         requestClose(dirty) {
@@ -190,19 +195,22 @@ export default (config) => (ComposedComponent) => {
         }
 
         openPromptCreateSuccess(resolve, reject, newId, action) {
-             this.openPrompt({
+            const close = () => {
+                if(this.props.onGotoEdit && this.props.permitUpdate) {
+                    this.props.onGotoEdit(newId);
+                } else {
+                    this.props.onClose();
+                }
+                resolve();
+            };
+                
+            this.openPrompt({
                 title: "Success",
                 message: `${this.entityName(['first'])} ${action}.`,
                 type: "success",
                 yes: "Okay",
-                onYes: () => {
-                    if(this.props.onGotoEdit && this.props.permitUpdate) {
-                        this.props.onGotoEdit(newId);
-                    } else {
-                        this.props.onClose();
-                    }
-                    resolve();
-                }
+                onYes: close,
+                onNo: close
             });
         }
 
@@ -217,9 +225,9 @@ export default (config) => (ComposedComponent) => {
         }
 
         openPromptDeleteConfirm(resolve, reject) {
-             this.openPrompt({
+            this.openPrompt({
                 title: "Warning",
-                message: `Are you sure you want to delete this ${entityName()}? This action cannot be undone.`,
+                message: `Are you sure you want to delete this ${this.entityName()}? This action cannot be undone.`,
                 type: "confirm",
                 yes: "Delete",
                 no: "Cancel",
@@ -229,15 +237,18 @@ export default (config) => (ComposedComponent) => {
         }
 
         openPromptDeleteSuccess(resolve, reject) {
-             this.openPrompt({
+            const close = () => {
+                this.props.onClose();
+                resolve();
+            };
+
+            this.openPrompt({
                 title: "Success",
                 message: `${this.entityName(['first'])} deleted.`,
                 type: "success",
                 yes: "Okay",
-                onYes: () => {
-                    this.props.onClose();
-                    resolve();
-                }
+                onYes: close,
+                onNo: close
             });
         }
 
