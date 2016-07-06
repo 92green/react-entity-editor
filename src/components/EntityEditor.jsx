@@ -107,11 +107,11 @@ export default (config) => (ComposedComponent) => {
                 return this.props
                     .onCreate(values)
                     .then(
-                        (newId) => new Promise((resolve, reject) => {
+                        (data) => new Promise((resolve, reject) => {
                             if(this.props.willCopy) {
-                                this.openPromptCreateSuccess(resolve, reject, newId, "copied");
+                                this.openPromptCreateSuccess(() => resolve(data), reject, data.newId, "copied");
                             } else {
-                                this.openPromptCreateSuccess(resolve, reject, newId, "created");
+                                this.openPromptCreateSuccess(() => resolve(data), reject, data.newId, "created");
                             }
                         }),
                         (error) => new Promise((resolve, reject) => {
@@ -130,8 +130,8 @@ export default (config) => (ComposedComponent) => {
             return this.props
                 .onUpdate(this.props.id, values)
                 .then(
-                    (dataObject) => new Promise((resolve, reject) => {
-                        this.openPromptUpdateSuccess(resolve, reject);
+                    (data) => new Promise((resolve, reject) => {
+                        this.openPromptUpdateSuccess(() => resolve(data), reject);
                     }),
                     (error) => new Promise((resolve, reject) => {
                         this.openPromptWriteError(resolve, reject, this.props.writeError);
@@ -154,7 +154,7 @@ export default (config) => (ComposedComponent) => {
                     .onDelete(this.props.id)
                     .then(
                         (data) => new Promise((resolve, reject) => {
-                            this.openPromptDeleteSuccess(resolve, reject);
+                            this.openPromptDeleteSuccess(() => resolve(data), reject);
                         })
                     )
                     .then(this.props.afterDelete)
