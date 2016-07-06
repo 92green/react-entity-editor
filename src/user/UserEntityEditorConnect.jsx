@@ -45,7 +45,10 @@ export default (config) => (ComposedComponent) => {
 	        return this.props
 	            .dispatch(requestUserCreate(dataObject))
 	            .then(
-	                (data) => Promise.resolve(data.payload.userId) // always pass back new id
+	                (data) => Promise.resolve({
+	                	dataObject: data.payload,
+						newId: data.payload._id
+	                })
 	            );
 	    }
 
