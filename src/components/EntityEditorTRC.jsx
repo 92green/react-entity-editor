@@ -30,6 +30,7 @@ export default (config) => (ComposedComponent) => {
         render() {
             const {
                 reading,
+                isNew,
                 readError,
                 children
             } = this.props;
@@ -39,7 +40,7 @@ export default (config) => (ComposedComponent) => {
             }
 
             if(readError) {
-                return <ErrorMessage message={readError.message} />;
+                return <ErrorMessage message={readError.get('message')} />;
             }
             
             return <div>
