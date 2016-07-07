@@ -97,12 +97,12 @@ class UserEntityEditorForm extends Component {
 
         return (
             <div>
-                <InputRow label="First name">
+                <InputRow label="First Name">
                     <Input type="text" {...firstName} />
                     <FormError {...firstName} />
                 </InputRow>
 
-                <InputRow label="Last name">
+                <InputRow label="Last Name">
                     <Input type="text" {...lastName} />
                     <FormError {...lastName} />
                 </InputRow>
@@ -124,7 +124,7 @@ class UserEntityEditorForm extends Component {
                     <FormError {...mobile} />
                 </InputRow>
 
-                <InputRow label="Job title">
+                <InputRow label="Job Title">
                     <AutosuggestInput
                         {...jobTitle}
                         onChangeString
@@ -147,7 +147,7 @@ class UserEntityEditorForm extends Component {
 
                 <Permission has="API_ORGANIZATION_CREATE">
                     {!this.state.addingOrganization &&
-                        <Button modifier="edit" className="float-right margin-bottom2" onClick={this.handleClickAddOrganization.bind(this)}>Add new organisation</Button>
+                        <Button modifier="edit" className="float-right margin-bottom2" onClick={this.handleClickAddOrganization.bind(this)}>Add New Organisation</Button>
                     }
 
                     {this.state.addingOrganization &&
@@ -162,7 +162,7 @@ class UserEntityEditorForm extends Component {
                     }
                 </Permission>
 
-                <InputRow label="Street address">
+                <InputRow label="Street Address">
                     <Input type="text" {...streetAddress} />
                     <FormError {...streetAddress} />
                 </InputRow>
