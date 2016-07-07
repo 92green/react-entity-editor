@@ -357,7 +357,7 @@ export default (config) => (ComposedComponent) => {
                     saving={saving}
                     fetching={fetching}
 
-                    readError={readError}
+                    readError={!isNew && readError}
                     writeError={writeError}
 
                     onSave={this.requestSave.bind(this)}
