@@ -4,7 +4,6 @@ import { reduxForm, initialize } from 'redux-form';
 
 import EntityEditorTRC from 'trc-client-core/src/components/EntityEditorTRC';
 
-import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
 import Button from 'toyota-styles/lib/components/Button';
 
 import ErrorList from 'trc-client-core/src/components/ErrorList';
