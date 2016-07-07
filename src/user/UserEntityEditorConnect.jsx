@@ -47,7 +47,7 @@ export default (config) => (ComposedComponent) => {
 	            .then(
 	                (data) => Promise.resolve({
 	                	dataObject: data.payload,
-						newId: data.payload._id
+						newId: data.payload.userId
 	                })
 	            );
 	    }
