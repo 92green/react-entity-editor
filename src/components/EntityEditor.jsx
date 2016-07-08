@@ -286,7 +286,7 @@ export default (config) => (ComposedComponent) => {
             } = error.toJS();
 
             this.openPrompt({
-                title: status == 400 ? "Validation error" : "Error",
+                title: "Error",
                 status,
                 message,
                 type: "error",
