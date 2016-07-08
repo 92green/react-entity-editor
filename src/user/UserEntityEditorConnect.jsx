@@ -37,6 +37,19 @@ export default (config) => (ComposedComponent) => {
         	this.props.dispatch(requestUserList());
 	    }
 
+	    getWriteError() {
+	    	const error = this.props.writeError;
+	    	if(!error) {
+	    		return null;
+	    	}
+	    	const status = error.get('status');
+	    	if(status == 409) {
+	    		return error
+	    			.set('message', 'A user already exists with this email address. Please choose a different email address.');
+	    	}
+	    	return error;
+	    }
+
 	    handleRead(id) {
 	        return this.props.dispatch(requestUserGet(id));
 	    }
@@ -60,6 +73,11 @@ export default (config) => (ComposedComponent) => {
 	    handleDelete(id) {
 	        return this.props
 	            .dispatch(requestUserDelete(id));
+	    }
+
+	    handleWriteError(error) {
+	    	console.log(error);
+	    	return error;
 	    }
 
 	    // no default close behaviour as it's specific to each form usage
@@ -88,6 +106,7 @@ export default (config) => (ComposedComponent) => {
                 	onCreate={this.handleCreate.bind(this)}
                 	onUpdate={this.handleUpdate.bind(this)}
                 	onDelete={this.handleDelete.bind(this)}
+                	writeError={this.getWriteError()}
 				/>
 			);
 		}
