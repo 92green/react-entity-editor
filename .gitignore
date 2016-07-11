@@ -1,0 +1,15 @@
+node_modules
+.env
+
+# Blanket file type ignores
+*.orig
+*.DS_Store
+*.bundle.js
+*.css
+*.log
+*.map
+*.gz
+*.scssc
+*.gz
+*.sass-cache
+*.swp
