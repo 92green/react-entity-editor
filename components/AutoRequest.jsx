@@ -11,18 +11,18 @@ export default (propKeys, outputFunction) => (ComposedComponent) => {
         }
         componentWillReceiveProps(nextProps) {
             // make props immutable Maps
-            var thisProps = fromJS(this.props);
-            nextProps = fromJS(nextProps);
+            var thisPropsImmutable = fromJS(this.props);
+            var nextPropsImmutable = fromJS(nextProps);
 
             var booleanTest = propKeys
                 .map(ii => {
                     var keyPath = ii.split('.');
-                    return thisProps.getIn(keyPath) !== nextProps.getIn(keyPath);
+                    return thisPropsImmutable.getIn(keyPath) !== nextPropsImmutable.getIn(keyPath);
                 })
                 .indexOf(true)
 
             if(booleanTest !== -1) {
-                outputFunction(nextProps.toJS());
+                outputFunction(nextProps);
             }
         }
         render() {
