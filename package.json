@@ -1,0 +1,32 @@
+{
+  "name": "entity-editor",
+  "version": "0.0.1",
+  "description": "React library to manage admin user interfaces based around CRUD operations.",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dxinteractive/entity-editor.git"
+  },
+  "keywords": [
+    "react",
+    "ui",
+    "editor",
+    "crud"
+  ],
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/dxinteractive/entity-editor/issues"
+  },
+  "homepage": "https://github.com/dxinteractive/entity-editor",
+  "author": [
+    "Damien Clarke",
+    "Allan Hortle"
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "peerDependencies": {
+  }
+}
