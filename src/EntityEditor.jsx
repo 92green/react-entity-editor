@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { List, Map, fromJS } from 'immutable';
-import AutoRequest from 'bd-stampy/components/AutoRequest';
+import AutoRequest from './AutoRequest';
 
 //
 // EntityEditor higher order component
