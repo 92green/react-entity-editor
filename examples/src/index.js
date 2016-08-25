@@ -12,10 +12,14 @@ import Main from './components/Main';
 // basic
 
 import Basic from './basic/Basic';
-import BasicEditor from './basic/BasicEditor';
-const basicEditorRoutes = createEditorRoutes({
-    component: BasicEditor,
-    path: "basic"
+
+// routes
+
+import Routes from './routes/Routes';
+import RoutesEditor from './routes/RoutesEditor';
+const routesEditorRoutes = createEditorRoutes({
+    component: RoutesEditor,
+    path: "routes"
 });
 
 import Error from './components/Error';
@@ -28,7 +32,8 @@ render(
             <Route path="/" component={App}>
                 <IndexRoute component={Main}/>
                 <Route path="basic" component={Basic} />
-                {basicEditorRoutes}
+                <Route path="routes" component={Routes} />
+                {routesEditorRoutes}
                 <Route path="*" component={Error}/>
             </Route>
         </Router>
