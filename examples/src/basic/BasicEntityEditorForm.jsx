@@ -4,7 +4,21 @@ import {EntityEditor} from 'react-entity-editor';
 class BasicEntityEditorForm extends React.Component {
   render() {
     return <div>
-    	<p>Form goes here</p>
+    	<form>
+    		<p>
+    			<label>First name</label>
+    			<input type="text" value="..." />
+    		</p>
+    		<p>
+    			<label>Last name</label>
+    			<input type="text" value="..." />
+    		</p>
+    		<p>
+    			<label>ID</label>
+    			<input type="text" value="..." disabled />
+    		</p>
+    		<input type="submit" value="Save" />
+    	</form>
     </div>;
   }
 }
