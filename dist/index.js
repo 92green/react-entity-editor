@@ -3,45 +3,23 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.createEditorRoutes = exports.EntityEditorRouter = exports.EntityEditorHandler = exports.EntityEditor = undefined;
 
-var _extends2 = require('babel-runtime/helpers/extends');
+var _EntityEditor = require('./EntityEditor');
 
-var _extends3 = _interopRequireDefault(_extends2);
+var _EntityEditor2 = _interopRequireDefault(_EntityEditor);
 
-var _react = require('react');
+var _EntityEditorHandler = require('./EntityEditorHandler');
 
-var _react2 = _interopRequireDefault(_react);
+var _EntityEditorHandler2 = _interopRequireDefault(_EntityEditorHandler);
+
+var _EntityEditorRouter = require('./EntityEditorRouter');
+
+var _EntityEditorRouter2 = _interopRequireDefault(_EntityEditorRouter);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var buttonStyles = {
-  border: '1px solid #eee',
-  borderRadius: 3,
-  backgroundColor: '#FFFFFF',
-  cursor: 'pointer',
-  fontSize: 15,
-  padding: '3px 10px'
-};
-
-var Button = function Button(_ref) {
-  var children = _ref.children;
-  var onClick = _ref.onClick;
-  var _ref$style = _ref.style;
-  var style = _ref$style === undefined ? {} : _ref$style;
-  return _react2.default.createElement(
-    'button',
-    {
-      style: (0, _extends3.default)({}, buttonStyles, style),
-      onClick: onClick
-    },
-    children
-  );
-};
-
-Button.propTypes = {
-  children: _react2.default.PropTypes.string.isRequired,
-  onClick: _react2.default.PropTypes.func,
-  style: _react2.default.PropTypes.object
-};
-
-exports.default = Button;
+exports.EntityEditor = _EntityEditor2.default;
+exports.EntityEditorHandler = _EntityEditorHandler2.default;
+exports.EntityEditorRouter = _EntityEditorRouter2.default;
+exports.createEditorRoutes = _EntityEditorRouter.createEditorRoutes;

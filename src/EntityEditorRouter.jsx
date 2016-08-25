@@ -12,8 +12,7 @@ export function createEditorRoutes(params) {
     }, params);
 
     if(!params || !params.path || !params.component) {
-        console.warn("Create editor routes must be passed an object with 'path' and 'component' keys, where the path is a string of the route path, and the component is the editor component to be used in the routes.");
-        return null;
+        throw "Create editor routes must be passed an object with 'path' and 'component' keys, where the path is a string of the route path, and the component is the editor component to be used in the routes.";
     }
 
     var routerComponent = CreateEntityEditorRouter(params);
@@ -36,6 +35,7 @@ export function createEditorRoutes(params) {
 //
 // EntityEditorRouter class
 //
+
 function CreateEntityEditorRouter(params) {
 
     class EntityEditorRouter extends Component {

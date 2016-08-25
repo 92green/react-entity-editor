@@ -30,13 +30,14 @@ var _react2 = _interopRequireDefault(_react);
 
 var _immutable = require('immutable');
 
+var _EntityEditorHandler = require('./EntityEditorHandler');
+
+var _EntityEditorHandler2 = _interopRequireDefault(_EntityEditorHandler);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
-import EntityEditor from 'trc-client-core/src/components/EntityEditor';
-
 import Modal from 'toyota-styles/lib/components/Modal';
-
 import Loader from 'toyota-styles/lib/components/Loader';
 import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
 */
@@ -205,6 +206,6 @@ exports.default = function (config) {
             headingTag: "h1"
         };
 
-        return EntityEditor()(EntityEditor);
+        return (0, _EntityEditorHandler2.default)()(EntityEditor);
     };
 };

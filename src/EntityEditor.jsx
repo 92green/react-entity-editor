@@ -1,11 +1,10 @@
 import React, { Component, PropTypes } from 'react';
 import { List, Map, fromJS } from 'immutable';
 
+import EntityEditorHandler from './EntityEditorHandler';
+
 /*
-import EntityEditor from 'trc-client-core/src/components/EntityEditor';
-
 import Modal from 'toyota-styles/lib/components/Modal';
-
 import Loader from 'toyota-styles/lib/components/Loader';
 import ErrorMessage from 'toyota-styles/lib/components/ErrorMessage';
 */
@@ -150,5 +149,5 @@ export default (config) => (ComposedComponent) => {
         headingTag: "h1"
     };
 
-    return EntityEditor()(EntityEditor);
+    return EntityEditorHandler()(EntityEditor);
 };
