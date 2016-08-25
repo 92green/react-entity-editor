@@ -1,12 +1,12 @@
 {
-  "name": "entity-editor",
+  "name": "react-entity-editor",
   "version": "0.0.1",
-  "description": "React library to manage admin user interfaces based around CRUD operations.",
+  "description": "A modular set of React components that makes it easy to set up pages that allow you to create, edit and delete items, providing features such as confirmation messages and route creation with react-router.",
   "scripts": {
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dxinteractive/entity-editor.git"
+    "url": "https://github.com/dxinteractive/react-entity-editor.git"
   },
   "keywords": [
     "react",
@@ -16,9 +16,9 @@
   ],
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/dxinteractive/entity-editor/issues"
+    "url": "https://github.com/dxinteractive/react-entity-editor/issues"
   },
-  "homepage": "https://github.com/dxinteractive/entity-editor",
+  "homepage": "https://github.com/dxinteractive/react-entity-editor",
   "author": [
     "Damien Clarke",
     "Allan Hortle"

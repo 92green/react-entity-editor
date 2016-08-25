@@ -1,6 +1,8 @@
-## Entity Editor
+# Entity Editor
 
 A modular set of React components that makes it easy to set up pages that allow you to create, edit and delete items, providing features such as confirmation messages and route creation with react-router.
+
+Early stages of development, please prepare for large amounts of changes until version 0.1.0.
 
 <!---
 ## Code Example
@@ -26,7 +28,7 @@ Describe and show how to run the tests with code examples.
 ## Contributors
 
 Let people know how they can dive into the project, include important links to things like issue trackers, irc, twitter accounts if applicable.
--->
+
 
 ## License
 
@@ -51,3 +53,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+-->
