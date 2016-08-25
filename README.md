@@ -1,6 +1,6 @@
-# Entity Editor
+# react-entity-editor
 
-A modular set of React components that makes it easy to set up pages that allow you to create, edit and delete items, providing features such as confirmation messages and route creation with react-router.
+A modular set of React components that makes it easy to set up pages that allow you to create, edit and delete items, providing features such as confirmation messages and route creation with react-router. Implementation of the user interface of the editor is left to the developer, which offers great flexibility and can be therefore used by forms including redux-form, drag and drop interfaces or any other React UI editor.
 
 Early stages of development, please prepare for large amounts of changes until version 0.1.0.
 

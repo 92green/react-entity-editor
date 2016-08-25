@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import {fromJS} from 'immutable';
 
 export default (propKeys, outputFunction) => (ComposedComponent) => {
-    return class AutoRequest extends Component {
+    return class PropChangeListener extends Component {
         constructor(props, context) {
             super(props, context);
         }
