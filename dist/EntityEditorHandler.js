@@ -32,6 +32,10 @@ var _inherits2 = require('babel-runtime/helpers/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
+var _typeof2 = require('babel-runtime/helpers/typeof');
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -48,6 +52,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // EntityEditorHandler higher order component
 // Base entity editor functionality and UI flow without UI elements
 //
+
+// define 'then' which will use a Promise .then() if it exists,
+// or otherwise calls the callback synchronously
+
+function then(item, callback) {
+    if ((typeof item === 'undefined' ? 'undefined' : (0, _typeof3.default)(item)) == "object" && typeof item.then != "undefined") {
+        item.then(callback);
+    } else {
+        callback(item);
+    }
+}
 
 exports.default = function (config) {
     return function (ComposedComponent) {
@@ -424,7 +439,29 @@ exports.default = function (config) {
                         canSave = false;
                     }
 
-                    return _react2.default.createElement(ComposedComponent, (0, _extends3.default)({}, this.props, {
+                    var propsToRemove = _immutable.List.of(
+                    // prompts
+                    'prompt', 'closePrompt',
+                    // data transaction states
+                    'reading', 'creating', 'updating', 'deleting',
+                    // errors
+                    'readError', 'writeError',
+                    // permissions
+                    'permitCreate', 'permitUpdate', 'permitDelete',
+                    // callbacks
+                    'onRead', 'onCreate', 'onUpdate', 'onDelete', 'onClose', 'onGotoEdit',
+                    // after callbacks fired on success
+                    'afterRead', 'afterCreate', 'afterUpdate', 'afterDelete', 'afterClose',
+                    // naming
+                    'entityName', 'entityNamePlural');
+
+                    var filteredProps = propsToRemove.reduce(function (filteredProps, propToRemove) {
+                        return filteredProps.delete(propToRemove);
+                    }, (0, _immutable.fromJS)(this.props)).toJS();
+
+                    console.log("f", filteredProps);
+
+                    return _react2.default.createElement(ComposedComponent, (0, _extends3.default)({}, filteredProps, {
 
                         id: id,
                         willCopy: willCopy,
@@ -484,7 +521,7 @@ exports.default = function (config) {
             onDelete: _react.PropTypes.func,
             onClose: _react.PropTypes.func.isRequired,
             onGotoEdit: _react.PropTypes.func,
-            // after callbacks - fired on success, must each return a resolve promise
+            // after callbacks fired on success (must each return a resolved promise)
             afterRead: _react.PropTypes.func,
             afterCreate: _react.PropTypes.func,
             afterUpdate: _react.PropTypes.func,
@@ -499,6 +536,10 @@ exports.default = function (config) {
             willCopy: false,
             entityName: "item",
             entityNamePlural: "items",
+            // permissions
+            permitCreate: true,
+            permitUpdate: true,
+            permitDelete: true,
             // after callbacks
             afterRead: function afterRead(data) {
                 return _promise2.default.resolve(data);
@@ -519,7 +560,10 @@ exports.default = function (config) {
 
         var propChangeListener = (0, _PropChangeListener2.default)(['id'], function (props) {
             if (props.id && props.onRead) {
-                props.onRead(props.id).then(props.afterRead);
+                var readResults = props.onRead(props.id);
+                if (props.afterRead) {
+                    then(readResults, props.afterRead);
+                }
             }
         });
 

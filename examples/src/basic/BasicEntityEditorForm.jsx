@@ -3,6 +3,7 @@ import {EntityEditor} from 'react-entity-editor';
 
 class BasicEntityEditorForm extends React.Component {
   render() {
+    console.log(this.props);
     return <div>
     	<form>
     		<p>

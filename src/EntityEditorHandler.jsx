@@ -7,6 +7,17 @@ import PropChangeListener from './PropChangeListener';
 // Base entity editor functionality and UI flow without UI elements
 //
 
+// define 'then' which will use a Promise .then() if it exists,
+// or otherwise calls the callback synchronously
+
+function then(item, callback) {
+    if(typeof item == "object" && typeof item.then != "undefined") {
+        item.then(callback);
+    } else {
+        callback(item);
+    }
+}
+
 export default (config) => (ComposedComponent) => {
     class EntityEditorHandler extends Component {
 
@@ -337,9 +348,47 @@ export default (config) => (ComposedComponent) => {
                 canSave = false;
             }
 
+            const propsToRemove = List.of(
+                // prompts
+                'prompt',
+                'closePrompt',
+                // data transaction states
+                'reading',
+                'creating',
+                'updating',
+                'deleting',
+                // errors
+                'readError',
+                'writeError',
+                // permissions
+                'permitCreate',
+                'permitUpdate',
+                'permitDelete',
+                // callbacks
+                'onRead',
+                'onCreate',
+                'onUpdate',
+                'onDelete',
+                'onClose',
+                'onGotoEdit',
+                // after callbacks
+                'afterRead',
+                'afterCreate',
+                'afterUpdate',
+                'afterDelete',
+                'afterClose',
+                // naming
+                'entityName',
+                'entityNamePlural'
+            );
+
+            const filteredProps = propsToRemove
+                .reduce((filteredProps, propToRemove) => filteredProps.delete(propToRemove), fromJS(this.props))
+                .toJS();
+
             return (
                 <ComposedComponent
-                    {...this.props}
+                    {...filteredProps}
 
                     id={id}
                     willCopy={willCopy}
@@ -398,7 +447,7 @@ export default (config) => (ComposedComponent) => {
         onDelete: PropTypes.func,
         onClose: PropTypes.func.isRequired,
         onGotoEdit: PropTypes.func,
-        // after callbacks - fired on success, must each return a resolve promise
+        // after callbacks fired on success (must each return a resolved promise)
         afterRead: PropTypes.func,
         afterCreate: PropTypes.func,
         afterUpdate: PropTypes.func,
@@ -410,21 +459,29 @@ export default (config) => (ComposedComponent) => {
     };
 
     EntityEditorHandler.defaultProps = {
+        // ids and abilities
         willCopy: false,
-        entityName: "item",
-        entityNamePlural: "items",
+        // permissions
+        permitCreate: true,
+        permitUpdate: true,
+        permitDelete: true,
         // after callbacks
         afterRead: (data) => Promise.resolve(data), 
         afterCreate: (data) => Promise.resolve(data), 
         afterUpdate: (data) => Promise.resolve(data), 
         afterDelete: (data) => Promise.resolve(data), 
-        afterClose: (data) => Promise.resolve(data)
+        afterClose: (data) => Promise.resolve(data),
+        // naming
+        entityName: "item",
+        entityNamePlural: "items"
     };
 
     const propChangeListener = PropChangeListener(['id'], (props) => {
         if(props.id && props.onRead) {
-            props.onRead(props.id)
-                .then(props.afterRead);
+            const readResults = props.onRead(props.id);
+            if(props.afterRead) {
+                then(readResults, props.afterRead);
+            }
         }
     });
 
