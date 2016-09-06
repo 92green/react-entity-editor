@@ -31,22 +31,39 @@ class Basic extends React.Component {
 		this.handleUpdate = this.handleUpdate.bind(this);
 		this.handleDelete = this.handleDelete.bind(this);
 		this.handleClose = this.handleClose.bind(this);
+        this.handleClickAddUser = this.handleClickAddUser.bind(this);
 	}
 
 	handleRead(id) {
-		return this.state.users[id];
+		const currentUserData = {
+            ...this.state.users[id],
+            id
+        };
+
+        this.setState({
+            currentUserData
+        });
+
+        return currentUserData;
 	}
 
 	handleCreate(dataObject) {
-		console.log("create");
+        // arbitrary method to get new id
+        const newId = new Date().getTime();
+        users[newId] = dataObject;
+        return { dataObject, newId }; // tell entity editor what the new id is
 	}
 
 	handleUpdate(id, dataObject) {
-		console.log("update");
+        var users = this.state.users;
+        users[id] = dataObject;
+		this.setState({
+            users
+        });
 	}
 
 	handleDelete(id) {
-		console.log("delete");
+        delete users[id];
 	}
 
 	handleClose() {
@@ -63,12 +80,24 @@ class Basic extends React.Component {
 		});
 	}
 
+    handleClickAddUser() {
+        this.setState({
+            editMode: true,
+            editUserId: null, // no id means this will create a new user on save
+            currentUserData: null
+        });
+    }
+
     render() {
 
     	var userList = [];
     	for(var id in this.state.users) {
-    		var user = this.state.users[id];
-            userList.push(<li key={id} onClick={this.handleClickUser.bind(this, id)}>{`${user.firstName} ${user.lastName}`}</li>);
+    		let user = this.state.users[id];
+            userList.push(<tr key={id}>
+                <td>{user.firstName}</td>
+                <td>{user.lastName}</td>
+                <td><span className="Button Button-small" onClick={this.handleClickUser.bind(this, id)}>Edit</span></td>
+            </tr>);
         }
 
         return <div>
@@ -76,16 +105,20 @@ class Basic extends React.Component {
 
             {!this.state.editMode &&
             	<div>
-            	    <p>Click on a user to edit them</p>
-            	    <ul>{userList}</ul>
+            	    <table>
+                        <tbody>
+                        {userList}
+                        </tbody>
+                    </table>
+                    <span className="Button Button-small" onClick={this.handleClickAddUser}>Add new user</span>
             	</div>
             }
 
             {this.state.editMode &&
             	<div>
-                    <span onClick={this.handleClose}>Close</span>
                     <BasicEntityEditorForm
                         id={this.state.editUserId}
+                        initialValues={this.state.currentUserData || {}}
                         onRead={this.handleRead}
                         onCreate={this.handleCreate}
                         onUpdate={this.handleUpdate}

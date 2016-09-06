@@ -1,10 +1,10 @@
 import EntityEditor from './EntityEditor';
-import EntityEditorHandler from './EntityEditorHandler';
+import EntityEditorDefault from './EntityEditorDefault';
 import EntityEditorRouter, {createEditorRoutes} from './EntityEditorRouter';
 
 export {
   EntityEditor,
-  EntityEditorHandler,
+  EntityEditorDefault,
   EntityEditorRouter,
   createEditorRoutes
 }
