@@ -2,11 +2,14 @@ import React from 'react';
 import {EntityEditorDefault} from 'react-entity-editor';
 
 class BasicEntityEditorForm extends React.Component {
+
+  //
+  // set initial form state
+  //
+
   constructor(props) {
     super(props);
     this.state = {
-        loaded: false,
-        dirty: false,
         form: {
             firstName: '',
             lastName: '',
@@ -21,7 +24,7 @@ class BasicEntityEditorForm extends React.Component {
   }
 
   //
-  // these need to actually compare initialFGValues and update the form if they've changed :(
+  // set form values if initialValues ever changes
   //
 
   componentWillMount() {
@@ -29,42 +32,50 @@ class BasicEntityEditorForm extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.initForm(nextProps);
+    if(JSON.stringify(this.props.initialValues) != JSON.stringify(nextProps.initialValues)) {
+      this.initForm(nextProps);
+    }
   }
 
   initForm(props) {
-    if(props.initialValues && !this.state.loaded) {
-      this.setState({
-        form: {
-            ...props.initialValues
-        },
-        formReset: {
-            ...props.initialValues
-        },
-        loaded: true
-      });
-    }
+    this.setState({
+      form: {
+          ...props.initialValues
+      },
+      formReset: {
+          ...props.initialValues
+      }
+    });
   }
+
+  //
+  // keep form state
+  //
 
   handleFirstNameChange(e) {
     var form = this.state.form;
     form.firstName = e.target.value;
-    this.setState({
-        form,
-        dirty: true
-    });
+    this.setState({ form });
+
+    // tell entity editor that the form is dirty
+    this.props.onDirty();
   }
 
   handleLastNameChange(e) {
     var form = this.state.form;
     form.lastName = e.target.value;
-    this.setState({
-        form,
-        dirty: true
-    });
+    this.setState({ form });
+
+    // tell entity editor that the form is dirty
+    this.props.onDirty();
   }
 
+  //
+  // form reset
+  //
+
   resetForm() {
+    console.log("reset doesn't work on new items >:(", this.state.formReset);
     this.setState({
         form: Object.assign({}, this.state.formReset),
         dirty: false
@@ -72,34 +83,41 @@ class BasicEntityEditorForm extends React.Component {
   }
 
   //
-  // entity editor callbacks
+  // form events calling entity editor callbacks
   //
   
   handleSubmit(e) {
     e.preventDefault();
     this.setState({
-        dirty: false,
         formReset: Object.assign({}, this.state.form)
     });
 
-    // ask entity editor to save
+    // ask entity editor to save (and set dirty to false)
     this.props.onSave(this.state.form);
+  }
+
+  handleSaveNew() {
+    this.setState({
+        formReset: Object.assign({}, this.state.form)
+    });
+
+    // ask entity editor to save as new copy (and set dirty to false)
+    this.props.onSaveNew(this.state.form);
   }
 
   handleClose() {
     // ask entity editor to close
-    // onClose accepts a boolean that sets whether the for is dirty (has changed since last save)
-    this.props.onClose(this.state.dirty);
+    this.props.onClose();
   }
 
   handleReset() {
     if(this.props.onReset) {
-        // the form is responsible for resetting, but entity editor still wants to be asked first so it can handle confirmation behaviour
-        // if an onReset prop has been supplied, then call it and wait for the promise to return to actually reset the form
-        this.props.onReset(this.state.dirty).then(this.resetForm.bind(this), (error) => {});
+      // the form is responsible for resetting, but entity editor still wants to be asked first so it can handle confirmation behaviour
+      // if an onReset prop has been supplied, then call it and wait for the promise to return to actually reset the form
+      this.props.onReset().then(this.resetForm.bind(this), (error) => {});
     } else {
-        // or else just reset the form
-        this.resetForm.bind(this);
+      // or else just reset the form
+      this.resetForm.bind(this);
     }
   }
 
@@ -117,8 +135,6 @@ class BasicEntityEditorForm extends React.Component {
     var saveText;
     if(!this.props.canSave) {
         saveText = `Saving`;
-    } else if(this.props.willCopy) {
-        saveText = `Save new copy`;
     } else if(this.props.isNew) {
         saveText = `Create new`;
     } else { 
@@ -142,13 +158,14 @@ class BasicEntityEditorForm extends React.Component {
     		    </p>
             }
     		<input className="Button" type="submit" value={saveText} />
-            <span className="Button Button-small" onClick={this.handleClose.bind(this)}>Close</span>
-            {this.state.dirty &&
-                <span className="Button Button-small" onClick={this.handleReset.bind(this)}>Reset</span>
-            }
-            {this.props.canDelete &&
-                <span className="Button Button-small" onClick={this.handleDelete.bind(this)}>Delete</span>
-            }
+        <span className="Button Button-small" onClick={this.handleSaveNew.bind(this)}>Save as new</span>
+        <span className="Button Button-small" onClick={this.handleClose.bind(this)}>Close</span>
+        {this.props.canReset &&
+            <span className="Button Button-small" onClick={this.handleReset.bind(this)}>Reset</span>
+        }
+        {this.props.canDelete &&
+            <span className="Button Button-small" onClick={this.handleDelete.bind(this)}>Delete</span>
+       }
     	</form>
     </div>;
   }

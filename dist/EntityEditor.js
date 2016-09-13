@@ -62,6 +62,7 @@ exports.default = function (config) {
                 var _this = (0, _possibleConstructorReturn3.default)(this, (EntityEditor.__proto__ || (0, _getPrototypeOf2.default)(EntityEditor)).call(this, props));
 
                 _this.state = {
+                    dirty: false,
                     prompt: null
                 };
                 return _this;
@@ -164,34 +165,38 @@ exports.default = function (config) {
             }, {
                 key: 'requestSave',
                 value: function requestSave(values) {
+                    if (this.createsOnSave()) {
+                        return this.requestCreate(values);
+                    }
+                    return this.requestUpdate(values);
+                }
+            }, {
+                key: 'requestCreate',
+                value: function requestCreate(values) {
                     var _this2 = this;
 
-                    if (this.createsOnSave()) {
-                        // if we need to create but can't do it, reject
-                        if (!this.permitCreate()) {
-                            return _promise2.default.reject();
-                        }
-
-                        // create, then show prompts on success
-                        return (0, _Utils.returnPromise)(this.props.onCreate(values)).then(function (data) {
-                            return new _promise2.default(function (resolve, reject) {
-                                console.log("onsave", data);
-                                if (_this2.props.willCopy) {
-                                    _this2.openPromptCreateSuccess(function () {
-                                        return resolve(data);
-                                    }, reject, data.newId, "copied");
-                                } else {
-                                    _this2.openPromptCreateSuccess(function () {
-                                        return resolve(data);
-                                    }, reject, data.newId, "created");
-                                }
-                            });
-                        }, function (error) {
-                            return new _promise2.default(function (resolve, reject) {
-                                _this2.openPromptWriteError(resolve, reject, _this2.props.writeError);
-                            });
-                        }).then(this.props.afterCreate);
+                    // if we need to create but can't do it, reject
+                    if (!this.permitCreate()) {
+                        return _promise2.default.reject();
                     }
+
+                    // create, then show prompts on success
+                    return (0, _Utils.returnPromise)(this.props.onCreate(values)).then(function (data) {
+                        return new _promise2.default(function (resolve, reject) {
+                            _this2.openPromptCreateSuccess(function () {
+                                return resolve(data);
+                            }, reject, data.newId);
+                        });
+                    }, function (error) {
+                        return new _promise2.default(function (resolve, reject) {
+                            _this2.openPromptWriteError(resolve, reject, _this2.props.writeError);
+                        });
+                    }).then(this.props.afterCreate);
+                }
+            }, {
+                key: 'requestUpdate',
+                value: function requestUpdate(values) {
+                    var _this3 = this;
 
                     // if we need to update but can't do it, reject
                     if (!this.permitUpdate()) {
@@ -201,20 +206,22 @@ exports.default = function (config) {
                     // update, then show prompts on success
                     return (0, _Utils.returnPromise)(this.props.onUpdate(this.props.id, values)).then(function (data) {
                         return new _promise2.default(function (resolve, reject) {
-                            _this2.openPromptUpdateSuccess(function () {
+                            _this3.openPromptUpdateSuccess(function () {
                                 return resolve(data);
                             }, reject);
                         });
                     }, function (error) {
                         return new _promise2.default(function (resolve, reject) {
-                            _this2.openPromptWriteError(resolve, reject, _this2.props.writeError);
+                            _this3.openPromptWriteError(resolve, reject, _this3.props.writeError);
                         });
+                    }).then(function () {
+                        return _this3.setDirty(false);
                     }).then(this.props.afterUpdate);
                 }
             }, {
                 key: 'requestDelete',
                 value: function requestDelete() {
-                    var _this3 = this;
+                    var _this4 = this;
 
                     // if we need to delete but can't do it, reject
                     if (!this.permitDelete()) {
@@ -222,47 +229,52 @@ exports.default = function (config) {
                     }
 
                     return new _promise2.default(function (resolve, reject) {
-                        _this3.openPromptDeleteConfirm(resolve, reject);
+                        _this4.openPromptDeleteConfirm(resolve, reject);
                     }).then(function () {
-                        return (0, _Utils.returnPromise)(_this3.props.onDelete(_this3.props.id)).then(function (data) {
+                        return (0, _Utils.returnPromise)(_this4.props.onDelete(_this4.props.id)).then(function (data) {
                             return new _promise2.default(function (resolve, reject) {
-                                _this3.openPromptDeleteSuccess(function () {
+                                _this4.openPromptDeleteSuccess(function () {
                                     return resolve(data);
                                 }, reject);
                             });
-                        }).then(_this3.props.afterDelete);
+                        }).then(_this4.props.afterDelete);
                     }, function () {});
                 }
             }, {
                 key: 'requestClose',
                 value: function requestClose() {
-                    var _this4 = this;
-
-                    var dirty = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+                    var _this5 = this;
 
                     return new _promise2.default(function (resolve, reject) {
-                        if (dirty) {
-                            _this4.openPromptCloseConfirm(resolve, reject);
+                        if (_this5.state.dirty) {
+                            _this5.openPromptCloseConfirm(resolve, reject);
                         } else {
-                            _this4.props.onClose();
                             resolve();
+                            _this5.props.onClose();
                         }
                     });
                 }
             }, {
                 key: 'requestReset',
                 value: function requestReset() {
-                    var _this5 = this;
-
-                    var dirty = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+                    var _this6 = this;
 
                     return new _promise2.default(function (resolve, reject) {
-                        if (dirty) {
-                            _this5.openPromptResetConfirm(resolve, reject);
+                        if (_this6.state.dirty) {
+                            _this6.openPromptResetConfirm(resolve, reject);
                         } else {
                             reject();
                         }
+                    }).then(function () {
+                        return _this6.setDirty(false);
                     });
+                }
+            }, {
+                key: 'setDirty',
+                value: function setDirty() {
+                    var dirty = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
+                    this.setState({ dirty: dirty });
                 }
 
                 //
@@ -272,36 +284,32 @@ exports.default = function (config) {
             }, {
                 key: 'openPrompt',
                 value: function openPrompt(prompt) {
-                    this.setState({
-                        prompt: prompt
-                    });
+                    this.setState({ prompt: prompt });
                 }
             }, {
                 key: 'closePrompt',
                 value: function closePrompt() {
-                    this.setState({
-                        prompt: null
-                    });
+                    this.setState({ prompt: null });
                 }
             }, {
                 key: 'openPromptCreateSuccess',
-                value: function openPromptCreateSuccess(resolve, reject, newId, action) {
-                    var _this6 = this;
+                value: function openPromptCreateSuccess(resolve, reject, newId) {
+                    var _this7 = this;
 
                     var close = function close() {
-                        if (_this6.props.onGotoEdit && _this6.props.permitUpdate) {
-                            _this6.props.onGotoEdit(newId);
+                        if (_this7.props.onGotoEdit && _this7.props.permitUpdate) {
+                            _this7.props.onGotoEdit(newId);
                         } else {
-                            _this6.props.onClose();
+                            resolve();
+                            _this7.props.onClose();
                         }
-                        resolve();
                     };
 
                     // set this in config!
 
                     this.openPrompt({
                         title: "Success",
-                        message: this.entityName(['first']) + ' ' + action + '.',
+                        message: this.entityName(['first']) + ' created.',
                         type: "success",
                         yes: "Okay",
                         onYes: close,
@@ -335,11 +343,11 @@ exports.default = function (config) {
             }, {
                 key: 'openPromptDeleteSuccess',
                 value: function openPromptDeleteSuccess(resolve, reject) {
-                    var _this7 = this;
+                    var _this8 = this;
 
                     var close = function close() {
-                        _this7.props.onClose();
                         resolve();
+                        _this8.props.onClose();
                     };
 
                     this.openPrompt({
@@ -354,7 +362,7 @@ exports.default = function (config) {
             }, {
                 key: 'openPromptCloseConfirm',
                 value: function openPromptCloseConfirm(resolve, reject) {
-                    var _this8 = this;
+                    var _this9 = this;
 
                     this.openPrompt({
                         title: "Unsaved changes",
@@ -363,8 +371,8 @@ exports.default = function (config) {
                         yes: "Discard changes",
                         no: "Keep editing",
                         onYes: function onYes() {
-                            _this8.props.onClose();
                             resolve();
+                            _this9.props.onClose();
                         },
                         onNo: reject
                     });
@@ -429,7 +437,7 @@ exports.default = function (config) {
                     // inferred abilities
                     var canSave = !fetching;
                     var canDelete = this.permitDelete() && !fetching && !isNew;
-                    // canReset isn't defined here because Entity Editor doens't know if the form is dirty
+                    var canReset = this.state.dirty;
 
                     if (isNew && !this.permitCreate()) {
                         // prohibit creating if onCreate is undefined
@@ -466,11 +474,11 @@ exports.default = function (config) {
                     return _react2.default.createElement(ComposedComponent, (0, _extends3.default)({}, filteredProps, {
 
                         id: id,
-                        willCopy: willCopy,
                         isNew: isNew,
 
                         canSave: canSave,
                         canDelete: canDelete,
+                        canReset: canReset,
 
                         prompt: this.state.prompt,
                         closePrompt: this.closePrompt.bind(this),
@@ -486,9 +494,11 @@ exports.default = function (config) {
                         writeError: writeError,
 
                         onSave: this.requestSave.bind(this),
+                        onSaveNew: this.requestCreate.bind(this),
                         onClose: this.requestClose.bind(this),
                         onDelete: this.requestDelete.bind(this),
                         onReset: this.requestReset.bind(this),
+                        onDirty: this.setDirty.bind(this),
 
                         entityName: this.entityName.bind(this),
                         actionName: this.actionName.bind(this)
@@ -501,7 +511,6 @@ exports.default = function (config) {
         EntityEditor.propTypes = {
             // id and abilites
             id: _react.PropTypes.any, // (editor will edit item if this is set, or create new if this is not set)
-            willCopy: _react.PropTypes.bool,
             // prompts
             prompt: _react.PropTypes.string,
             closePrompt: _react.PropTypes.func,
@@ -536,8 +545,6 @@ exports.default = function (config) {
         };
 
         EntityEditor.defaultProps = {
-            // ids and abilities
-            willCopy: false,
             // data transaction states
             reading: false,
             creating: false,

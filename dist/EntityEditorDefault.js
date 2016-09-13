@@ -176,7 +176,6 @@ exports.default = function (config) {
         _EntityEditor2.default.propTypes = {
             // id and abilites
             id: _react.PropTypes.any, // (editor will edit item if this is set, or create new if this is not set)
-            willCopy: _react.PropTypes.bool,
             isNew: _react.PropTypes.bool,
             canSave: _react.PropTypes.bool,
             canDelete: _react.PropTypes.bool,
@@ -195,6 +194,7 @@ exports.default = function (config) {
             writeError: _react.PropTypes.any,
             // props from entity editor - callbacks. Call these from your form
             onSave: _react.PropTypes.func,
+            onSaveNew: _react.PropTypes.func,
             onClose: _react.PropTypes.func,
             onDelete: _react.PropTypes.func,
             onReset: _react.PropTypes.func,

@@ -14,6 +14,7 @@ export default (config) => (ComposedComponent) => {
         constructor(props) {
             super(props);
             this.state = {
+                dirty: false,
                 prompt: null
             };
         }
@@ -103,29 +104,31 @@ export default (config) => (ComposedComponent) => {
 
         requestSave(values) {
             if(this.createsOnSave()) {
-                // if we need to create but can't do it, reject
-                if(!this.permitCreate()) {
-                    return Promise.reject();
-                }
+                return this.requestCreate(values);
+            }
+            return this.requestUpdate(values);
+        }
 
-                // create, then show prompts on success
-                return returnPromise(this.props.onCreate(values))
-                    .then(
-                        (data) => new Promise((resolve, reject) => {
-                            console.log("onsave", data);
-                            if(this.props.willCopy) {
-                                this.openPromptCreateSuccess(() => resolve(data), reject, data.newId, "copied");
-                            } else {
-                                this.openPromptCreateSuccess(() => resolve(data), reject, data.newId, "created");
-                            }
-                        }),
-                        (error) => new Promise((resolve, reject) => {
-                            this.openPromptWriteError(resolve, reject, this.props.writeError);
-                        })
-                    )
-                    .then(this.props.afterCreate);
+        requestCreate(values) {
+            // if we need to create but can't do it, reject
+            if(!this.permitCreate()) {
+                return Promise.reject();
             }
 
+            // create, then show prompts on success
+            return returnPromise(this.props.onCreate(values))
+                .then(
+                    (data) => new Promise((resolve, reject) => {
+                        this.openPromptCreateSuccess(() => resolve(data), reject, data.newId);
+                    }),
+                    (error) => new Promise((resolve, reject) => {
+                        this.openPromptWriteError(resolve, reject, this.props.writeError);
+                    })
+                )
+                .then(this.props.afterCreate);
+        }
+
+        requestUpdate(values) {
             // if we need to update but can't do it, reject
             if(!this.permitUpdate()) {
                 return Promise.reject();
@@ -141,6 +144,7 @@ export default (config) => (ComposedComponent) => {
                         this.openPromptWriteError(resolve, reject, this.props.writeError);
                     })
                 )
+                .then(() => this.setDirty(false))
                 .then(this.props.afterUpdate);
         }
 
@@ -165,25 +169,30 @@ export default (config) => (ComposedComponent) => {
             );
         }
 
-        requestClose(dirty = false) {
+        requestClose() {
             return new Promise((resolve, reject) => {
-                if(dirty) {
+                if(this.state.dirty) {
                     this.openPromptCloseConfirm(resolve, reject);
                 } else {
-                    this.props.onClose();
                     resolve();
+                    this.props.onClose();
                 }
             });
         }
 
-        requestReset(dirty = false) {
+        requestReset() {
             return new Promise((resolve, reject) => {
-                if(dirty) {
-                    this.openPromptResetConfirm(resolve, reject);
+                if(this.state.dirty) {
+                    this.openPromptResetConfirm(resolve, reject)
                 } else {
                     reject();
                 }
-            });
+            })
+            .then(() => this.setDirty(false));
+        }
+
+        setDirty(dirty = true) {
+            this.setState({ dirty });
         }
 
         //
@@ -191,32 +200,28 @@ export default (config) => (ComposedComponent) => {
         //
 
         openPrompt(prompt) {
-            this.setState({
-                prompt
-            });
+            this.setState({ prompt });
         }
 
         closePrompt() {
-            this.setState({
-                prompt: null
-            });
+            this.setState({ prompt: null });
         }
 
-        openPromptCreateSuccess(resolve, reject, newId, action) {
+        openPromptCreateSuccess(resolve, reject, newId) {
             const close = () => {
                 if(this.props.onGotoEdit && this.props.permitUpdate) {
                     this.props.onGotoEdit(newId);
                 } else {
+                    resolve();
                     this.props.onClose();
                 }
-                resolve();
             };
 
             // set this in config!
                 
             this.openPrompt({
                 title: "Success",
-                message: `${this.entityName(['first'])} ${action}.`,
+                message: `${this.entityName(['first'])} created.`,
                 type: "success",
                 yes: "Okay",
                 onYes: close,
@@ -248,8 +253,8 @@ export default (config) => (ComposedComponent) => {
 
         openPromptDeleteSuccess(resolve, reject) {
             const close = () => {
-                this.props.onClose();
                 resolve();
+                this.props.onClose();
             };
 
             this.openPrompt({
@@ -270,8 +275,8 @@ export default (config) => (ComposedComponent) => {
                 yes: "Discard changes",
                 no: "Keep editing",
                 onYes: () => {
-                    this.props.onClose();
                     resolve();
+                    this.props.onClose();
                 },
                 onNo: reject
             });
@@ -282,7 +287,7 @@ export default (config) => (ComposedComponent) => {
                 title: "Warning",
                 message: `Are you sure you want to reset this ${this.entityName()}? You will lose any changes since your last save.`,
                 type: "confirm",
-                yes: "Revert",
+                yes: "Reset",
                 no: "Cancel",
                 onYes: resolve,
                 onNo: reject
@@ -335,7 +340,7 @@ export default (config) => (ComposedComponent) => {
             // inferred abilities
             var canSave = !fetching;
             const canDelete = this.permitDelete() && !fetching && !isNew;
-            // canReset isn't defined here because Entity Editor doens't know if the form is dirty
+            const canReset = this.state.dirty;
 
             if(isNew && !this.permitCreate()) { // prohibit creating if onCreate is undefined
                 console.log("EntityEditor: Can't save form; permitCreate is false, you don't have permission to create, or an onCreate function is not defined.");
@@ -390,11 +395,11 @@ export default (config) => (ComposedComponent) => {
                     {...filteredProps}
 
                     id={id}
-                    willCopy={willCopy}
                     isNew={isNew}
 
                     canSave={canSave}
                     canDelete={canDelete}
+                    canReset={canReset}
 
                     prompt={this.state.prompt}
                     closePrompt={this.closePrompt.bind(this)}
@@ -410,9 +415,11 @@ export default (config) => (ComposedComponent) => {
                     writeError={writeError}
 
                     onSave={this.requestSave.bind(this)}
+                    onSaveNew={this.requestCreate.bind(this)}
                     onClose={this.requestClose.bind(this)}
                     onDelete={this.requestDelete.bind(this)}
                     onReset={this.requestReset.bind(this)}
+                    onDirty={this.setDirty.bind(this)}
 
                     entityName={this.entityName.bind(this)}
                     actionName={this.actionName.bind(this)}
@@ -424,7 +431,6 @@ export default (config) => (ComposedComponent) => {
     EntityEditor.propTypes = {
         // id and abilites
         id: PropTypes.any, // (editor will edit item if this is set, or create new if this is not set)
-        willCopy: PropTypes.bool,
         // prompts
         prompt: PropTypes.string,
         closePrompt: PropTypes.func,
@@ -459,8 +465,6 @@ export default (config) => (ComposedComponent) => {
     };
 
     EntityEditor.defaultProps = {
-        // ids and abilities
-        willCopy: false,
         // data transaction states
         reading: false,
         creating: false,

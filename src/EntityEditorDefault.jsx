@@ -93,7 +93,6 @@ export default (config) => (ComposedComponent) => {
     EntityEditor.propTypes = {
         // id and abilites
         id: PropTypes.any, // (editor will edit item if this is set, or create new if this is not set)
-        willCopy: PropTypes.bool,
         isNew: PropTypes.bool,
         canSave: PropTypes.bool,
         canDelete: PropTypes.bool,
@@ -112,10 +111,12 @@ export default (config) => (ComposedComponent) => {
         writeError: PropTypes.any,
         // props from entity editor - callbacks. Call these from your form
         onSave: PropTypes.func,
+        onSaveNew: PropTypes.func,
         onClose: PropTypes.func,
         onDelete: PropTypes.func,
         onReset: PropTypes.func,
         onGotoEdit: PropTypes.func,
+        onDirty: PropTypes.func,
         // after callbacks - fired on success, must each return a resolve promise if used
         afterRead: PropTypes.func,
         afterCreate: PropTypes.func,
