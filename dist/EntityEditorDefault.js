@@ -38,6 +38,10 @@ var _Modal = require('./Modal');
 
 var _Modal2 = _interopRequireDefault(_Modal);
 
+var _DefaultPrompts = require('./DefaultPrompts');
+
+var _DefaultPrompts2 = _interopRequireDefault(_DefaultPrompts);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //
@@ -68,7 +72,7 @@ exports.default = function (config) {
                 //
 
                 value: function render() {
-                    if (this.props.reading) {
+                    if (this.props.isReading) {
                         return _react2.default.createElement(
                             'p',
                             null,
@@ -87,7 +91,9 @@ exports.default = function (config) {
 
                     var propsToRemove = _immutable.List.of(
                     // prompts
-                    'prompt', 'closePrompt');
+                    'prompt', 'closePrompt',
+                    // after callbacks
+                    'afterRead', 'afterCreate', 'afterUpdate', 'afterDelete', 'afterClose');
 
                     var filteredProps = propsToRemove.reduce(function (filteredProps, propToRemove) {
                         return filteredProps.delete(propToRemove);
@@ -173,43 +179,8 @@ exports.default = function (config) {
             return EntityEditorDefault;
         }(_react.Component);
 
-        _EntityEditor2.default.propTypes = {
-            // id and abilites
-            id: _react.PropTypes.any, // (editor will edit item if this is set, or create new if this is not set)
-            isNew: _react.PropTypes.bool,
-            canSave: _react.PropTypes.bool,
-            canDelete: _react.PropTypes.bool,
-            // props from entity editor - prompts
-            prompt: _react.PropTypes.object,
-            closePrompt: _react.PropTypes.func,
-            // data transaction states
-            reading: _react.PropTypes.bool,
-            creating: _react.PropTypes.bool,
-            updating: _react.PropTypes.bool,
-            deleting: _react.PropTypes.bool,
-            saving: _react.PropTypes.bool,
-            fetching: _react.PropTypes.bool,
-            // errors
-            readError: _react.PropTypes.any,
-            writeError: _react.PropTypes.any,
-            // props from entity editor - callbacks. Call these from your form
-            onSave: _react.PropTypes.func,
-            onSaveNew: _react.PropTypes.func,
-            onClose: _react.PropTypes.func,
-            onDelete: _react.PropTypes.func,
-            onReset: _react.PropTypes.func,
-            onGotoEdit: _react.PropTypes.func,
-            // after callbacks - fired on success, must each return a resolve promise if used
-            afterRead: _react.PropTypes.func,
-            afterCreate: _react.PropTypes.func,
-            afterUpdate: _react.PropTypes.func,
-            afterDelete: _react.PropTypes.func,
-            afterClose: _react.PropTypes.func,
-            // naming
-            entityName: _react.PropTypes.func,
-            actionName: _react.PropTypes.func
-        };
-
-        return (0, _EntityEditor2.default)()(EntityEditorDefault);
+        return (0, _EntityEditor2.default)({
+            prompts: _DefaultPrompts2.default
+        })(EntityEditorDefault);
     };
 };

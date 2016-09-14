@@ -34,6 +34,10 @@ class Basic extends React.Component {
         this.handleClickAddUser = this.handleClickAddUser.bind(this);
 	}
 
+    //
+    // data handling
+    //
+
 	handleRead(id) {
 		const currentUserData = {
             ...this.state.users[id],
@@ -66,6 +70,10 @@ class Basic extends React.Component {
         delete users[id];
 	}
 
+    //
+    // UI
+    //
+
 	handleClose() {
 		this.setState({
 			editMode: false,
@@ -87,6 +95,10 @@ class Basic extends React.Component {
             currentUserData: null
         });
     }
+
+    //
+    // render
+    //
 
     render() {
 
@@ -123,7 +135,8 @@ class Basic extends React.Component {
                         onCreate={this.handleCreate}
                         onUpdate={this.handleUpdate}
                         onDelete={this.handleDelete}
-                        onClose={this.handleClose} />
+                        onClose={this.handleClose}
+                    />
                 </div>
             }
 

@@ -3,6 +3,7 @@ import { List, Map, fromJS } from 'immutable';
 
 import EntityEditor from './EntityEditor';
 import Modal from './Modal';
+import DefaultPrompts from './DefaultPrompts';
 
 //
 // EntityEditorDefault higher order component
@@ -22,7 +23,7 @@ export default (config) => (ComposedComponent) => {
         //
 
         render() {
-            if(this.props.reading) {
+            if(this.props.isReading) {
                 return <p>Loading...</p>;
             }
 
@@ -33,7 +34,13 @@ export default (config) => (ComposedComponent) => {
             const propsToRemove = List.of(
                 // prompts
                 'prompt',
-                'closePrompt'
+                'closePrompt',
+                // after callbacks
+                'afterRead',
+                'afterCreate',
+                'afterUpdate',
+                'afterDelete',
+                'afterClose'
             );
             
             const filteredProps = propsToRemove
@@ -90,43 +97,7 @@ export default (config) => (ComposedComponent) => {
         }
     }
 
-    EntityEditor.propTypes = {
-        // id and abilites
-        id: PropTypes.any, // (editor will edit item if this is set, or create new if this is not set)
-        isNew: PropTypes.bool,
-        canSave: PropTypes.bool,
-        canDelete: PropTypes.bool,
-        // props from entity editor - prompts
-        prompt: PropTypes.object,
-        closePrompt: PropTypes.func,
-        // data transaction states
-        reading: PropTypes.bool,
-        creating: PropTypes.bool,
-        updating: PropTypes.bool,
-        deleting: PropTypes.bool,
-        saving: PropTypes.bool,
-        fetching: PropTypes.bool,
-        // errors
-        readError: PropTypes.any,
-        writeError: PropTypes.any,
-        // props from entity editor - callbacks. Call these from your form
-        onSave: PropTypes.func,
-        onSaveNew: PropTypes.func,
-        onClose: PropTypes.func,
-        onDelete: PropTypes.func,
-        onReset: PropTypes.func,
-        onGotoEdit: PropTypes.func,
-        onDirty: PropTypes.func,
-        // after callbacks - fired on success, must each return a resolve promise if used
-        afterRead: PropTypes.func,
-        afterCreate: PropTypes.func,
-        afterUpdate: PropTypes.func,
-        afterDelete: PropTypes.func,
-        afterClose: PropTypes.func,
-        // naming
-        entityName: PropTypes.func,
-        actionName: PropTypes.func
-    };
-
-    return EntityEditor()(EntityEditorDefault);
+    return EntityEditor({
+        prompts: DefaultPrompts
+    })(EntityEditorDefault);
 };
