@@ -19,8 +19,21 @@ export default (config) => (ComposedComponent) => {
             super(props);
             this.state = {
                 dirty: false,
-                prompt: null
+                prompt: null,
+                allowLeave: false
             };
+        }
+
+        componentWillMount() {
+            if(this.props.onLeaveHook) {
+                this.props.onLeaveHook((a,b) => {
+                    if(!this.state.dirty || this.state.allowLeave) {
+                        return true;
+                    }
+                    this.requestLeave();
+                    return false;
+                });
+            }
         }
 
         componentWillUnmount() {
@@ -150,9 +163,13 @@ export default (config) => (ComposedComponent) => {
                     this.openPromptCloseConfirm(resolve, reject);
                 } else {
                     resolve();
-                    this.props.onClose();
+                    this.handleClose();
                 }
             });
+        }
+
+        requestLeave() {
+            console.log("leaving now");
         }
 
         requestResetConfirm() {
@@ -168,6 +185,13 @@ export default (config) => (ComposedComponent) => {
 
         setDirty(dirty = true) {
             this.setState({ dirty });
+        }
+
+        handleClose() {
+            this.setState({
+                allowLeave: true
+            });
+            this.props.onClose();
         }
 
         //
@@ -204,7 +228,7 @@ export default (config) => (ComposedComponent) => {
                         this.props.onGotoEdit(newId);
                     } else {
                         resolve();
-                        this.props.onClose();
+                        this.handleClose();
                     }
                 }
             });
@@ -220,7 +244,7 @@ export default (config) => (ComposedComponent) => {
             this.openPrompt(["deleteSuccess", "writeSuccess"], {
                 onYes: () => {
                     resolve();
-                    this.props.onClose();
+                    this.handleClose();
                 }
             });
         }
@@ -250,7 +274,7 @@ export default (config) => (ComposedComponent) => {
             this.openPrompt("closeConfirm", {
                 onYes: () => {
                     resolve();
-                    this.props.onClose();
+                    this.handleClose();
                 },
                 onNo: reject()
             });

@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { Route, IndexRoute } from 'react-router';
+import { Route, IndexRoute, withRouter } from 'react-router';
 import { fromJS, List } from 'immutable';
 
 //
@@ -37,6 +37,12 @@ function CreateEntityEditorRouter(params) {
 
     class EntityEditorRouter extends Component {
 
+        componentWillMount() {
+            this.onLeaveHook = (callback) => {
+                this.props.router.setRouteLeaveHook(this.props.route, callback);
+            };
+        }
+
         //
         // navigation
         //
@@ -68,11 +74,11 @@ function CreateEntityEditorRouter(params) {
         }
 
         onClose() {
-            this.props.history.push(this.getEditorRoute('close'));
+            this.props.router.push(this.getEditorRoute('close'));
         }
 
         onGotoEdit(id = false) {
-            this.props.history.push(this.getEditorRoute('edit', id));
+            this.props.router.push(this.getEditorRoute('edit', id));
         }
 
         //
@@ -80,9 +86,12 @@ function CreateEntityEditorRouter(params) {
         //
 
         render() {
+            console.log(this.thing);
+
             const propsToAddToChildren = {
                 id: this.props.params[params.paramId],
                 onClose: this.onClose.bind(this),
+                onLeaveHook: this.onLeaveHook,
                 onGotoEdit: this.onGotoEdit.bind(this),
                 getEditorRoute: this.getEditorRoute.bind(this)
             };
@@ -96,10 +105,10 @@ function CreateEntityEditorRouter(params) {
         // routes
         routes: PropTypes.array.isRequired,
         params: PropTypes.object.isRequired,
-        history: PropTypes.object
+        router: PropTypes.object
     };
 
-    return EntityEditorRouter;
+    return withRouter(EntityEditorRouter);
 }
 
 

@@ -67,11 +67,6 @@ function createEditorRoutes(params) {
             _reactRouter.Route,
             { path: ':' + params.paramId + '/edit', component: routerComponent },
             _react2.default.createElement(_reactRouter.IndexRoute, { component: params.component })
-        ),
-        _react2.default.createElement(
-            _reactRouter.Route,
-            { path: ':' + params.paramId + '/copy', component: routerComponent },
-            _react2.default.createElement(_reactRouter.IndexRoute, { component: params.component })
         )
     );
 };
@@ -90,14 +85,13 @@ function CreateEntityEditorRouter(params) {
         }
 
         (0, _createClass3.default)(EntityEditorRouter, [{
-            key: 'willCopy',
-            value: function willCopy() {
-                var props = arguments.length <= 0 || arguments[0] === undefined ? this.props : arguments[0];
+            key: 'componentWillMount',
+            value: function componentWillMount() {
+                var _this2 = this;
 
-                var split = (0, _immutable.fromJS)(props.routes).get(props.routes.length - 2) // route containing :id and edit / copy
-                .get('path').split('/');
-
-                return (0, _immutable.fromJS)(split).last() == "copy";
+                this.onLeaveHook = function (callback) {
+                    _this2.props.router.setRouteLeaveHook(_this2.props.route, callback);
+                };
             }
 
             //
@@ -140,14 +134,14 @@ function CreateEntityEditorRouter(params) {
         }, {
             key: 'onClose',
             value: function onClose() {
-                this.props.history.push(this.getEditorRoute('close'));
+                this.props.router.push(this.getEditorRoute('close'));
             }
         }, {
             key: 'onGotoEdit',
             value: function onGotoEdit() {
                 var id = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
 
-                this.props.history.push(this.getEditorRoute('edit', id));
+                this.props.router.push(this.getEditorRoute('edit', id));
             }
 
             //
@@ -157,10 +151,12 @@ function CreateEntityEditorRouter(params) {
         }, {
             key: 'render',
             value: function render() {
+                console.log(this.thing);
+
                 var propsToAddToChildren = {
                     id: this.props.params[params.paramId],
-                    willCopy: this.willCopy(),
                     onClose: this.onClose.bind(this),
+                    onLeaveHook: this.onLeaveHook,
                     onGotoEdit: this.onGotoEdit.bind(this),
                     getEditorRoute: this.getEditorRoute.bind(this)
                 };
@@ -182,8 +178,8 @@ function CreateEntityEditorRouter(params) {
         // routes
         routes: _react.PropTypes.array.isRequired,
         params: _react.PropTypes.object.isRequired,
-        history: _react.PropTypes.object
+        router: _react.PropTypes.object
     };
 
-    return EntityEditorRouter;
+    return (0, _reactRouter.withRouter)(EntityEditorRouter);
 }
