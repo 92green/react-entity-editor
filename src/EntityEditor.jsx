@@ -19,18 +19,18 @@ export default (config) => (ComposedComponent) => {
             super(props);
             this.state = {
                 dirty: false,
-                prompt: null,
-                allowLeave: false
+                prompt: null
             };
+            this.allowLeave = false;
         }
 
         componentWillMount() {
             if(this.props.onLeaveHook) {
                 this.props.onLeaveHook((a,b) => {
-                    if(!this.state.dirty || this.state.allowLeave) {
+                    if(this.allowLeave) {
                         return true;
                     }
-                    this.requestLeave();
+                    this.requestClose();
                     return false;
                 });
             }
@@ -168,10 +168,6 @@ export default (config) => (ComposedComponent) => {
             });
         }
 
-        requestLeave() {
-            console.log("leaving now");
-        }
-
         requestResetConfirm() {
             return new Promise((resolve, reject) => {
                 if(this.state.dirty) {
@@ -188,9 +184,7 @@ export default (config) => (ComposedComponent) => {
         }
 
         handleClose() {
-            this.setState({
-                allowLeave: true
-            });
+            this.allowLeave = true;
             this.props.onClose();
         }
 

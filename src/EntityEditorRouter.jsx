@@ -86,8 +86,6 @@ function CreateEntityEditorRouter(params) {
         //
 
         render() {
-            console.log(this.thing);
-
             const propsToAddToChildren = {
                 id: this.props.params[params.paramId],
                 onClose: this.onClose.bind(this),

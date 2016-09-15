@@ -67,9 +67,9 @@ exports.default = function (config) {
 
                 _this.state = {
                     dirty: false,
-                    prompt: null,
-                    allowLeave: false
+                    prompt: null
                 };
+                _this.allowLeave = false;
                 return _this;
             }
 
@@ -80,10 +80,10 @@ exports.default = function (config) {
 
                     if (this.props.onLeaveHook) {
                         this.props.onLeaveHook(function (a, b) {
-                            if (_this2.state.allowLeave) {
+                            if (_this2.allowLeave) {
                                 return true;
                             }
-                            _this2.requestLeave();
+                            _this2.requestClose();
                             return false;
                         });
                     }
@@ -247,11 +247,6 @@ exports.default = function (config) {
                     });
                 }
             }, {
-                key: 'requestLeave',
-                value: function requestLeave() {
-                    console.log("leaving now");
-                }
-            }, {
                 key: 'requestResetConfirm',
                 value: function requestResetConfirm() {
                     var _this7 = this;
@@ -276,9 +271,7 @@ exports.default = function (config) {
             }, {
                 key: 'handleClose',
                 value: function handleClose() {
-                    this.setState({
-                        allowLeave: true
-                    });
+                    this.allowLeave = true;
                     this.props.onClose();
                 }
 
