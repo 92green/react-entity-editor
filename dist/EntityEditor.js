@@ -54,7 +54,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = function (config) {
     return function (ComposedComponent) {
 
-        var prompts = config && config.prompts || {};
+        var configPrompts = config && config.prompts || {};
+        var configWords = config && config.words || {};
 
         var EntityEditor = function (_Component) {
             (0, _inherits3.default)(EntityEditor, _Component);
@@ -92,59 +93,36 @@ exports.default = function (config) {
                 //
                 // naming / text labels
                 //
-                // child elements will receive a entityName and actionName prop
-                // both are functions that can optionally accept a bunch of strings as arguments
-                // to set which text transforms to perform
-                // so if the current entityName="dog" and child.props.entityName('first','plural'),
-                // then the string "Dogs" will be returned
-                // 
 
             }, {
                 key: 'entityName',
                 value: function entityName() {
-
-                    return "NOUN";
-
-                    /*console.log(modifications);
-                    var name = this.props.entityName;
-                    if(!modifications) {
-                        return name;
+                    for (var _len = arguments.length, modifiers = Array(_len), _key = 0; _key < _len; _key++) {
+                        modifiers[_key] = arguments[_key];
                     }
-                    if(modifications.includes('plural')) {
-                        name = this.props.entityNamePlural || name+"s";
-                    }
-                    return this.genericNameTransform(name, modifications);*/
+
+                    var entityName = configWords.entityName(this.props, modifiers);
+                    return this.applyNameModifiers(entityName, modifiers);
                 }
             }, {
                 key: 'actionName',
                 value: function actionName() {
-                    return "ACTION";
-
-                    /*
-                    var name = "edit";
-                    if(this.isNew()) {
-                        name = "add new";
+                    for (var _len2 = arguments.length, modifiers = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+                        modifiers[_key2] = arguments[_key2];
                     }
-                    return this.genericNameTransform(name, modifications);*/
+
+                    var actionName = configWords.actionName(this.props, modifiers, this.isNew());
+                    return this.applyNameModifiers(actionName, modifiers);
                 }
             }, {
-                key: 'genericNameTransform',
-                value: function genericNameTransform(name, modifications) {
-                    /*if(modifications.includes('first')) {
-                        name = name
-                            .charAt(0)
-                            .toUpperCase() + name.slice(1);
-                    }
-                    if(modifications.includes('titleCase')) {
-                        name = name
-                            .split(" ")
-                            .map(word => word
-                                .charAt(0)
-                                .toUpperCase() + word.slice(1)
-                            )
-                            .join(" ");
-                    }*/
-                    return name;
+                key: 'applyNameModifiers',
+                value: function applyNameModifiers(words, modifiers) {
+                    return modifiers.reduce(function (words, modifier) {
+                        if (!configWords.modifiers.hasOwnProperty(modifier)) {
+                            throw modifier + ' is not a valid modifier. The following are valid modifiers according to the config passed into Entity Editor: {words.modifiers.join(\', \')}';
+                        }
+                        return configWords.modifiers[modifier](words);
+                    }, words);
                 }
 
                 //
@@ -283,17 +261,17 @@ exports.default = function (config) {
                 key: 'openPrompt',
                 value: function openPrompt(name, props) {
                     var chosenName = typeof name == "string" ? name : (0, _immutable.fromJS)(name).find(function (nn) {
-                        return prompts.hasOwnProperty(nn);
+                        return configPrompts.hasOwnProperty(nn);
                     });
 
-                    if (!prompts[chosenName]) {
+                    if (!configPrompts[chosenName]) {
                         props.onYes();
                         return;
                     }
 
-                    var prompt = prompts[chosenName]((0, _extends3.default)({}, props, {
-                        entity: this.entityName,
-                        action: this.actionName
+                    var prompt = configPrompts[chosenName]((0, _extends3.default)({}, props, {
+                        entityName: this.entityName.bind(this),
+                        actionName: this.actionName.bind(this)
                     }));
 
                     this.setState({ prompt: prompt });
@@ -447,8 +425,6 @@ exports.default = function (config) {
                     var canReset = !isNew && this.state.dirty;
                     var canSaveNew = !fetching && !isNew && (0, _Utils.returnBoolean)(this.props.allowCreate);
                     var canSave = !fetching && (isNew ? (0, _Utils.returnBoolean)(this.props.allowCreate) : (0, _Utils.returnBoolean)(this.props.allowUpdate, id));
-
-                    console.log(canSave);
 
                     var propsToRemove = _immutable.List.of('id',
                     // prompts

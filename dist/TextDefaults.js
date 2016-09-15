@@ -3,14 +3,14 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.default = {
+var defaultPrompts = {
     createSuccess: function createSuccess(_ref) {
         var onYes = _ref.onYes;
-        var entity = _ref.entity;
+        var entityName = _ref.entityName;
         return {
             type: "success",
             title: "Success",
-            message: entity('first') + " created.",
+            message: entityName('first') + " created.",
             yes: "Okay",
             onYes: onYes
         };
@@ -18,11 +18,11 @@ exports.default = {
 
     updateSuccess: function updateSuccess(_ref2) {
         var onYes = _ref2.onYes;
-        var entity = _ref2.entity;
+        var entityName = _ref2.entityName;
         return {
             type: "success",
             title: "Success",
-            message: entity('first') + " saved.",
+            message: entityName('first') + " saved.",
             yes: "Okay",
             onYes: onYes
         };
@@ -30,11 +30,11 @@ exports.default = {
 
     deleteSuccess: function deleteSuccess(_ref3) {
         var onYes = _ref3.onYes;
-        var entity = _ref3.entity;
+        var entityName = _ref3.entityName;
         return {
             type: "success",
             title: "Success",
-            message: entity('first') + " deleted.",
+            message: entityName('first') + " deleted.",
             yes: "Okay",
             onYes: onYes
         };
@@ -43,11 +43,11 @@ exports.default = {
     deleteConfirm: function deleteConfirm(_ref4) {
         var onYes = _ref4.onYes;
         var onNo = _ref4.onNo;
-        var entity = _ref4.entity;
+        var entityName = _ref4.entityName;
         return {
             type: "confirm",
             title: "Warning",
-            message: "Are you sure you want to delete this " + entity() + "? This action cannot be undone.",
+            message: "Are you sure you want to delete this " + entityName() + "? This action cannot be undone.",
             yes: "Delete",
             no: "Cancel",
             onYes: onYes,
@@ -58,11 +58,11 @@ exports.default = {
     closeConfirm: function closeConfirm(_ref5) {
         var onYes = _ref5.onYes;
         var onNo = _ref5.onNo;
-        var entity = _ref5.entity;
+        var entityName = _ref5.entityName;
         return {
             type: "confirm",
             title: "Unsaved changes",
-            message: "You have unsaved changes on this " + entity() + ". What would you like to do?",
+            message: "You have unsaved changes on this " + entityName() + ". What would you like to do?",
             yes: "Discard changes",
             no: "Keep editing",
             onYes: onYes,
@@ -73,11 +73,11 @@ exports.default = {
     resetConfirm: function resetConfirm(_ref6) {
         var onYes = _ref6.onYes;
         var onNo = _ref6.onNo;
-        var entity = _ref6.entity;
+        var entityName = _ref6.entityName;
         return {
             type: "confirm",
             title: "Warning",
-            message: "Are you sure you want to reset this " + entity() + "? You will lose any changes since your last save.",
+            message: "Are you sure you want to reset this " + entityName() + "? You will lose any changes since your last save.",
             yes: "Reset",
             no: "Cancel",
             onYes: onYes,
@@ -98,3 +98,31 @@ exports.default = {
         };
     }
 };
+
+var defaultWords = {
+    entityName: function entityName(entityProps, modifiers) {
+        if (modifiers.includes('plural')) {
+            return entityProps.entityNamePlural || entityProps.entityName + "s";
+        }
+        return entityProps.entityName;
+    },
+    actionName: function actionName(entityProps, modifiers, isNew) {
+        return isNew ? "add new" : "edit";
+    },
+    modifiers: {
+        first: function first(words) {
+            return words.charAt(0).toUpperCase() + words.slice(1);
+        },
+        titleCase: function titleCase(words) {
+            return words.split(" ").map(function (word) {
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            }).join(" ");
+        },
+        upperCase: function upperCase(words) {
+            return woreds.toUpperCase();
+        }
+    }
+};
+
+exports.defaultPrompts = defaultPrompts;
+exports.defaultWords = defaultWords;

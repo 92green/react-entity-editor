@@ -1,5 +1,5 @@
 import React from 'react';
-import BasicEntityEditorForm from './BasicEntityEditorForm';
+import BasicEntityEditorForm from '../forms/BasicEntityEditorForm';
 
 const users = {
     "1": {
@@ -16,7 +16,7 @@ const users = {
     }
 };
 
-class Basic extends React.Component {
+class BasicExample extends React.Component {
 	constructor(props) {
 		super(props);
 		
@@ -136,6 +136,7 @@ class Basic extends React.Component {
                         onUpdate={this.handleUpdate}
                         onDelete={this.handleDelete}
                         onClose={this.handleClose}
+                        entityName="user"
                     />
                 </div>
             }
@@ -144,4 +145,4 @@ class Basic extends React.Component {
     }
 }
 
-export default Basic;
+export default BasicExample;

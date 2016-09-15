@@ -38,9 +38,7 @@ var _Modal = require('./Modal');
 
 var _Modal2 = _interopRequireDefault(_Modal);
 
-var _DefaultPrompts = require('./DefaultPrompts');
-
-var _DefaultPrompts2 = _interopRequireDefault(_DefaultPrompts);
+var _TextDefaults = require('./TextDefaults');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -105,7 +103,7 @@ exports.default = function (config) {
                         _react2.default.createElement(
                             'h2',
                             null,
-                            this.props.actionName(['titleCase']),
+                            this.props.actionName('first'),
                             ' ',
                             this.props.entityName()
                         ),
@@ -180,7 +178,8 @@ exports.default = function (config) {
         }(_react.Component);
 
         return (0, _EntityEditor2.default)({
-            prompts: _DefaultPrompts2.default
+            prompts: _TextDefaults.defaultPrompts,
+            words: _TextDefaults.defaultWords
         })(EntityEditorDefault);
     };
 };

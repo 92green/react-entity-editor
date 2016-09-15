@@ -25,9 +25,6 @@ export function createEditorRoutes(params) {
             <Route path={`:${params.paramId}/edit`} component={routerComponent}>
                 <IndexRoute component={params.component}/>
             </Route>
-            <Route path={`:${params.paramId}/copy`} component={routerComponent}>
-                <IndexRoute component={params.component}/>
-            </Route>
         </Route>
     );
 };
@@ -39,15 +36,6 @@ export function createEditorRoutes(params) {
 function CreateEntityEditorRouter(params) {
 
     class EntityEditorRouter extends Component {
-
-        willCopy(props = this.props) {
-            const split = fromJS(props.routes)
-                .get(props.routes.length - 2) // route containing :id and edit / copy
-                .get('path')
-                .split('/');
-
-            return fromJS(split).last() == "copy";
-        }
 
         //
         // navigation
@@ -94,7 +82,6 @@ function CreateEntityEditorRouter(params) {
         render() {
             const propsToAddToChildren = {
                 id: this.props.params[params.paramId],
-                willCopy: this.willCopy(),
                 onClose: this.onClose.bind(this),
                 onGotoEdit: this.onGotoEdit.bind(this),
                 getEditorRoute: this.getEditorRoute.bind(this)

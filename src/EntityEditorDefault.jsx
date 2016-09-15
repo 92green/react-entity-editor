@@ -1,9 +1,9 @@
-import React, { Component, PropTypes } from 'react';
-import { List, Map, fromJS } from 'immutable';
+import React, {Component, PropTypes} from 'react';
+import {List, Map, fromJS} from 'immutable';
 
 import EntityEditor from './EntityEditor';
 import Modal from './Modal';
-import DefaultPrompts from './DefaultPrompts';
+import {defaultPrompts, defaultWords} from './TextDefaults';
 
 //
 // EntityEditorDefault higher order component
@@ -48,7 +48,7 @@ export default (config) => (ComposedComponent) => {
                 .toJS();
                 
             return <div>
-                <h2>{this.props.actionName(['titleCase'])} {this.props.entityName()}</h2>
+                <h2>{this.props.actionName('first')} {this.props.entityName()}</h2>
                 <ComposedComponent {...filteredProps} />
                 {this.renderModal()}
             </div>;
@@ -98,6 +98,7 @@ export default (config) => (ComposedComponent) => {
     }
 
     return EntityEditor({
-        prompts: DefaultPrompts
+        prompts: defaultPrompts,
+        words: defaultWords
     })(EntityEditorDefault);
 };

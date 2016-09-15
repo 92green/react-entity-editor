@@ -10,7 +10,8 @@ import {returnPromise, returnBoolean} from './Utils';
 
 export default (config) => (ComposedComponent) => {
 
-    const prompts = (config && config.prompts) || {};
+    const configPrompts = (config && config.prompts) || {};
+    const configWords = (config && config.words) || {};
 
     class EntityEditor extends Component {
 
@@ -37,56 +38,25 @@ export default (config) => (ComposedComponent) => {
         //
         // naming / text labels
         //
-        // child elements will receive a entityName and actionName prop
-        // both are functions that can optionally accept a bunch of strings as arguments
-        // to set which text transforms to perform
-        // so if the current entityName="dog" and child.props.entityName('first','plural'),
-        // then the string "Dogs" will be returned
-        // 
 
-        entityName(...modifications) {
-
-
-            return "NOUN";
-
-            /*console.log(modifications);
-            var name = this.props.entityName;
-            if(!modifications) {
-                return name;
-            }
-            if(modifications.includes('plural')) {
-                name = this.props.entityNamePlural || name+"s";
-            }
-            return this.genericNameTransform(name, modifications);*/
+        entityName(...modifiers) {
+            const entityName = configWords.entityName(this.props, modifiers);
+            return this.applyNameModifiers(entityName, modifiers);
         }
 
-        actionName(...modifications) {
-            return "ACTION";
-
-            /*
-            var name = "edit";
-            if(this.isNew()) {
-                name = "add new";
-            }
-            return this.genericNameTransform(name, modifications);*/
+        actionName(...modifiers) {
+            const actionName = configWords.actionName(this.props, modifiers, this.isNew());
+            return this.applyNameModifiers(actionName, modifiers);
         }
 
-        genericNameTransform(name, modifications) {
-            /*if(modifications.includes('first')) {
-                name = name
-                    .charAt(0)
-                    .toUpperCase() + name.slice(1);
-            }
-            if(modifications.includes('titleCase')) {
-                name = name
-                    .split(" ")
-                    .map(word => word
-                        .charAt(0)
-                        .toUpperCase() + word.slice(1)
-                    )
-                    .join(" ");
-            }*/
-            return name;
+        applyNameModifiers(words, modifiers) {
+            return modifiers
+                .reduce((words, modifier) => {
+                    if(!configWords.modifiers.hasOwnProperty(modifier)) {
+                        throw `${modifier} is not a valid modifier. The following are valid modifiers according to the config passed into Entity Editor: {words.modifiers.join(', ')}`;
+                    }
+                    return configWords.modifiers[modifier](words);
+                }, words);
         }
 
         //
@@ -116,7 +86,7 @@ export default (config) => (ComposedComponent) => {
                             this.openPromptCreateSuccess(() => resolve(data), reject, data.newId);
                         }),
                         (error) => new Promise((resolve, reject) => {
-                            this.openPromptErrorOnCreate(resolve, reject, this.props.errorCreating);
+                            this.openPromptErrorOnCreate(resolve, reject, this.props.errorOnCreate);
                         })
                     )
                     .then(this.props.afterCreate),
@@ -141,7 +111,7 @@ export default (config) => (ComposedComponent) => {
                             this.openPromptUpdateSuccess(() => resolve(data), reject);
                         }),
                         (error) => new Promise((resolve, reject) => {
-                            this.openPromptErrorOnUpdate(resolve, reject, this.props.errorUpdating);
+                            this.openPromptErrorOnUpdate(resolve, reject, this.props.errorOnUpdate);
                         })
                     )
                     .then(() => this.setDirty(false))
@@ -166,7 +136,7 @@ export default (config) => (ComposedComponent) => {
                             this.openPromptDeleteSuccess(() => resolve(data), reject);
                         }),
                         (error) => new Promise((resolve, reject) => {
-                            this.openPromptErrorOnDelete(resolve, reject, this.props.errorDeleting);
+                            this.openPromptErrorOnDelete(resolve, reject, this.props.errorOnDelete);
                         })
                     )
                     .then(this.props.afterDelete),
@@ -207,17 +177,17 @@ export default (config) => (ComposedComponent) => {
         openPrompt(name, props) {
             const chosenName = typeof name == "string"
                 ? name
-                : fromJS(name).find(nn => prompts.hasOwnProperty(nn));
+                : fromJS(name).find(nn => configPrompts.hasOwnProperty(nn));
 
-            if(!prompts[chosenName]) {
+            if(!configPrompts[chosenName]) {
                 props.onYes();
                 return;
             }
 
-            const prompt = prompts[chosenName]({
+            const prompt = configPrompts[chosenName]({
                 ...props,
-                entity: this.entityName,
-                action: this.actionName
+                entityName: this.entityName.bind(this),
+                actionName: this.actionName.bind(this)
             });
 
             this.setState({prompt});
@@ -338,9 +308,9 @@ export default (config) => (ComposedComponent) => {
                 isDeleting,
                 // errors
                 errorReading,
-                errorCreating,
-                errorUpdating,
-                errorDeleting
+                errorOnCreate,
+                errorOnUpdate,
+                errorOnDelete
             } = this.props;
 
             const isNew = this.isNew();
@@ -367,9 +337,9 @@ export default (config) => (ComposedComponent) => {
                 'isDeleting',
                 // errors
                 'errorReading',
-                'errorCreating',
-                'errorUpdating',
-                'errorDeleting',
+                'errorOnCreate',
+                'errorOnUpdate',
+                'errorOnDelete',
                 // allowances
                 'allowCreate',
                 'allowUpdate',
@@ -420,9 +390,9 @@ export default (config) => (ComposedComponent) => {
                 fetching={fetching}
 
                 errorReading={!isNew && errorReading}
-                errorCreating={errorCreating}
-                errorUpdating={errorUpdating}
-                errorDeleting={errorDeleting}
+                errorOnCreate={errorOnCreate}
+                errorOnUpdate={errorOnUpdate}
+                errorOnDelete={errorOnDelete}
 
                 onSave={this.requestSave.bind(this)}
                 onSaveNew={this.requestCreate.bind(this)}
@@ -450,9 +420,9 @@ export default (config) => (ComposedComponent) => {
         isDeleting: PropTypes.bool,
         // errors
         errorReading: PropTypes.any,
-        errorCreating: PropTypes.any,
-        errorUpdating: PropTypes.any,
-        errorDeleting: PropTypes.any,
+        errorOnCreate: PropTypes.any,
+        errorOnUpdate: PropTypes.any,
+        errorOnDelete: PropTypes.any,
         // allowances
         allowRead: PropTypes.oneOfType([
             PropTypes.bool,

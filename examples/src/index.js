@@ -10,16 +10,14 @@ import App from './containers/App';
 import Main from './components/Main';
 
 // basic
-
-import Basic from './basic/Basic';
+import BasicExample from './basic/BasicExample';
 
 // routes
-
-import Routes from './routes/Routes';
-import RoutesEditor from './routes/RoutesEditor';
-const routesEditorRoutes = createEditorRoutes({
-    component: RoutesEditor,
-    path: "routes"
+import RouterExampleList from './router/RouterExampleList';
+import RouterExampleEditor from './router/RouterExampleEditor';
+const routerEditorRoutes = createEditorRoutes({
+    component: RouterExampleEditor,
+    path: "router"
 });
 
 import Error from './components/Error';
@@ -31,9 +29,11 @@ render(
         <Router history={browserHistory}>
             <Route path="/" component={App}>
                 <IndexRoute component={Main}/>
-                <Route path="basic" component={Basic} />
-                <Route path="routes" component={Routes} />
-                {routesEditorRoutes}
+                {/* basic example */}
+                <Route path="basic" component={BasicExample} />
+                {/* react router example */}
+                <Route path="router" component={RouterExampleList} />
+                {routerEditorRoutes}
                 <Route path="*" component={Error}/>
             </Route>
         </Router>
