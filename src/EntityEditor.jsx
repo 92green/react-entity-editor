@@ -82,13 +82,27 @@ export default (config) => (ComposedComponent) => {
                 : this.requestUpdate(values);
         }
 
+        requestSaveNew(values) {
+            // if we need to create but can't do it, reject
+            if(!returnBoolean(this.props.allowCreate)) {
+                return Promise.reject();
+            }
+
+            return new Promise((resolve, reject) => {
+                this.openPromptSaveNewConfirm(resolve, reject);
+            })
+            .then(
+                () => this.requestCreate(values),
+                () => {}
+            );
+        }
+
         requestCreate(values) {
             // if we need to create but can't do it, reject
             if(!returnBoolean(this.props.allowCreate)) {
                 return Promise.reject();
             }
 
-            // create, then show prompts on success or error
             return new Promise((resolve, reject) => {
                 this.openPromptCreateConfirm(resolve, reject);
             })
@@ -113,7 +127,6 @@ export default (config) => (ComposedComponent) => {
                 return Promise.reject();
             }
 
-            // update, then show prompts on success or error
             return new Promise((resolve, reject) => {
                 this.openPromptUpdateConfirm(resolve, reject);
             })
@@ -250,6 +263,13 @@ export default (config) => (ComposedComponent) => {
             });
         }
 
+        openPromptSaveNewConfirm(resolve, reject) {
+            this.openPrompt(["saveNewConfirm", "createConfirm", "saveConfirm", "writeConfirm"], {
+                onYes: resolve,
+                onNo: reject
+            });
+        }
+
         openPromptUpdateConfirm(resolve, reject) {
             this.openPrompt(["updateConfirm", "saveConfirm", "writeConfirm"], {
                 onYes: resolve,
@@ -325,7 +345,7 @@ export default (config) => (ComposedComponent) => {
                 isUpdating,
                 isDeleting,
                 // errors
-                errorReading,
+                errorOnRead,
                 errorOnCreate,
                 errorOnUpdate,
                 errorOnDelete
@@ -334,14 +354,15 @@ export default (config) => (ComposedComponent) => {
             const isNew = this.isNew();
 
             // inferred data transaction states
-            const saving = isCreating || isUpdating;
-            const fetching = isReading || isCreating || isUpdating || isDeleting;
+            const isSaving = isCreating || isUpdating;
+            const isWriting = isCreating || isUpdating || isDeleting;
+            const isWaiting = isReading || isCreating || isUpdating || isDeleting;
 
             // inferred abilities
-            const canDelete = !fetching && !isNew && returnBoolean(this.props.allowDelete, id);
+            const canDelete = !isWaiting && !isNew && returnBoolean(this.props.allowDelete, id);
             const canReset = !isNew && this.state.dirty;
-            const canSaveNew = !fetching && !isNew && returnBoolean(this.props.allowCreate);
-            const canSave = !fetching && (isNew ? returnBoolean(this.props.allowCreate) : returnBoolean(this.props.allowUpdate, id));
+            const canSaveNew = !isWaiting && !isNew && returnBoolean(this.props.allowCreate);
+            const canSave = !isWaiting && (isNew ? returnBoolean(this.props.allowCreate) : returnBoolean(this.props.allowUpdate, id));
 
             const propsToRemove = List.of(
                 'id',
@@ -353,8 +374,8 @@ export default (config) => (ComposedComponent) => {
                 'isCreating',
                 'isUpdating',
                 'isDeleting',
-                // errors
-                'errorReading',
+                // errors - experimental
+                'errorOnRead',
                 'errorOnCreate',
                 'errorOnUpdate',
                 'errorOnDelete',
@@ -404,16 +425,17 @@ export default (config) => (ComposedComponent) => {
                 isCreating={isCreating}
                 isUpdating={isUpdating}
                 isDeleting={isDeleting}
-                saving={saving}
-                fetching={fetching}
+                isSaving={isSaving}
+                isWriting={isWriting}
+                isWaiting={isWaiting}
 
-                errorReading={!isNew && errorReading}
+                errorOnRead={!isNew && errorOnRead}
                 errorOnCreate={errorOnCreate}
                 errorOnUpdate={errorOnUpdate}
                 errorOnDelete={errorOnDelete}
 
                 onSave={this.requestSave.bind(this)}
-                onSaveNew={this.requestCreate.bind(this)}
+                onSaveNew={this.requestSaveNew.bind(this)}
                 onClose={this.requestClose.bind(this)}
                 onDelete={this.requestDelete.bind(this)}
                 onResetConfirm={this.requestResetConfirm.bind(this)}
@@ -428,16 +450,13 @@ export default (config) => (ComposedComponent) => {
     EntityEditor.propTypes = {
         // id and values: editor will edit item if id is set, or create new if this is not set
         id: PropTypes.any,
-        // prompts
-        prompt: PropTypes.string,
-        closePrompt: PropTypes.func,
         // data transaction states
         isReading: PropTypes.bool,
         isCreating: PropTypes.bool,
         isUpdating: PropTypes.bool,
         isDeleting: PropTypes.bool,
         // errors
-        errorReading: PropTypes.any,
+        errorOnRead: PropTypes.any,
         errorOnCreate: PropTypes.any,
         errorOnUpdate: PropTypes.any,
         errorOnDelete: PropTypes.any,
@@ -465,6 +484,7 @@ export default (config) => (ComposedComponent) => {
         onDelete: PropTypes.func,
         onClose: PropTypes.func.isRequired,
         onGotoEdit: PropTypes.func,
+        onLeaveHook: PropTypes.func,
         // after callbacks fired on success (must each return a resolved promise)
         afterRead: PropTypes.func,
         afterCreate: PropTypes.func,

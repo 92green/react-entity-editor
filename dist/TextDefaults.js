@@ -40,10 +40,25 @@ var defaultPrompts = {
         };
     },
 
-    deleteConfirm: function deleteConfirm(_ref4) {
+    saveNewConfirm: function saveNewConfirm(_ref4) {
         var onYes = _ref4.onYes;
         var onNo = _ref4.onNo;
         var entityName = _ref4.entityName;
+        return {
+            type: "confirm",
+            title: "Warning",
+            message: "Are you sure you want to save a new copy of this " + entityName() + "?",
+            yes: "Save as new",
+            no: "Cancel",
+            onYes: onYes,
+            onNo: onNo
+        };
+    },
+
+    deleteConfirm: function deleteConfirm(_ref5) {
+        var onYes = _ref5.onYes;
+        var onNo = _ref5.onNo;
+        var entityName = _ref5.entityName;
         return {
             type: "confirm",
             title: "Warning",
@@ -55,10 +70,10 @@ var defaultPrompts = {
         };
     },
 
-    closeConfirm: function closeConfirm(_ref5) {
-        var onYes = _ref5.onYes;
-        var onNo = _ref5.onNo;
-        var entityName = _ref5.entityName;
+    closeConfirm: function closeConfirm(_ref6) {
+        var onYes = _ref6.onYes;
+        var onNo = _ref6.onNo;
+        var entityName = _ref6.entityName;
         return {
             type: "confirm",
             title: "Unsaved changes",
@@ -70,10 +85,10 @@ var defaultPrompts = {
         };
     },
 
-    resetConfirm: function resetConfirm(_ref6) {
-        var onYes = _ref6.onYes;
-        var onNo = _ref6.onNo;
-        var entityName = _ref6.entityName;
+    resetConfirm: function resetConfirm(_ref7) {
+        var onYes = _ref7.onYes;
+        var onNo = _ref7.onNo;
+        var entityName = _ref7.entityName;
         return {
             type: "confirm",
             title: "Warning",
@@ -85,9 +100,9 @@ var defaultPrompts = {
         };
     },
 
-    errorOnWrite: function errorOnWrite(_ref7) {
-        var error = _ref7.error;
-        var onYes = _ref7.onYes;
+    errorOnWrite: function errorOnWrite(_ref8) {
+        var error = _ref8.error;
+        var onYes = _ref8.onYes;
         return {
             type: "error",
             title: "Error",

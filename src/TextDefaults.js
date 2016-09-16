@@ -22,6 +22,16 @@ const defaultPrompts = {
         yes: "Okay",
         onYes
     }),
+
+    saveNewConfirm: ({onYes, onNo, entityName}) => ({
+        type: "confirm",
+        title: "Warning",
+        message: `Are you sure you want to save a new copy of this ${entityName()}?`,
+        yes: "Save as new",
+        no: "Cancel",
+        onYes,
+        onNo
+    }),
     
     deleteConfirm: ({onYes, onNo, entityName}) => ({
         type: "confirm",

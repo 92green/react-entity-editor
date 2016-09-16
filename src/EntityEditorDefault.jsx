@@ -27,8 +27,8 @@ export default (config) => (ComposedComponent) => {
                 return <p>Loading...</p>;
             }
 
-            if(this.props.readError) {
-                return <p>Error: {this.props.readError.get('message')}</p>;
+            if(this.props.errorOnRead) {
+                return <p>Error: {this.props.errorOnRead.message}</p>;
             }
 
             const propsToRemove = List.of(

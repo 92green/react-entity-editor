@@ -151,8 +151,8 @@ exports.default = function (config) {
                     return this.isNew() ? this.requestCreate(values) : this.requestUpdate(values);
                 }
             }, {
-                key: 'requestCreate',
-                value: function requestCreate(values) {
+                key: 'requestSaveNew',
+                value: function requestSaveNew(values) {
                     var _this3 = this;
 
                     // if we need to create but can't do it, reject
@@ -160,56 +160,70 @@ exports.default = function (config) {
                         return _promise2.default.reject();
                     }
 
-                    // create, then show prompts on success or error
                     return new _promise2.default(function (resolve, reject) {
-                        _this3.openPromptCreateConfirm(resolve, reject);
+                        _this3.openPromptSaveNewConfirm(resolve, reject);
                     }).then(function () {
-                        return (0, _Utils.returnPromise)(_this3.props.onCreate(values)).then(function (data) {
+                        return _this3.requestCreate(values);
+                    }, function () {});
+                }
+            }, {
+                key: 'requestCreate',
+                value: function requestCreate(values) {
+                    var _this4 = this;
+
+                    // if we need to create but can't do it, reject
+                    if (!(0, _Utils.returnBoolean)(this.props.allowCreate)) {
+                        return _promise2.default.reject();
+                    }
+
+                    return new _promise2.default(function (resolve, reject) {
+                        _this4.openPromptCreateConfirm(resolve, reject);
+                    }).then(function () {
+                        return (0, _Utils.returnPromise)(_this4.props.onCreate(values)).then(function (data) {
                             return new _promise2.default(function (resolve, reject) {
-                                _this3.openPromptCreateSuccess(function () {
+                                _this4.openPromptCreateSuccess(function () {
                                     return resolve(data);
                                 }, reject, data.newId);
                             });
                         }, function (error) {
                             return new _promise2.default(function (resolve, reject) {
-                                _this3.openPromptErrorOnCreate(resolve, reject, _this3.props.errorOnCreate);
+                                _this4.openPromptErrorOnCreate(resolve, reject, _this4.props.errorOnCreate);
                             });
-                        }).then(_this3.props.afterCreate);
+                        }).then(_this4.props.afterCreate);
                     }, function () {});
                 }
             }, {
                 key: 'requestUpdate',
                 value: function requestUpdate(values) {
-                    var _this4 = this;
+                    var _this5 = this;
 
                     // if we need to update but can't do it, reject
                     if (!(0, _Utils.returnBoolean)(this.props.allowUpdate, this.props.id)) {
                         return _promise2.default.reject();
                     }
 
-                    // update, then show prompts on success or error
                     return new _promise2.default(function (resolve, reject) {
-                        _this4.openPromptUpdateConfirm(resolve, reject);
+                        _this5.openPromptUpdateConfirm(resolve, reject);
                     }).then(function () {
-                        return (0, _Utils.returnPromise)(_this4.props.onUpdate(_this4.props.id, values)).then(function (data) {
+                        return (0, _Utils.returnPromise)(_this5.props.onUpdate(_this5.props.id, values)).then(function (data) {
                             return new _promise2.default(function (resolve, reject) {
-                                _this4.openPromptUpdateSuccess(function () {
+                                _this5.openPromptUpdateSuccess(function () {
                                     return resolve(data);
                                 }, reject);
                             });
                         }, function (error) {
                             return new _promise2.default(function (resolve, reject) {
-                                _this4.openPromptErrorOnUpdate(resolve, reject, _this4.props.errorOnUpdate);
+                                _this5.openPromptErrorOnUpdate(resolve, reject, _this5.props.errorOnUpdate);
                             });
                         }).then(function () {
-                            return _this4.setDirty(false);
-                        }).then(_this4.props.afterUpdate);
+                            return _this5.setDirty(false);
+                        }).then(_this5.props.afterUpdate);
                     }, function () {});
                 }
             }, {
                 key: 'requestDelete',
                 value: function requestDelete() {
-                    var _this5 = this;
+                    var _this6 = this;
 
                     // if we need to delete but can't do it, reject
                     if (!(0, _Utils.returnBoolean)(this.props.allowDelete, this.props.id)) {
@@ -217,48 +231,48 @@ exports.default = function (config) {
                     }
 
                     return new _promise2.default(function (resolve, reject) {
-                        _this5.openPromptDeleteConfirm(resolve, reject);
+                        _this6.openPromptDeleteConfirm(resolve, reject);
                     }).then(function () {
-                        return (0, _Utils.returnPromise)(_this5.props.onDelete(_this5.props.id)).then(function (data) {
+                        return (0, _Utils.returnPromise)(_this6.props.onDelete(_this6.props.id)).then(function (data) {
                             return new _promise2.default(function (resolve, reject) {
-                                _this5.openPromptDeleteSuccess(function () {
+                                _this6.openPromptDeleteSuccess(function () {
                                     return resolve(data);
                                 }, reject);
                             });
                         }, function (error) {
                             return new _promise2.default(function (resolve, reject) {
-                                _this5.openPromptErrorOnDelete(resolve, reject, _this5.props.errorOnDelete);
+                                _this6.openPromptErrorOnDelete(resolve, reject, _this6.props.errorOnDelete);
                             });
-                        }).then(_this5.props.afterDelete);
+                        }).then(_this6.props.afterDelete);
                     }, function () {});
                 }
             }, {
                 key: 'requestClose',
                 value: function requestClose() {
-                    var _this6 = this;
+                    var _this7 = this;
 
                     return new _promise2.default(function (resolve, reject) {
-                        if (_this6.state.dirty) {
-                            _this6.openPromptCloseConfirm(resolve, reject);
+                        if (_this7.state.dirty) {
+                            _this7.openPromptCloseConfirm(resolve, reject);
                         } else {
                             resolve();
-                            _this6.handleClose();
+                            _this7.handleClose();
                         }
                     });
                 }
             }, {
                 key: 'requestResetConfirm',
                 value: function requestResetConfirm() {
-                    var _this7 = this;
+                    var _this8 = this;
 
                     return new _promise2.default(function (resolve, reject) {
-                        if (_this7.state.dirty) {
-                            _this7.openPromptResetConfirm(resolve, reject);
+                        if (_this8.state.dirty) {
+                            _this8.openPromptResetConfirm(resolve, reject);
                         } else {
                             reject();
                         }
                     }).then(function () {
-                        return _this7.setDirty(false);
+                        return _this8.setDirty(false);
                     });
                 }
             }, {
@@ -306,15 +320,15 @@ exports.default = function (config) {
             }, {
                 key: 'openPromptCreateSuccess',
                 value: function openPromptCreateSuccess(resolve, reject, newId) {
-                    var _this8 = this;
+                    var _this9 = this;
 
                     this.openPrompt(["createSuccess", "saveSuccess", "writeSuccess"], {
                         onYes: function onYes() {
-                            if (_this8.props.onGotoEdit && (0, _Utils.returnBoolean)(_this8.props.allowUpdate, newId)) {
-                                _this8.props.onGotoEdit(newId);
+                            if (_this9.props.onGotoEdit && (0, _Utils.returnBoolean)(_this9.props.allowUpdate, newId)) {
+                                _this9.props.onGotoEdit(newId);
                             } else {
                                 resolve();
-                                _this8.handleClose();
+                                _this9.handleClose();
                             }
                         }
                     });
@@ -329,12 +343,12 @@ exports.default = function (config) {
             }, {
                 key: 'openPromptDeleteSuccess',
                 value: function openPromptDeleteSuccess(resolve, reject) {
-                    var _this9 = this;
+                    var _this10 = this;
 
                     this.openPrompt(["deleteSuccess", "writeSuccess"], {
                         onYes: function onYes() {
                             resolve();
-                            _this9.handleClose();
+                            _this10.handleClose();
                         }
                     });
                 }
@@ -342,6 +356,14 @@ exports.default = function (config) {
                 key: 'openPromptCreateConfirm',
                 value: function openPromptCreateConfirm(resolve, reject) {
                     this.openPrompt(["createConfirm", "saveConfirm", "writeConfirm"], {
+                        onYes: resolve,
+                        onNo: reject
+                    });
+                }
+            }, {
+                key: 'openPromptSaveNewConfirm',
+                value: function openPromptSaveNewConfirm(resolve, reject) {
+                    this.openPrompt(["saveNewConfirm", "createConfirm", "saveConfirm", "writeConfirm"], {
                         onYes: resolve,
                         onNo: reject
                     });
@@ -365,12 +387,12 @@ exports.default = function (config) {
             }, {
                 key: 'openPromptCloseConfirm',
                 value: function openPromptCloseConfirm(resolve, reject) {
-                    var _this10 = this;
+                    var _this11 = this;
 
                     this.openPrompt("closeConfirm", {
                         onYes: function onYes() {
                             resolve();
-                            _this10.handleClose();
+                            _this11.handleClose();
                         },
                         onNo: reject()
                     });
@@ -430,7 +452,7 @@ exports.default = function (config) {
                     var isCreating = _props.isCreating;
                     var isUpdating = _props.isUpdating;
                     var isDeleting = _props.isDeleting;
-                    var errorReading = _props.errorReading;
+                    var errorOnRead = _props.errorOnRead;
                     var errorOnCreate = _props.errorOnCreate;
                     var errorOnUpdate = _props.errorOnUpdate;
                     var errorOnDelete = _props.errorOnDelete;
@@ -439,22 +461,23 @@ exports.default = function (config) {
                     var isNew = this.isNew();
 
                     // inferred data transaction states
-                    var saving = isCreating || isUpdating;
-                    var fetching = isReading || isCreating || isUpdating || isDeleting;
+                    var isSaving = isCreating || isUpdating;
+                    var isWriting = isCreating || isUpdating || isDeleting;
+                    var isWaiting = isReading || isCreating || isUpdating || isDeleting;
 
                     // inferred abilities
-                    var canDelete = !fetching && !isNew && (0, _Utils.returnBoolean)(this.props.allowDelete, id);
+                    var canDelete = !isWaiting && !isNew && (0, _Utils.returnBoolean)(this.props.allowDelete, id);
                     var canReset = !isNew && this.state.dirty;
-                    var canSaveNew = !fetching && !isNew && (0, _Utils.returnBoolean)(this.props.allowCreate);
-                    var canSave = !fetching && (isNew ? (0, _Utils.returnBoolean)(this.props.allowCreate) : (0, _Utils.returnBoolean)(this.props.allowUpdate, id));
+                    var canSaveNew = !isWaiting && !isNew && (0, _Utils.returnBoolean)(this.props.allowCreate);
+                    var canSave = !isWaiting && (isNew ? (0, _Utils.returnBoolean)(this.props.allowCreate) : (0, _Utils.returnBoolean)(this.props.allowUpdate, id));
 
                     var propsToRemove = _immutable.List.of('id',
                     // prompts
                     'prompt', 'closePrompt',
                     // data transaction states
                     'isReading', 'isCreating', 'isUpdating', 'isDeleting',
-                    // errors
-                    'errorReading', 'errorOnCreate', 'errorOnUpdate', 'errorOnDelete',
+                    // errors - experimental
+                    'errorOnRead', 'errorOnCreate', 'errorOnUpdate', 'errorOnDelete',
                     // allowances
                     'allowCreate', 'allowUpdate', 'allowDelete',
                     // callbacks
@@ -485,16 +508,17 @@ exports.default = function (config) {
                         isCreating: isCreating,
                         isUpdating: isUpdating,
                         isDeleting: isDeleting,
-                        saving: saving,
-                        fetching: fetching,
+                        isSaving: isSaving,
+                        isWriting: isWriting,
+                        isWaiting: isWaiting,
 
-                        errorReading: !isNew && errorReading,
+                        errorOnRead: !isNew && errorOnRead,
                         errorOnCreate: errorOnCreate,
                         errorOnUpdate: errorOnUpdate,
                         errorOnDelete: errorOnDelete,
 
                         onSave: this.requestSave.bind(this),
-                        onSaveNew: this.requestCreate.bind(this),
+                        onSaveNew: this.requestSaveNew.bind(this),
                         onClose: this.requestClose.bind(this),
                         onDelete: this.requestDelete.bind(this),
                         onResetConfirm: this.requestResetConfirm.bind(this),
@@ -511,16 +535,13 @@ exports.default = function (config) {
         EntityEditor.propTypes = {
             // id and values: editor will edit item if id is set, or create new if this is not set
             id: _react.PropTypes.any,
-            // prompts
-            prompt: _react.PropTypes.string,
-            closePrompt: _react.PropTypes.func,
             // data transaction states
             isReading: _react.PropTypes.bool,
             isCreating: _react.PropTypes.bool,
             isUpdating: _react.PropTypes.bool,
             isDeleting: _react.PropTypes.bool,
             // errors
-            errorReading: _react.PropTypes.any,
+            errorOnRead: _react.PropTypes.any,
             errorOnCreate: _react.PropTypes.any,
             errorOnUpdate: _react.PropTypes.any,
             errorOnDelete: _react.PropTypes.any,
@@ -540,6 +561,7 @@ exports.default = function (config) {
             onDelete: _react.PropTypes.func,
             onClose: _react.PropTypes.func.isRequired,
             onGotoEdit: _react.PropTypes.func,
+            onLeaveHook: _react.PropTypes.func,
             // after callbacks fired on success (must each return a resolved promise)
             afterRead: _react.PropTypes.func,
             afterCreate: _react.PropTypes.func,

@@ -78,12 +78,12 @@ exports.default = function (config) {
                         );
                     }
 
-                    if (this.props.readError) {
+                    if (this.props.errorOnRead) {
                         return _react2.default.createElement(
                             'p',
                             null,
                             'Error: ',
-                            this.props.readError.get('message')
+                            this.props.errorOnRead.message
                         );
                     }
 
