@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import configureStore from './stores';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router';
-import { createEditorRoutes } from 'react-entity-editor';
+import { createEditorRoutes } from '../../dist/index'; // normally this would be "from 'react-entity-editor'"
 
 
 import App from './containers/App';

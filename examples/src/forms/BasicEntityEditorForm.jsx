@@ -1,5 +1,5 @@
 import React from 'react';
-import {EntityEditorDefault} from 'react-entity-editor';
+import {EntityEditorDefault} from '../../../dist/index'; // normally this would be "from 'react-entity-editor'"
 
 class BasicEntityEditorForm extends React.Component {
 
@@ -9,18 +9,7 @@ class BasicEntityEditorForm extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            form: {
-                firstName: '',
-                lastName: '',
-                id: ''
-            },
-            formReset: {
-                firstName: '',
-                lastName: '',
-                id: ''
-            }
-        };
+        this.state = {};
     }
 
     //
@@ -53,21 +42,52 @@ class BasicEntityEditorForm extends React.Component {
     //
 
     handleFirstNameChange(e) {
-        var form = this.state.form;
-        form.firstName = e.target.value;
-        this.setState({ form });
+        const form = this.state.form;
+        this.setState({
+            form: {
+                ...form,
+                firstName: e.target.value
+            }
+        });
   
         // tell entity editor that the form is dirty
         this.props.onDirty();
     }
 
     handleLastNameChange(e) {
-        var form = this.state.form;
-        form.lastName = e.target.value;
-        this.setState({ form });
+        const form = this.state.form;
+        this.setState({
+            form: {
+                ...form,
+                lastName: e.target.value
+            }
+        });
 
         // tell entity editor that the form is dirty
         this.props.onDirty();
+    }
+
+    handleUserTypeChange(e) {
+        const form = this.state.form;
+        const userType = e.target.value;
+
+        this.props.onCustomConfirm(() => ({
+            type: "confirm",
+            title: "Warning",
+            message: `Are you sure you want to change the user type to "${userType}"?`,
+            yes: "Yes",
+            no: "Cancel"
+        })).then(() => {
+            this.setState({
+                form: {
+                    ...form,
+                    userType
+                }
+            });
+
+            // tell entity editor that the form is dirty
+            this.props.onDirty();
+        });        
     }
 
     //
@@ -136,6 +156,13 @@ class BasicEntityEditorForm extends React.Component {
                 <p>
                     <label>Last name</label>
                     <input type="text" value={this.state.form.lastName} onChange={this.handleLastNameChange.bind(this)}/>
+                </p>
+                <p>
+                    <label>User type</label>
+                    <select value={this.state.form.userType} onChange={this.handleUserTypeChange.bind(this)}>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
                 </p>
                 {this.state.form.id && 
                     <p>

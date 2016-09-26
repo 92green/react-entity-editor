@@ -276,6 +276,22 @@ exports.default = function (config) {
                     });
                 }
             }, {
+                key: 'requestCustomConfirm',
+                value: function requestCustomConfirm(func) {
+                    var _this9 = this;
+
+                    return new _promise2.default(function (resolve, reject) {
+                        var prompt = (0, _extends3.default)({}, func({
+                            entityName: _this9.entityName.bind(_this9),
+                            actionName: _this9.actionName.bind(_this9)
+                        }), {
+                            onYes: resolve,
+                            onNo: reject
+                        });
+                        _this9.setState({ prompt: prompt });
+                    });
+                }
+            }, {
                 key: 'setDirty',
                 value: function setDirty() {
                     var dirty = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
@@ -320,15 +336,15 @@ exports.default = function (config) {
             }, {
                 key: 'openPromptCreateSuccess',
                 value: function openPromptCreateSuccess(resolve, reject, newId) {
-                    var _this9 = this;
+                    var _this10 = this;
 
                     this.openPrompt(["createSuccess", "saveSuccess", "writeSuccess"], {
                         onYes: function onYes() {
-                            if (_this9.props.onGotoEdit && (0, _Utils.returnBoolean)(_this9.props.allowUpdate, newId)) {
-                                _this9.props.onGotoEdit(newId);
+                            if (_this10.props.onGotoEdit && (0, _Utils.returnBoolean)(_this10.props.allowUpdate, newId)) {
+                                _this10.props.onGotoEdit(newId);
                             } else {
                                 resolve();
-                                _this9.handleClose();
+                                _this10.handleClose();
                             }
                         }
                     });
@@ -343,12 +359,12 @@ exports.default = function (config) {
             }, {
                 key: 'openPromptDeleteSuccess',
                 value: function openPromptDeleteSuccess(resolve, reject) {
-                    var _this10 = this;
+                    var _this11 = this;
 
                     this.openPrompt(["deleteSuccess", "writeSuccess"], {
                         onYes: function onYes() {
                             resolve();
-                            _this10.handleClose();
+                            _this11.handleClose();
                         }
                     });
                 }
@@ -387,12 +403,12 @@ exports.default = function (config) {
             }, {
                 key: 'openPromptCloseConfirm',
                 value: function openPromptCloseConfirm(resolve, reject) {
-                    var _this11 = this;
+                    var _this12 = this;
 
                     this.openPrompt("closeConfirm", {
                         onYes: function onYes() {
                             resolve();
-                            _this11.handleClose();
+                            _this12.handleClose();
                         },
                         onNo: reject()
                     });
@@ -523,6 +539,7 @@ exports.default = function (config) {
                         onDelete: this.requestDelete.bind(this),
                         onResetConfirm: this.requestResetConfirm.bind(this),
                         onDirty: this.setDirty.bind(this),
+                        onCustomConfirm: this.requestCustomConfirm.bind(this),
 
                         entityName: this.entityName.bind(this),
                         actionName: this.actionName.bind(this)

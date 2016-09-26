@@ -23,7 +23,6 @@ import {EntityEditorDefault} from 'react-entity-editor';
 // in your component you provide data (id and initialValues) and callbacks (read, create, update, delete, close)
 
 return <EntityEditorDefault
-    {...this.props}
     id={userId}
     initialValues={currentUserData || {}}
     onRead={this.handleRead}
@@ -40,8 +39,17 @@ return <EntityEditorDefault
 Or you can use EntityEditorDefault as a higher order component on your form.
 
 ```jsx
+// in your form component file
+
+class YourForm extends React.Component {
+    ...
+}
+
+export default EntityEditorDefault()(YourForm);
+
+// usage
+
 return <YourForm
-    {...this.props}
     id={userId}
     initialValues={currentUserData || {}}
     onRead={this.handleRead}
@@ -53,6 +61,7 @@ return <YourForm
 />
 ```
 
+Then in your form you will get access to a set of new props from Entity Editor.
 See [examples/src](/examples/src) for examples. Both the `basic` and `router` examples are
  currently in the middle of development but their code should give an indication on how to use them.
 
@@ -99,24 +108,25 @@ This can take the following props.
 | errorOnRead /<br/>errorOnCreate /<br/>errorOnUpdate /<br/>errorOnDelete / | | **Experimental.** Optional objects that tell `EntityEditor` what to display when errors occur. These are triggered if any `Promises` in onRead / onCreate / onUpdate / onDelete are rejected.
 | afterRead /<br/>afterCreate /<br/>afterUpdate /<br/>afterDelete /<br/>afterClose /<br/> | | Optional callbacks to be called after actions are successful. These are often passed arguments, see onRead / onCreate / onUpdate / onDelete. 
 
-#### Props passed to children
+#### Props passed to children (e.g. your form)
 
 When used by `EntityEditorDefault`, it provides the following props down to your form.
 
-| Prop | Description
-| ---- | ------------ |
-| id                  | The id of the entity to be edited.
-| isNew               | If the entity is new i.e. not saved anywhere yet.
-| canDelete /<br/>canReset /<br/>canSave /<br/>canSaveNew | Booleans that can be used in your form to show and hide and style depending on the user's current abilities.
-| isReading /<br/>isCreating /<br/>isUpdating/<br/>isDeleting /<br/>isSaving /<br/>isWriting /<br/>isWaiting | Booleans that you can use to indicate to `EntityEditor` if async data transations are taking place.<br/><br/>**isSaving** is true whenever isCreating or isUpdating is true.<br/>**isWriting** is true whenever isCreating, isUpdating or isDeleting is true.<br/>**isSaving** is true whenever isReading, isCreating, isUpdating or isDeleting is true.
-| onSave              | A callback that your form can call when the user wants to save. Accepts a single argument, an object containing the data to save.
-| onSaveNew           | A callback that your form can call when the user wants to save an existing entity as a new entity. Accepts a single argument, an object containing the data to save.
-| onClose             | A callback that your form can call when the user wants to close the edit view. Accepts no arguments.
-| onDelete            | A callback that your form can call when the user wants to delete the entity. Accepts no arguments.
-| onResetConfirm      | A callback that your form can call when the user wants to reset the form, losing all changes since last save. It's the form's responsibity to reset itself to its initial state, so `onResetConfirm()` returns a `Promise` that will be resolved when the user says they are sure that they want to reset. See the basic example for more info.
-| onDirty             | A callback that your form can call when the user changes something on the form. `EntityEditor` will use this info to determine when certain confirmations must take place.
-| entityName          | A function that returns the name of the current entity. Pass this strings as arguments to modify the text e.g. `entityName('first')` will return the entity name with the first letter capitalised.
-| actionName          | A function that returns the name of the current action, such as "add new" or "edit". Pass this strings as arguments to modify the text e.g. `actionyName('first')` will return the action name with the first letter capitalised.
+| Prop | Type | Description
+| ---- | ---- | ------------ |
+| id                  | Any     | The id of the entity to be edited.
+| isNew               | Boolean | If the entity is new i.e. not saved anywhere yet.
+| canDelete /<br/>canReset /<br/>canSave /<br/>canSaveNew | Boolean | Booleans that can be used in your form to show and hide and style depending on the user's current abilities.
+| isReading /<br/>isCreating /<br/>isUpdating/<br/>isDeleting /<br/>isSaving /<br/>isWriting /<br/>isWaiting | Boolean | Booleans that you can use to indicate to `EntityEditor` if async data transations are taking place.<br/><br/>**isSaving** is true whenever isCreating or isUpdating is true.<br/>**isWriting** is true whenever isCreating, isUpdating or isDeleting is true.<br/>**isSaving** is true whenever isReading, isCreating, isUpdating or isDeleting is true.
+| onSave(newDataObject)  | Function | A callback that your form can call when the user wants to save. Accepts a single argument, an object containing the data to save.
+| onSaveNew  (newDataObject)         | Function | A callback that your form can call when the user wants to save an existing entity as a new entity. Accepts a single argument, an object containing the data to save.
+| onClose()             | Function | A callback that your form can call when the user wants to close the edit view. Accepts no arguments.
+| onDelete()            | Function | A callback that your form can call when the user wants to delete the entity. Accepts no arguments.
+| onResetConfirm()      | Function | A callback that your form can call when the user wants to reset the form, losing all changes since last save. It's the form's responsibity to reset itself to its initial state, so `onResetConfirm()` returns a `Promise` that will be resolved when the user says they are sure that they want to reset. See the basic example for more info.
+| onCustomConfirm(promptFunction)     | Function | A callback that your form can call when you want to dusplay a custom confirmation. Accepts a function that will be called, and expects an object to be returned, see the basic example for more info on what the function receives and what it expects in return.
+| onDirty(isDirty = true)      | Function | A callback that your form can call when the user changes something on the form. `EntityEditor` will use this info to determine when certain confirmations must take place. Called with no arguments or `true` this will mark the form as dirty, or you can pass `false` to mark the form as clean.
+| entityName()          | Function | A function that returns the name of the current entity. Pass this strings as arguments to modify the text e.g. `entityName('first')` will return the entity name with the first letter capitalised.
+| actionName()          | Function | A function that returns the name of the current action, such as "add new" or "edit". Pass this strings as arguments to modify the text e.g. `actionyName('first')` will return the action name with the first letter capitalised.
 
 
 ### EntityEditorRouter

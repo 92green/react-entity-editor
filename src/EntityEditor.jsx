@@ -192,6 +192,20 @@ export default (config) => (ComposedComponent) => {
             .then(() => this.setDirty(false));
         }
 
+        requestCustomConfirm(func) {
+            return new Promise((resolve, reject) => {
+                const prompt = {
+                    ...func({
+                        entityName: this.entityName.bind(this),
+                        actionName: this.actionName.bind(this)
+                    }),
+                    onYes: resolve,
+                    onNo: reject
+                };
+                this.setState({prompt});
+            });
+        }
+
         setDirty(dirty = true) {
             this.setState({ dirty });
         }
@@ -440,6 +454,7 @@ export default (config) => (ComposedComponent) => {
                 onDelete={this.requestDelete.bind(this)}
                 onResetConfirm={this.requestResetConfirm.bind(this)}
                 onDirty={this.setDirty.bind(this)}
+                onCustomConfirm={this.requestCustomConfirm.bind(this)}
 
                 entityName={this.entityName.bind(this)}
                 actionName={this.actionName.bind(this)}

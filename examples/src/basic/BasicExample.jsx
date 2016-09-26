@@ -4,15 +4,18 @@ import BasicEntityEditorForm from '../forms/BasicEntityEditorForm';
 const users = {
     "1": {
     	firstName: "Bob",
-    	lastName: "Floss"
+    	lastName: "Floss",
+        userType: "user",
     },
     "2": {
     	firstName: "Jeff",
-    	lastName: "Chumps"
+    	lastName: "Chumps",
+        userType: "user",
     },
     "3": {
     	firstName: "Tom",
-    	lastName: "Flanks"
+    	lastName: "Flanks",
+        userType: "user",
     }
 };
 
