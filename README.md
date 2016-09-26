@@ -85,7 +85,7 @@ As it contains UI components you'll almost certainly want to customise this for 
 or simply pass your form in as a child of your `EntityEditorDefault`.
 It will be provided with data props and callback props for interacting with the entity editor.
 
-### Props that EntityEditor passes down to your form
+## Props that EntityEditor passes down to your form
 
 When used by `EntityEditorDefault`, it provides the following props down to your form.
 
@@ -106,7 +106,7 @@ When used by `EntityEditorDefault`, it provides the following props down to your
 | actionName()          | Function | A function that returns the name of the current action, such as "add new" or "edit". Pass this strings as arguments to modify the text e.g. `actionyName('first')` will return the action name with the first letter capitalised.
 
 
-### Props that EntityEditor can take
+## Props that EntityEditor can take
 
 
 | Prop              | Type | Required | Description    
@@ -128,7 +128,7 @@ When used by `EntityEditorDefault`, it provides the following props down to your
 | afterRead() /<br/>afterCreate() /<br/>afterUpdate() /<br/>afterDelete() /<br/>afterClose() /<br/> | Function | | Optional callbacks to be called after actions are successful. These are often passed arguments, see onRead / onCreate / onUpdate / onDelete. 
 
 
-### EntityEditorRouter
+## EntityEditorRouter
 
 Additionally there is an optional integration with react-router 2.4.0+.
 `EntityEditorRouter` provides functions to auto-generate routes and passes extra props for hooking in with router behaviour.
