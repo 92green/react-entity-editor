@@ -1,16 +1,17 @@
 # react-entity-editor
 
-A modular set of React components that makes it easy to set up user interfaces for creating, editing and deleting items.
+### Early stages of development, please prepare for large amounts of changes until version 0.1.0.
 
-- Maps CRUD operations to standard user actions, e.g."saving" a form will either "create" or "update" an entity.
-- Modular UI so any aspect of the user interface can be customised.
-- Route creation when used with react-router.
-- A standard and customiseable set of confirmation messages and success notifications.
+React Entity Editor is a modular set of React components that makes it easy to control user flow when editing data, such as showing confirmation and warning messages.
+This does **not** manage your form state for you, or even provide you with a form at all. It sites above your form, providing your form with a useful set of props and callbacks, and mapping the form's actions to your CRUD operations.
 
 Implementation of the user interface of the editor is left to the developer, which offers great flexibility
 and can be therefore used by forms including redux-form, drag and drop interfaces or any other React UI editor.
 
-Early stages of development, please prepare for large amounts of changes until version 0.1.0.
+- Maps CRUD operations to standard user actions, e.g."saving" a form will either "create" or "update" an entity. It's up to you 
+- Modular UI so any aspect of the user interface can be customised.
+- Route creation when used with react-router.
+- A standard and customiseable set of confirmation messages and success notifications.
 
 See [examples/src](/examples/src) for examples. Both the `basic` and `router` examples ar
  currently in development but they should give an indication on how to use them.
@@ -47,7 +48,8 @@ class YourForm extends React.Component {
 
 export default EntityEditorDefault()(YourForm);
 
-// usage
+// ...
+// then you can use this entity-editor form in other placves like so
 
 return <YourForm
     id={userId}
@@ -61,7 +63,7 @@ return <YourForm
 />
 ```
 
-Then in your form you will get access to a set of new props from Entity Editor.
+Then your form you will get access to a set of new props from Entity Editor.
 See [examples/src](/examples/src) for examples. Both the `basic` and `router` examples are
  currently in the middle of development but their code should give an indication on how to use them.
 
