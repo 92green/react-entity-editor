@@ -1,6 +1,6 @@
 # react-entity-editor
 
-### Early stages of development, please prepare for large amounts of changes until version 0.1.0.
+### Early stages of development, please prepare for large amounts of changes until version 1.0.0.
 
 React Entity Editor is a modular set of React components that makes it easy to control user flow when editing data, such as showing confirmation and warning messages.
 This does **not** manage your form state for you, or even provide you with a form at all. It sits above your form, providing your form with a useful set of props and callbacks, confirming the user's actions where necessary, and mapping the form's actions to your CRUD operations.
@@ -124,7 +124,7 @@ When used by `EntityEditorDefault`, it provides the following props down to your
 | onClose()             | Function | A callback that your form can call when the user wants to close the edit view. Accepts no arguments.
 | onDelete()            | Function | A callback that your form can call when the user wants to delete the entity. Accepts no arguments.
 | onResetConfirm()      | Function | A callback that your form can call when the user wants to reset the form, losing all changes since last save. It's the form's responsibity to reset itself to its initial state, so `onResetConfirm()` returns a `Promise` that will be resolved when the user says they are sure that they want to reset. See the basic example for more info.
-| onCustomConfirm(promptFunction)     | Function | A callback that your form can call when you want to dusplay a custom confirmation. Accepts a function that will be called, and expects an object to be returned, see the basic example for more info on what the function receives and what it expects in return.
+| onCustomConfirm(promptFunction)     | Function | A callback that your form can call when you want to display a custom confirmation. Accepts a function that will be called, and expects an object to be returned, see the basic example for more info on what the function receives and what it expects in return. `onCustomConfirm` returns a `Promise` which will be resolved if the user confirms the action, or will be rejected if the user cancels the action.
 | onDirty(isDirty = true)      | Function | A callback that your form can call when the user changes something on the form. `EntityEditor` will use this info to determine when certain confirmations must take place. Called with no arguments or `true` this will mark the form as dirty, or you can pass `false` to mark the form as clean.
 | entityName()          | Function | A function that returns the name of the current entity. Pass this strings as arguments to modify the text e.g. `entityName('first')` will return the entity name with the first letter capitalised.
 | actionName()          | Function | A function that returns the name of the current action, such as "add new" or "edit". Pass this strings as arguments to modify the text e.g. `actionyName('first')` will return the action name with the first letter capitalised.
