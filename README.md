@@ -85,31 +85,7 @@ As it contains UI components you'll almost certainly want to customise this for 
 or simply pass your form in as a child of your `EntityEditorDefault`.
 It will be provided with data props and callback props for interacting with the entity editor.
 
-### EntityEditor
-
-#### Accepted props
-
-This can take the following props.
-
-| Prop              | Required | Description    
-| ----------------- | -------- | ---------------- |
-| id                | Yes      | The id of the item / entity to be edited, or `null` if a new entity is to be created.
-| initialValues     | Yes      | The object containing the data fo the entity you want to edit. This is passed through to the form.
-| onRead            | Yes      | A callback that will be called when `EntityEditor` wants to read data into itself.<br/>It is passed a single argument, the id of the entity to be read.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterRead` callback after a successful operation if you've supplied an `afterRead` prop.
-| onCreate          | Yes      | A callback that will be called when `EntityEditor` wants to create an entity.<br/>It is passed a single argument, the `dataObject` containing the new entity to be created.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterCreate` callback after a successful operation if you've supplied an `afterCreate` prop.<br/><br/>If you want entity editor to automatically take users to the edit page after a new entity is created using `onGotoEdit`, make sure you return the new id of the created entity in your returned object / your resolved `Promise`s data, for example:<br/>`(dataObject) => {var newId = create(dataObject); return { newId: newId };}` 
-| onUpdate          | Yes      | A callback that will be called when `EntityEditor` wants to update an entity.<br/>It is passed two arguments, the `id` of the entity to update, and a `dataObject` containing updated values.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterUpdate` callback after a successful operation if you've supplied an `afterUpdate` prop.
-| onDelete          |          | A callback that will be called when `EntityEditor` wants to delete an entity.<br/>It is passed a single argument, the `id` of the entity to delete.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterDelete` callback after a successful operation if you've supplied an `afterDelete` prop.
-| onClose           | Yes      | A callback that will be called when `EntityEditor` wants to stop editing an entity.<br/>It is passed no arguments.<br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
-| onGotoEdit        |          | A callback that will be called when `EntityEditor` wants to take the user to see the edit page / component for an entity.<br/>It is passed a single argument, the `id` of the entity to edit.<br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
-| onLeaveHook       |          | A function that can be called externally when it is detected that the user has tried to leave the edit view. If present, `EntityEditor` passes this a function parameter so it can be consulted when the user wants to leave. It will return a boolean to the external function indicating if the user should be allowed to leave.<br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
-| entityName        |          | A string of the type of entity to edit. All lowercase is preferred so text modifiers will be able to alter case. Defaults to "item".
-| entityNamePlural  |          | A string of the plural of the entity. You only need to provide this if the plural is not simply `entityName` + "s".
-| isReading /<br/>isCreating /<br/>isUpdating/<br/>isDeleting | | Booleans that you can use to indicate to `EntityEditor` if async data transations are taking place. This can be used to prevent certain form controls from having effect until transactions are done.<br/><br/>Synchronous data changes will not need to use these.
-| allowRead /<br/>allowCreate /<br/>allowUpdate /<br/>allowDelete / | | Passing false to any of these will prohibit certain actions, and can be used to hide buttons and form controls for disallowed actions.
-| errorOnRead /<br/>errorOnCreate /<br/>errorOnUpdate /<br/>errorOnDelete / | | **Experimental.** Optional objects that tell `EntityEditor` what to display when errors occur. These are triggered if any `Promises` in onRead / onCreate / onUpdate / onDelete are rejected.
-| afterRead /<br/>afterCreate /<br/>afterUpdate /<br/>afterDelete /<br/>afterClose /<br/> | | Optional callbacks to be called after actions are successful. These are often passed arguments, see onRead / onCreate / onUpdate / onDelete. 
-
-#### Props passed to children (e.g. your form)
+### Props that EntityEditor passes down to your form
 
 When used by `EntityEditorDefault`, it provides the following props down to your form.
 
@@ -128,6 +104,28 @@ When used by `EntityEditorDefault`, it provides the following props down to your
 | onDirty(isDirty = true)      | Function | A callback that your form can call when the user changes something on the form. `EntityEditor` will use this info to determine when certain confirmations must take place. Called with no arguments or `true` this will mark the form as dirty, or you can pass `false` to mark the form as clean.
 | entityName()          | Function | A function that returns the name of the current entity. Pass this strings as arguments to modify the text e.g. `entityName('first')` will return the entity name with the first letter capitalised.
 | actionName()          | Function | A function that returns the name of the current action, such as "add new" or "edit". Pass this strings as arguments to modify the text e.g. `actionyName('first')` will return the action name with the first letter capitalised.
+
+
+### Props that EntityEditor can take
+
+
+| Prop              | Type | Required | Description    
+| ----------------- | ---- | -------- | ---------------- |
+| id                | Any  | Yes      | The id of the item / entity to be edited, or `null` if a new entity is to be created. <br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
+| initialValues     | Object | Yes      | The object containing the data fo the entity you want to edit. This is passed through to the form.
+| onRead(id)            | Function | Yes      | A callback that will be called when `EntityEditor` wants to read data into itself.<br/>It is passed a single argument, the id of the entity to be read.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterRead` callback after a successful operation if you've supplied an `afterRead` prop.
+| onCreate(dataObject)          | Function |  Yes      | A callback that will be called when `EntityEditor` wants to create an entity.<br/>It is passed a single argument, the `dataObject` containing the new entity to be created.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterCreate` callback after a successful operation if you've supplied an `afterCreate` prop.<br/><br/>If you want entity editor to automatically take users to the edit page after a new entity is created using `onGotoEdit`, make sure you return the new id of the created entity in your returned object / your resolved `Promise`s data, for example:<br/>`(dataObject) => {var newId = create(dataObject); return { newId: newId };}` 
+| onUpdate(id, dataObject)          | Function | Yes      | A callback that will be called when `EntityEditor` wants to update an entity.<br/>It is passed two arguments, the `id` of the entity to update, and a `dataObject` containing updated values.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterUpdate` callback after a successful operation if you've supplied an `afterUpdate` prop.
+| onDelete(id)        | Function |          | A callback that will be called when `EntityEditor` wants to delete an entity.<br/>It is passed a single argument, the `id` of the entity to delete.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterDelete` callback after a successful operation if you've supplied an `afterDelete` prop.
+| onClose()           | Function | Yes      | A callback that will be called when `EntityEditor` wants to stop editing an entity.<br/>It is passed no arguments.<br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
+| onGotoEdit()        | Function |          | A callback that will be called when `EntityEditor` wants to take the user to see the edit page / component for an entity.<br/>It is passed a single argument, the `id` of the entity to edit.<br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
+| onLeaveHook(callback)       | Function |          | A function that can be called externally when it is detected that the user has tried to leave the edit view. If present, `EntityEditor` passes this a function parameter so it can be consulted when the user wants to leave. It will return a boolean to the external function indicating if the user should be allowed to leave.<br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
+| entityName        | String |          | A string of the type of entity to edit. All lowercase is preferred so text modifiers will be able to alter case. Defaults to "item".
+| entityNamePlural  | String |          | A string of the plural of the entity. You only need to provide this if the plural is not simply `entityName` + "s".
+| isReading /<br/>isCreating /<br/>isUpdating/<br/>isDeleting | Boolean | | Booleans that you can use to indicate to `EntityEditor` if async data transations are taking place. This can be used to prevent certain form controls from having effect until transactions are done.<br/><br/>Synchronous data changes will not need to use these.
+| allowRead /<br/>allowCreate /<br/>allowUpdate /<br/>allowDelete / | Boolean, or Function that returns a Boolean | | Passing false to any of these will prohibit certain actions, and can be used to hide buttons and form controls for disallowed actions.
+| errorOnRead /<br/>errorOnCreate /<br/>errorOnUpdate /<br/>errorOnDelete / | Object | | **Experimental.** Optional objects that tell `EntityEditor` what to display when errors occur. These are triggered if any `Promises` in onRead / onCreate / onUpdate / onDelete are rejected.
+| afterRead() /<br/>afterCreate() /<br/>afterUpdate() /<br/>afterDelete() /<br/>afterClose() /<br/> | Function | | Optional callbacks to be called after actions are successful. These are often passed arguments, see onRead / onCreate / onUpdate / onDelete. 
 
 
 ### EntityEditorRouter

@@ -24,10 +24,6 @@ var _inherits2 = require('babel-runtime/helpers/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _assign = require('babel-runtime/core-js/object/assign');
-
-var _assign2 = _interopRequireDefault(_assign);
-
 exports.createEditorRoutes = createEditorRoutes;
 
 var _react = require('react');
@@ -45,28 +41,35 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 
 function createEditorRoutes(params) {
-    params = (0, _assign2.default)({}, {
-        paramId: 'id'
-    }, params);
+    var _params$paramId = params.paramId;
+    var paramId = _params$paramId === undefined ? 'id' : _params$paramId;
+    var _params$path = params.path;
+    var path = _params$path === undefined ? '' : _params$path;
+    var component = params.component;
 
-    if (!params || !params.path || !params.component) {
-        throw "Create editor routes must be passed an object with 'path' and 'component' keys, where the path is a string of the route path, and the component is the editor component to be used in the routes.";
+
+    if (!component) {
+        throw "Create editor routes must be passed an object with a 'component', and the component is the editor component to be used in the routes.";
     }
 
-    var routerComponent = CreateEntityEditorRouter(params);
+    var routerComponent = CreateEntityEditorRouter({
+        paramId: paramId,
+        path: path,
+        component: component
+    });
 
     return _react2.default.createElement(
         _reactRouter.Route,
-        { path: params.path },
+        { path: path },
         _react2.default.createElement(
             _reactRouter.Route,
             { path: 'new', component: routerComponent },
-            _react2.default.createElement(_reactRouter.IndexRoute, { component: params.component })
+            _react2.default.createElement(_reactRouter.IndexRoute, { component: component })
         ),
         _react2.default.createElement(
             _reactRouter.Route,
-            { path: ':' + params.paramId + '/edit', component: routerComponent },
-            _react2.default.createElement(_reactRouter.IndexRoute, { component: params.component })
+            { path: ':' + paramId + '/edit', component: routerComponent },
+            _react2.default.createElement(_reactRouter.IndexRoute, { component: component })
         )
     );
 };

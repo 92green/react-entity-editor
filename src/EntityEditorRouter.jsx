@@ -7,26 +7,30 @@ import { fromJS, List } from 'immutable';
 //
 
 export function createEditorRoutes(params) {
-    params = Object.assign({}, {
-        paramId: 'id'
-    }, params);
+    const {
+        paramId = 'id',
+        path = '',
+        component
+    } = params;
 
-    if(!params || !params.path || !params.component) {
-        throw "Create editor routes must be passed an object with 'path' and 'component' keys, where the path is a string of the route path, and the component is the editor component to be used in the routes.";
+    if(!component) {
+        throw "Create editor routes must be passed an object with a 'component', and the component is the editor component to be used in the routes.";
     }
 
-    var routerComponent = CreateEntityEditorRouter(params);
+    const routerComponent = CreateEntityEditorRouter({
+        paramId,
+        path,
+        component
+    });
 
-    return (
-        <Route path={params.path}>
-            <Route path="new" component={routerComponent}>
-                <IndexRoute component={params.component}/>
-            </Route>
-            <Route path={`:${params.paramId}/edit`} component={routerComponent}>
-                <IndexRoute component={params.component}/>
-            </Route>
+    return <Route path={path}>
+        <Route path="new" component={routerComponent}>
+            <IndexRoute component={component}/>
         </Route>
-    );
+        <Route path={`:${paramId}/edit`} component={routerComponent}>
+            <IndexRoute component={component}/>
+        </Route>
+    </Route>;
 };
 
 //
