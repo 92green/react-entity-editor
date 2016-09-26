@@ -3,7 +3,7 @@
 ### Early stages of development, please prepare for large amounts of changes until version 0.1.0.
 
 React Entity Editor is a modular set of React components that makes it easy to control user flow when editing data, such as showing confirmation and warning messages.
-This does **not** manage your form state for you, or even provide you with a form at all. It sites above your form, providing your form with a useful set of props and callbacks, and mapping the form's actions to your CRUD operations.
+This does **not** manage your form state for you, or even provide you with a form at all. It sits above your form, providing your form with a useful set of props and callbacks, confirming the user's actions hwere necessary, and mapping the form's actions to your CRUD operations.
 
 Implementation of the user interface of the editor is left to the developer, which offers great flexibility
 and can be therefore used by forms including redux-form, drag and drop interfaces or any other React UI editor.
