@@ -8,8 +8,7 @@ This does **not** manage your form state for you, or even provide you with a for
 Implementation of the user interface of the editor is left to the developer, which offers great flexibility
 and can be therefore used by forms including redux-form, drag and drop interfaces or any other React UI editor.
 
-- Maps CRUD operations to standard user actions, e.g."saving" a form will either "create" or "update" an entity. It's up to you 
-- Modular UI so any aspect of the user interface can be customised.
+- Maps CRUD operations to standard user actions, e.g."saving" a form will either "create" or "update" an entity.
 - Route creation when used with react-router.
 - A standard and customiseable set of confirmation messages and success notifications.
 
