@@ -6,14 +6,14 @@ class Modal extends Component {
     onYes() {
         this.props.onRequestClose();
         if(this.props.onYes) {
-            this.props.onYes();            
+            this.props.onYes();
         }
     }
 
     onNo() {
         this.props.onRequestClose();
         if(this.props.onNo) {
-            this.props.onNo();            
+            this.props.onNo();
         }
     }
 
