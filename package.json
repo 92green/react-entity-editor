@@ -1,7 +1,7 @@
 {
   "name": "react-entity-editor",
   "private": false,
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A modular set of React components that makes it easy to set up pages that allow you to create, edit and delete items, providing features such as confirmation messages and route creation with react-router.",
   "repository": {
     "type": "git",
