@@ -235,11 +235,24 @@ export default (config) => (ComposedComponent) => {
                 actionName: this.actionName.bind(this)
             });
 
-            this.setState({prompt});
+            this.setState({
+                prompt: {
+                    ...prompt,
+                    open: true
+                }
+            });
         }
 
         closePrompt() {
-            this.setState({prompt: null});
+            if(!this.state.prompt || !this.state.prompt.open) {
+                return;
+            }
+            this.setState({
+                prompt: {
+                    ...this.state.prompt,
+                    open: false
+                }
+            });
         }
 
         openPromptCreateSuccess(resolve, reject, newId) {
@@ -265,6 +278,7 @@ export default (config) => (ComposedComponent) => {
             this.openPrompt(["deleteSuccess", "writeSuccess"], {
                 onYes: () => {
                     resolve();
+
                     this.handleClose();
                 }
             });
@@ -296,7 +310,7 @@ export default (config) => (ComposedComponent) => {
                 onYes: resolve,
                 onNo: reject
             });
-        }        
+        }
 
         openPromptCloseConfirm(resolve, reject) {
             this.openPrompt("closeConfirm", {
@@ -523,10 +537,10 @@ export default (config) => (ComposedComponent) => {
         allowUpdate: true,
         allowDelete: true,
         // after callbacks
-        afterRead: (data) => Promise.resolve(data), 
-        afterCreate: (data) => Promise.resolve(data), 
-        afterUpdate: (data) => Promise.resolve(data), 
-        afterDelete: (data) => Promise.resolve(data), 
+        afterRead: (data) => Promise.resolve(data),
+        afterCreate: (data) => Promise.resolve(data),
+        afterUpdate: (data) => Promise.resolve(data),
+        afterDelete: (data) => Promise.resolve(data),
         afterClose: (data) => Promise.resolve(data),
         // naming
         entityName: "item",

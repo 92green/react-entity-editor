@@ -6,14 +6,16 @@ class Modal extends Component {
     onYes() {
         this.props.onRequestClose();
         if(this.props.onYes) {
-            this.props.onYes();            
+            setTimeout(this.props.onYes, 1);
+            // when onYes causes entity editor to unmount, if we call this synchronously then react-modal doesn't unmount properly causing a React invariant error
         }
     }
 
     onNo() {
         this.props.onRequestClose();
         if(this.props.onNo) {
-            this.props.onNo();            
+            setTimeout(this.props.onNo, 1);
+            // when onNo causes entity editor to unmount, if we call this synchronously then react-modal doesn't unmount properly causing a React invariant error
         }
     }
 

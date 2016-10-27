@@ -114,58 +114,37 @@ exports.default = function (config) {
             }, {
                 key: 'renderModal',
                 value: function renderModal() {
-                    if (!this.props.prompt) {
-                        return null;
-                    }
+                    var _ref = this.props.prompt || {};
 
-                    var _props$prompt = this.props.prompt;
-                    var title = _props$prompt.title;
-                    var message = _props$prompt.message;
-                    var status = _props$prompt.status;
-                    var type = _props$prompt.type;
-                    var yes = _props$prompt.yes;
-                    var no = _props$prompt.no;
-                    var onYes = _props$prompt.onYes;
-                    var onNo = _props$prompt.onNo;
+                    var open = _ref.open;
+                    var title = _ref.title;
+                    var message = _ref.message;
+                    var status = _ref.status;
+                    var type = _ref.type;
+                    var yes = _ref.yes;
+                    var no = _ref.no;
+                    var onYes = _ref.onYes;
+                    var onNo = _ref.onNo;
 
-
-                    if (type == "error") {
-                        return _react2.default.createElement(
-                            _Modal2.default,
-                            {
-                                isOpen: true,
-                                onRequestClose: this.props.closePrompt,
-                                title: title,
-                                yes: yes,
-                                no: no || null,
-                                onYes: onYes,
-                                onNo: onNo || null },
-                            _react2.default.createElement(
-                                'h3',
-                                null,
-                                'Error ',
-                                status,
-                                ': ',
-                                title
-                            ),
-                            _react2.default.createElement(
-                                'p',
-                                null,
-                                message
-                            )
-                        );
-                    }
 
                     return _react2.default.createElement(
                         _Modal2.default,
                         {
-                            isOpen: true,
+                            isOpen: open,
                             onRequestClose: this.props.closePrompt,
                             title: title,
                             yes: yes,
                             no: no || null,
                             onYes: onYes,
                             onNo: onNo || null },
+                        type == "error" && _react2.default.createElement(
+                            'h3',
+                            null,
+                            'Error ',
+                            status,
+                            ': ',
+                            title
+                        ),
                         _react2.default.createElement(
                             'p',
                             null,

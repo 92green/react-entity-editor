@@ -42,11 +42,11 @@ export default (config) => (ComposedComponent) => {
                 'afterDelete',
                 'afterClose'
             );
-            
+
             const filteredProps = propsToRemove
                 .reduce((filteredProps, propToRemove) => filteredProps.delete(propToRemove), fromJS(this.props))
                 .toJS();
-                
+
             return <div>
                 <h2>{this.props.actionName('first')} {this.props.entityName()}</h2>
                 <ComposedComponent {...filteredProps} />
@@ -55,11 +55,8 @@ export default (config) => (ComposedComponent) => {
         }
 
         renderModal() {
-            if(!this.props.prompt) {
-                return null;
-            }
-
             const {
+                open,
                 title,
                 message,
                 status,
@@ -68,30 +65,19 @@ export default (config) => (ComposedComponent) => {
                 no,
                 onYes,
                 onNo
-            } = this.props.prompt;
-
-            if(type == "error") {
-                return <Modal
-                    isOpen={true}
-                    onRequestClose={this.props.closePrompt}
-                    title={title}
-                    yes={yes}
-                    no={no || null}
-                    onYes={onYes}
-                    onNo={onNo || null}>
-                    <h3>Error {status}: {title}</h3>
-                    <p>{message}</p>
-                </Modal>;
-            }
+            } = this.props.prompt || {};
 
             return <Modal
-                isOpen={true}
+                isOpen={open}
                 onRequestClose={this.props.closePrompt}
                 title={title}
                 yes={yes}
                 no={no || null}
                 onYes={onYes}
                 onNo={onNo || null}>
+                {type == "error" &&
+                    <h3>Error {status}: {title}</h3>
+                }
                 <p>{message}</p>
             </Modal>;
         }

@@ -326,12 +326,23 @@ exports.default = function (config) {
                         actionName: this.actionName.bind(this)
                     }));
 
-                    this.setState({ prompt: prompt });
+                    this.setState({
+                        prompt: (0, _extends3.default)({}, prompt, {
+                            open: true
+                        })
+                    });
                 }
             }, {
                 key: 'closePrompt',
                 value: function closePrompt() {
-                    this.setState({ prompt: null });
+                    if (!this.state.prompt || !this.state.prompt.open) {
+                        return;
+                    }
+                    this.setState({
+                        prompt: (0, _extends3.default)({}, this.state.prompt, {
+                            open: false
+                        })
+                    });
                 }
             }, {
                 key: 'openPromptCreateSuccess',
@@ -364,6 +375,7 @@ exports.default = function (config) {
                     this.openPrompt(["deleteSuccess", "writeSuccess"], {
                         onYes: function onYes() {
                             resolve();
+
                             _this11.handleClose();
                         }
                     });
