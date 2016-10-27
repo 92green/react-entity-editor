@@ -335,6 +335,9 @@ exports.default = function (config) {
             }, {
                 key: 'closePrompt',
                 value: function closePrompt() {
+                    if (!this.state.prompt || !this.state.prompt.open) {
+                        return;
+                    }
                     this.setState({
                         prompt: (0, _extends3.default)({}, this.state.prompt, {
                             open: false
@@ -371,8 +374,8 @@ exports.default = function (config) {
 
                     this.openPrompt(["deleteSuccess", "writeSuccess"], {
                         onYes: function onYes() {
-                            console.log("about to close");
                             resolve();
+
                             _this11.handleClose();
                         }
                     });

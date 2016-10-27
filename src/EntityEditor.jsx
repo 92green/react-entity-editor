@@ -244,6 +244,9 @@ export default (config) => (ComposedComponent) => {
         }
 
         closePrompt() {
+            if(!this.state.prompt || !this.state.prompt.open) {
+                return;
+            }
             this.setState({
                 prompt: {
                     ...this.state.prompt,
@@ -274,8 +277,8 @@ export default (config) => (ComposedComponent) => {
         openPromptDeleteSuccess(resolve, reject) {
             this.openPrompt(["deleteSuccess", "writeSuccess"], {
                 onYes: () => {
-                    console.log("about to close");
                     resolve();
+
                     this.handleClose();
                 }
             });
