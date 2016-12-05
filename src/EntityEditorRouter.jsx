@@ -1,80 +1,50 @@
-import React, { Component, PropTypes } from 'react';
-import { Route, IndexRoute, withRouter } from 'react-router';
-import { fromJS, List } from 'immutable';
+/* @flow */
 
-//
-// Function to create a routing pattern for use with this editor
-//
+import React, {Component, PropTypes} from 'react';
+import {Route, IndexRoute, withRouter} from 'react-router';
+import {List, fromJS} from 'immutable';
 
-export function createEditorRoutes(params) {
-    const {
-        paramId = 'id',
-        path = '',
-        component
-    } = params;
-
-    if(!component) {
-        throw "Create editor routes must be passed an object with a 'component', and the component is the editor component to be used in the routes.";
-    }
-
-    const routerComponent = CreateEntityEditorRouter({
-        paramId,
-        path,
-        component
-    });
-
-    return <Route path={path}>
-        <Route path="new" component={routerComponent}>
-            <IndexRoute component={component}/>
-        </Route>
-        <Route path={`:${paramId}/edit`} component={routerComponent}>
-            <IndexRoute component={component}/>
-        </Route>
-    </Route>;
+type Params = {
+    itemComponent: ReactClass<any>,
+    listComponent: ReactClass<any>,
+    paramId: string
 };
 
-//
-// EntityEditorRouter class
-//
+const routePatterns: List<RegExp> = List.of(
+    /^new$/,
+    /\/edit$/
+);
 
-function CreateEntityEditorRouter(params) {
+export function createEditorRoutes(params: Params): ReactClass<Route> {
+    const {
+        itemComponent,
+        listComponent,
+        paramId = 'id'
+    } = params;
 
-    class EntityEditorRouter extends Component {
+    if(!itemComponent) {
+        throw `EntityEditorRouteer.createEditorRoutes() must be passed an object with an itemComponent property, which should be a React components to be rendered when editing an item`;
+    }
+
+    return <Route>
+        {listComponent && <IndexRoute component={wrapListComponent()(listComponent)} />}
+        <Route path="new" component={wrapItemComponent()(itemComponent)} />
+        <Route path={`:${paramId}/edit`} component={wrapItemComponent()(itemComponent)} />
+    </Route>;
+}
+
+
+
+
+/*
+function ItemComponentWrapper(paramId: string): ReactClass<any> {
+
+    class EntityEditorItemWrapper extends Component {
 
         componentWillMount() {
             this.onLeaveHook = (callback) => {
                 this.props.router.setRouteLeaveHook(this.props.route, callback);
             };
-        }
-
-        //
-        // navigation
-        //
-
-        getBaseRoute() {
-            const routesLength = this.props.routes.length;
-            return "/" + fromJS(this.props.routes)
-                .filter(ii => !!ii.get('path') && ii.get('path') != "/") // remove routes that don't add to the path
-                .map(ii => ii.get('path')) // get path for each route
-                .pop() // remove last route (the 'new' or 'edit' route) to get base
-                .join("/")
-        }
-
-        getEditorRoute(type, id = false) {
-            const base = this.getBaseRoute();
-            if(!id) {
-                id = this.props.params[params.paramId];
-            }
-            if(type == 'close') {
-                return base;
-            }
-            if(!id || type == 'new') {
-                return `${base}/new`;
-            }
-            if(type == 'edit') {
-                return `${base}/${id}/${type}`;
-            }
-            return null;
         }
 
         onClose() {
@@ -85,13 +55,9 @@ function CreateEntityEditorRouter(params) {
             this.props.router.push(this.getEditorRoute('edit', id));
         }
 
-        //
-        // render
-        //
-
         render() {
-            const propsToAddToChildren = {
-                id: this.props.params[params.paramId],
+            const propsToAddToChildren: Object = {
+                id: this.props.params[paramId],
                 onClose: this.onClose.bind(this),
                 onLeaveHook: this.onLeaveHook,
                 onGotoEdit: this.onGotoEdit.bind(this),
@@ -101,16 +67,97 @@ function CreateEntityEditorRouter(params) {
             const childrenWithProps = React.Children.map(this.props.children, (child) => React.cloneElement(child, propsToAddToChildren));
             return <div>{childrenWithProps}</div>;
         }
-    }
+}*/
 
-    EntityEditorRouter.propTypes = {
-        // routes
-        routes: PropTypes.array.isRequired,
-        params: PropTypes.object.isRequired,
-        router: PropTypes.object
-    };
-
-    return withRouter(EntityEditorRouter);
+function getBasePath(routes: Array<any>): string {
+    return "/" + fromJS(routes)
+        .filter(ii => !!ii.get('path') && ii.get('path') != "/") // remove routes that don't add to the path
+        .map(ii => ii.get('path')) // get path for each route
+        .takeWhile(path => { // only keep routes not made by entity editor
+            return !routePatterns.some(test => test.test(path));
+        })
+        .join("/");
 }
 
+function getRouteProps(routes: Array<any>): Object {
+    const base: string = getBasePath(routes);
+    return {
+        paths: (id: string) => ({
+            base,
+            new: `${base}/new`,
+            edit: `${base}/${id}/edit`
+        })
+    };
+}
 
+function wrapItemComponent(config: ?Object = null): HockApplier {
+
+    return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
+
+        class EntityEditorItemWrapper extends Component {
+
+            /*
+            componentWillMount() {
+                this.onLeaveHook = (callback) => {
+                    this.props.router.setRouteLeaveHook(this.props.route, callback);
+                };
+            }
+            */
+
+            getChildContext() {
+                return {
+                    entityEditorRoutes: getRouteProps(this.props.routes)
+                };
+            }
+
+            render() {
+                return <ComposedComponent
+                    {...this.props}
+                    entityEditorRoutes={getRouteProps(this.props.routes)}
+                />;
+            }
+        }
+
+        EntityEditorItemWrapper.propTypes = {
+            routes: PropTypes.array.isRequired,
+            params: PropTypes.object.isRequired,
+            router: PropTypes.object
+        };
+
+        return withRouter(EntityEditorItemWrapper);
+    };
+}
+
+function wrapListComponent(config: ?Object = null): HockApplier {
+
+    return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
+
+        class EntityEditorListWrapper extends Component {
+
+            getChildContext() {
+                return {
+                    entityEditorRoutes: getRouteProps(this.props.routes)
+                };
+            }
+
+            render() {
+                return <ComposedComponent
+                    {...this.props}
+                    entityEditorRoutes={getRouteProps(this.props.routes)}
+                />;
+            }
+        }
+
+        EntityEditorListWrapper.propTypes = {
+            routes: PropTypes.array.isRequired,
+            params: PropTypes.object.isRequired,
+            router: PropTypes.object
+        };
+
+        EntityEditorListWrapper.childContextTypes = {
+            entityEditorRoutes: PropTypes.object
+        };
+
+        return withRouter(EntityEditorListWrapper);
+    };
+}
