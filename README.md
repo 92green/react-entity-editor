@@ -2,173 +2,23 @@
 
 ### Early stages of development, please prepare for large amounts of changes until version 1.0.0.
 
-React Entity Editor is a modular set of React components that makes it easy to control user flow when editing data, such as showing confirmation and warning messages.
+React Entity Editor is a modular set of React components that makes it easy to control user flow when editing data, such as showing confirmation and warning messages, navigation between views and handling loading and error views.
 This does **not** manage your form state for you, or even provide you with a form at all. It sits above your form, providing your form with a useful set of props and callbacks, confirming the user's actions where necessary, and mapping the form's actions to your CRUD operations.
 
-In fact it doens't even need a *form*. Implementation of the user interface of the editor is left to the developer, which offers great flexibility
-and can be therefore used by forms including redux-form, drag and drop interfaces or any other React UI editor.
+In fact it doesn't even need a form. Implementation of the user interface of the editor is left to the developer, which offers great flexibility
+and can be therefore used by forms including `redux-form`, drag and drop interfaces or any other React UI editor.
 
 - Maps CRUD operations to standard user actions, e.g."saving" a form will either "create" or "update" an entity.
 - Route creation when used with react-router.
 - A standard and customiseable set of confirmation messages and success notifications.
+- Loading and error views
 
-See [examples/src](/examples/src) for examples. Both the `basic` and `router` examples ar
- currently in development but they should give an indication on how to use them.
+### Rewrite
 
-## Example
+Entity Editor is currently undergoing a re-write to also encompass listing entities (and editing in lists), better handle navigation, allow for easy user-defined actions and avoid code repetition by making heavier use of config files. Internally classes will have more clearly defined roles, will make use of flow types, and a proper documentation site will be generated.
 
-```jsx
-import {EntityEditorDefault} from 'react-entity-editor';
-
-// in your component you provide data (id and initialValues) and callbacks (read, create, update, delete, close)
-
-return <EntityEditorDefault
-    id={userId}
-    initialValues={currentUserData || {}}
-    onRead={this.handleRead}
-    onCreate={this.handleCreate}
-    onUpdate={this.handleUpdate}
-    onDelete={this.handleDelete}
-    onClose={this.handleClose}
-    entityName="user"
->
-    <YourForm />
-</EntityEditorDefault>
-```
-
-Or you can use EntityEditorDefault as a higher order component on your form.
-
-```jsx
-// in your form component file
-
-class YourForm extends React.Component {
-    ...
-}
-
-export default EntityEditorDefault()(YourForm);
-
-// ...
-// then you can use this entity-editor form in other placves like so
-
-return <YourForm
-    id={userId}
-    initialValues={currentUserData || {}}
-    onRead={this.handleRead}
-    onCreate={this.handleCreate}
-    onUpdate={this.handleUpdate}
-    onDelete={this.handleDelete}
-    onClose={this.handleClose}
-    entityName="user"
-/>
-```
-
-Then your form you will get access to a set of new props from Entity Editor.
-See [examples/src](/examples/src) for examples. Both the `basic` and `router` examples are
- currently in the middle of development but their code should give an indication on how to use them.
+Because of this the examples are now out of date, but will be updated shortly.
 
 ## Installation
 
 `npm install react-entity-editor`
-
-
-## Components summary
-
-- **EntityEditor** - this is the component that provides the logic for the UI flow, but provides no UI.
-It's a higher order component that you use on a UI specific entity editor component, such as `EntityEditorDefault`.
-- **EntityEditorDefault** - this is an example of a UI-specific entity editor. It uses the `EntityEditor` higher order component.
-It's responsible for rendering the common UI elements you'll might want on all entity editors in your project, such as loading state,
-user prompts such as modals. It also passing text and word manipulation methods into `EntityEditor`s config.
-As it contains UI components you'll almost certainly want to customise this for your own projects and name it accordingly e.g. `EntityEditorMyProject`.
-    - **TextDefaults** - provides a useful set of text defaults for prompts and word manipulations.
-  If you want to customise these you can either extend from these defaults or write your own completely.
-- **YourForm** - Your form component (or other kind of input) can then use `EntityEditorDefault` or your own UI-specific entity editor as a higher order component,
-or simply pass your form in as a child of your `EntityEditorDefault`.
-It will be provided with data props and callback props for interacting with the entity editor.
-
-## Props that EntityEditor passes down to your form
-
-When used by `EntityEditorDefault`, it provides the following props down to your form.
-
-| Prop | Type | Description
-| ---- | ---- | ------------ |
-| id                  | Any     | The id of the entity to be edited.
-| isNew               | Boolean | If the entity is new i.e. not saved anywhere yet.
-| canDelete /<br/>canReset /<br/>canSave /<br/>canSaveNew | Boolean | Booleans that can be used in your form to show and hide and style depending on the user's current abilities.
-| isReading /<br/>isCreating /<br/>isUpdating/<br/>isDeleting /<br/>isSaving /<br/>isWriting /<br/>isWaiting | Boolean | Booleans that you can use to indicate to `EntityEditor` if async data transations are taking place.<br/><br/>**isSaving** is true whenever isCreating or isUpdating is true.<br/>**isWriting** is true whenever isCreating, isUpdating or isDeleting is true.<br/>**isSaving** is true whenever isReading, isCreating, isUpdating or isDeleting is true.
-| onSave(newDataObject)  | Function | A callback that your form can call when the user wants to save. Accepts a single argument, an object containing the data to save.
-| onSaveNew  (newDataObject)         | Function | A callback that your form can call when the user wants to save an existing entity as a new entity. Accepts a single argument, an object containing the data to save.
-| onClose()             | Function | A callback that your form can call when the user wants to close the edit view. Accepts no arguments.
-| onDelete()            | Function | A callback that your form can call when the user wants to delete the entity. Accepts no arguments.
-| onResetConfirm()      | Function | A callback that your form can call when the user wants to reset the form, losing all changes since last save. It's the form's responsibity to reset itself to its initial state, so `onResetConfirm()` returns a `Promise` that will be resolved when the user says they are sure that they want to reset. See the basic example for more info.
-| onCustomConfirm(promptFunction)     | Function | A callback that your form can call when you want to display a custom confirmation. Accepts a function that will be called, and expects an object to be returned, see the basic example for more info on what the function receives and what it expects in return. `onCustomConfirm` returns a `Promise` which will be resolved if the user confirms the action, or will be rejected if the user cancels the action.
-| onDirty(isDirty = true)      | Function | A callback that your form can call when the user changes something on the form. `EntityEditor` will use this info to determine when certain confirmations must take place. Called with no arguments or `true` this will mark the form as dirty, or you can pass `false` to mark the form as clean.
-| entityName()          | Function | A function that returns the name of the current entity. Pass this strings as arguments to modify the text e.g. `entityName('first')` will return the entity name with the first letter capitalised.
-| actionName()          | Function | A function that returns the name of the current action, such as "add new" or "edit". Pass this strings as arguments to modify the text e.g. `actionyName('first')` will return the action name with the first letter capitalised.
-
-
-## Props that EntityEditor can take
-
-
-| Prop              | Type | Required | Description    
-| ----------------- | ---- | -------- | ---------------- |
-| id                | Any  | Yes      | The id of the item / entity to be edited, or `null` if a new entity is to be created. <br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
-| initialValues     | Object | Yes      | The object containing the data fo the entity you want to edit. This is passed through to the form.
-| onRead(id)            | Function | Yes      | A callback that will be called when `EntityEditor` wants to read data into itself.<br/>It is passed a single argument, the id of the entity to be read.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterRead` callback after a successful operation if you've supplied an `afterRead` prop.
-| onCreate(dataObject)          | Function |  Yes      | A callback that will be called when `EntityEditor` wants to create an entity.<br/>It is passed a single argument, the `dataObject` containing the new entity to be created.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterCreate` callback after a successful operation if you've supplied an `afterCreate` prop.<br/><br/>If you want entity editor to automatically take users to the edit page after a new entity is created using `onGotoEdit`, make sure you return the new id of the created entity in your returned object / your resolved `Promise`s data, for example:<br/>`(dataObject) => {var newId = create(dataObject); return { newId: newId };}` 
-| onUpdate(id, dataObject)          | Function | Yes      | A callback that will be called when `EntityEditor` wants to update an entity.<br/>It is passed two arguments, the `id` of the entity to update, and a `dataObject` containing updated values.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterUpdate` callback after a successful operation if you've supplied an `afterUpdate` prop.
-| onDelete(id)        | Function |          | A callback that will be called when `EntityEditor` wants to delete an entity.<br/>It is passed a single argument, the `id` of the entity to delete.<br/><br/>Your callback can optionally return either a `Promise` or an object, which will be passed to your `afterDelete` callback after a successful operation if you've supplied an `afterDelete` prop.
-| onClose()           | Function | Yes      | A callback that will be called when `EntityEditor` wants to stop editing an entity.<br/>It is passed no arguments.<br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
-| onGotoEdit()        | Function |          | A callback that will be called when `EntityEditor` wants to take the user to see the edit page / component for an entity.<br/>It is passed a single argument, the `id` of the entity to edit.<br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
-| onLeaveHook(callback)       | Function |          | A function that can be called externally when it is detected that the user has tried to leave the edit view. If present, `EntityEditor` passes this a function parameter so it can be consulted when the user wants to leave. It will return a boolean to the external function indicating if the user should be allowed to leave.<br/><br/> - **EntityEditorRouter:** If you're using EntityEditorRouter then EntityEditorRouter provides this prop for you.
-| entityName        | String |          | A string of the type of entity to edit. All lowercase is preferred so text modifiers will be able to alter case. Defaults to "item".
-| entityNamePlural  | String |          | A string of the plural of the entity. You only need to provide this if the plural is not simply `entityName` + "s".
-| isReading /<br/>isCreating /<br/>isUpdating/<br/>isDeleting | Boolean | | Booleans that you can use to indicate to `EntityEditor` if async data transations are taking place. This can be used to prevent certain form controls from having effect until transactions are done.<br/><br/>Synchronous data changes will not need to use these.
-| allowRead /<br/>allowCreate /<br/>allowUpdate /<br/>allowDelete / | Boolean, or Function that returns a Boolean | | Passing false to any of these will prohibit certain actions, and can be used to hide buttons and form controls for disallowed actions.
-| errorOnRead /<br/>errorOnCreate /<br/>errorOnUpdate /<br/>errorOnDelete / | Object | | **Experimental.** Optional objects that tell `EntityEditor` what to display when errors occur. These are triggered if any `Promises` in onRead / onCreate / onUpdate / onDelete are rejected.
-| afterRead() /<br/>afterCreate() /<br/>afterUpdate() /<br/>afterDelete() /<br/>afterClose() /<br/> | Function | | Optional callbacks to be called after actions are successful. These are often passed arguments, see onRead / onCreate / onUpdate / onDelete. 
-
-
-## EntityEditorRouter
-
-Additionally there is an optional integration with react-router 2.4.0+.
-`EntityEditorRouter` provides functions to auto-generate routes and passes extra props for hooking in with router behaviour.
-In your routes file this is used like so:
-```jsx
-import {createEditorRoutes} from 'react-entity-editor';
-
-const editorRoutes = createEditorRoutes({
-    component: ExampleUserEditPage,
-    path: "users"
-});
-
-return <Route>
-    <Route path="users" component={ExampleUserList} />
-    {editorRoutes}
-</Route>
-```
-
-This will create routes at `users/new` and `users/:id/edit`, and will also provide the `id`, `onClose`, `onGotoEdit` and `onLeaveHook` props for use by `EntityEditor`.
-
-## License
-
-The MIT License
-
-Copyright (c) 2016+ Damien Clarke / Blueflag
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
