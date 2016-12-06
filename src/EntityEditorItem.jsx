@@ -11,17 +11,18 @@ export default (userConfig: Object = {}): HockApplier => {
     const  {
         fetchComponent,
         errorComponent,
-        receivedWhen = (props) => !!props.list
+        receivedWhen = (props) => !!props.item
     } = userConfig;
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
-        class EntityEditorList extends Component {
+        class EntityEditorItem extends Component {
 
             render() {
                 const config: Object = mergeWithBaseConfig(this.context.entityEditorRoutes, userConfig);
+                const preloadActionIds: string = this.props.id;
                 const entityEditorProps: Object = {
-                    ...getConfigAsProps(config)
+                    ...getConfigAsProps(config, {preloadActionIds})
                 };
 
                 return <ComposedComponent
@@ -32,14 +33,15 @@ export default (userConfig: Object = {}): HockApplier => {
             }
         }
 
-        EntityEditorList.contextTypes = {
+        EntityEditorItem.contextTypes = {
             entityEditorRoutes: PropTypes.object
         };
 
         return EntityEditorLoader({
             fetchComponent,
             errorComponent,
-            receivedWhen
-        })(EntityEditorList);
+            receivedWhen,
+            passThroughWhen: (props) => !props.id
+        })(EntityEditorItem);
     }
 };

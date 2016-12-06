@@ -28,8 +28,8 @@ export function createEditorRoutes(params: Params): ReactClass<Route> {
 
     return <Route>
         {listComponent && <IndexRoute component={wrapListComponent()(listComponent)} />}
-        <Route path="new" component={wrapItemComponent()(itemComponent)} />
-        <Route path={`:${paramId}/edit`} component={wrapItemComponent()(itemComponent)} />
+        <Route path="new" component={wrapItemComponent({paramId})(itemComponent)} />
+        <Route path={`:${paramId}/edit`} component={wrapItemComponent({paramId})(itemComponent)} />
     </Route>;
 }
 
@@ -46,27 +46,6 @@ function ItemComponentWrapper(paramId: string): ReactClass<any> {
                 this.props.router.setRouteLeaveHook(this.props.route, callback);
             };
         }
-
-        onClose() {
-            this.props.router.push(this.getEditorRoute('close'));
-        }
-
-        onGotoEdit(id = false) {
-            this.props.router.push(this.getEditorRoute('edit', id));
-        }
-
-        render() {
-            const propsToAddToChildren: Object = {
-                id: this.props.params[paramId],
-                onClose: this.onClose.bind(this),
-                onLeaveHook: this.onLeaveHook,
-                onGotoEdit: this.onGotoEdit.bind(this),
-                getEditorRoute: this.getEditorRoute.bind(this)
-            };
-
-            const childrenWithProps = React.Children.map(this.props.children, (child) => React.cloneElement(child, propsToAddToChildren));
-            return <div>{childrenWithProps}</div>;
-        }
 }*/
 
 function getBasePath(routes: Array<any>): string {
@@ -79,18 +58,42 @@ function getBasePath(routes: Array<any>): string {
         .join("/");
 }
 
-function getRouteProps(routes: Array<any>): Object {
+function getRouteProps(props: Object): Object {
+    const {
+        router,
+        routes
+    } = props;
+
     const base: string = getBasePath(routes);
+    const paths: Function = (id: string) => ({
+        base,
+        list: base,
+        new: `${base}/new`,
+        edit: `${base}/${id}/edit`
+    });
+
+    const callbacks: Object = {
+        onGoList: () => {
+            router.push(paths().list);
+        },
+        onGoNew: () => {
+            router.push(paths().new);
+        },
+        onGoEdit: (props: {id: string}) => {
+            router.push(paths(props.id).edit);
+        }
+    };
+
     return {
-        paths: (id: string) => ({
-            base,
-            new: `${base}/new`,
-            edit: `${base}/${id}/edit`
-        })
+        paths,
+        callbacks
     };
 }
 
-function wrapItemComponent(config: ?Object = null): HockApplier {
+function wrapItemComponent(config: Object = {}): HockApplier {
+    const {
+        paramId
+    } = config;
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
@@ -106,14 +109,19 @@ function wrapItemComponent(config: ?Object = null): HockApplier {
 
             getChildContext() {
                 return {
-                    entityEditorRoutes: getRouteProps(this.props.routes)
+                    entityEditorRoutes: getRouteProps(this.props)
                 };
             }
 
             render() {
+                const entityEditorRoutesProps: Object = {
+                    ...getRouteProps(this.props),
+                    id: this.props.params[paramId]
+                };
+
                 return <ComposedComponent
                     {...this.props}
-                    entityEditorRoutes={getRouteProps(this.props.routes)}
+                    entityEditorRoutes={entityEditorRoutesProps}
                 />;
             }
         }
@@ -124,11 +132,15 @@ function wrapItemComponent(config: ?Object = null): HockApplier {
             router: PropTypes.object
         };
 
+        EntityEditorItemWrapper.childContextTypes = {
+            entityEditorRoutes: PropTypes.object
+        };
+
         return withRouter(EntityEditorItemWrapper);
     };
 }
 
-function wrapListComponent(config: ?Object = null): HockApplier {
+function wrapListComponent(config: Object = {}): HockApplier {
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
@@ -136,14 +148,14 @@ function wrapListComponent(config: ?Object = null): HockApplier {
 
             getChildContext() {
                 return {
-                    entityEditorRoutes: getRouteProps(this.props.routes)
+                    entityEditorRoutes: getRouteProps(this.props)
                 };
             }
 
             render() {
                 return <ComposedComponent
                     {...this.props}
-                    entityEditorRoutes={getRouteProps(this.props.routes)}
+                    entityEditorRoutes={getRouteProps(this.props)}
                 />;
             }
         }

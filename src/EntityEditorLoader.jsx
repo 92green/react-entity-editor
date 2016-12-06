@@ -1,8 +1,9 @@
 /* @flow */
 
 import React, {Component, PropTypes} from 'react';
+import {fromJS} from 'immutable';
 
-export default (config: ?Object = null): HockApplier => {
+export default (config: Object = {}): HockApplier => {
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
@@ -11,34 +12,56 @@ export default (config: ?Object = null): HockApplier => {
             render() {
                 const {
                     fetch,
-                    error
+                    error,
+                    fetchComponent,
+                    errorComponent,
+                    passThroughWhen,
+                    receivedWhen
                 } = this.props;
 
-                const receivedWhen: ?Function = this.props.receivedWhen
-                    || (config && config.receivedWhen);
-
+                if(passThroughWhen && passThroughWhen(this.props)) {
+                    return this.renderComposedComponent();
+                }
                 if(fetch) {
-                    return <p>Loading</p>;
+                    return fetchComponent(this.props);
                 }
-
                 if(error) {
-                    return <p>Error</p>;
+                    return errorComponent(this.props);
                 }
-
                 if(receivedWhen && !receivedWhen(this.props)) {
                     return null;
                 }
+                return this.renderComposedComponent();
+            }
 
-                // todo: use RemoveProps
-                // todo: accept components as props for fetch and error
-                return <ComposedComponent {...this.props} />;
+            renderComposedComponent() {
+                const filteredProps: Object = fromJS(this.props)
+                    .delete('fetch')
+                    .delete('error')
+                    .delete('fetchComponent')
+                    .delete('errorComponent')
+                    .toJS();
+
+                return <ComposedComponent {...filteredProps} />;
             }
         }
 
         EntityEditorLoader.propTypes = {
             fetch: PropTypes.bool,
             error: PropTypes.object,
+            fetchComponent: PropTypes.func,
+            errorComponent: PropTypes.func,
+            passThroughWhen: PropTypes.func,
             receivedWhen: PropTypes.func
+        };
+
+        EntityEditorLoader.defaultProps = {
+            fetch: false,
+            error: null,
+            fetchComponent: config.fetchComponent ? config.fetchComponent : () => <p>Loading...</p>,
+            errorComponent: config.errorComponent ? config.errorComponent : () => <p>Error</p>,
+            passThroughWhen: config.passThroughWhen || null,
+            receivedWhen: config.receivedWhen || null
         };
 
         return EntityEditorLoader;
