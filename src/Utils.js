@@ -2,12 +2,14 @@
 // returnPromise
 
 // if passed a promise, this returns the promise
-// if passed anything else, this returns a resolved promise
+// if passed anything else, this returns a reject promise if false, or a resolved promise otherwise
 
 export function returnPromise(item) {
     return typeof item == "object" && typeof item.then != "undefined"
     	? item
-    	: new Promise((resolve) => resolve(item));
+    	: item === false
+            ? new Promise((resolve, reject) => reject(item))
+            : new Promise((resolve) => resolve(item));
 }
 
 // returnBoolean

@@ -1,47 +1,37 @@
 /* @flow */
 
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 import EntityEditorLoader from './EntityEditorLoader';
-import {
-    mergeWithBaseConfig,
-    getConfigAsProps
-} from './Config';
+import EntityEditorHock from './EntityEditorHock';
+
 
 export default (userConfig: Object = {}): HockApplier => {
     const  {
         fetchComponent,
         errorComponent,
+        promptComponent,
         receivedWhen = (props) => !!props.item
     } = userConfig;
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
-        class EntityEditorItem extends Component {
-
-            render() {
-                const config: Object = mergeWithBaseConfig(this.context.entityEditorRoutes, userConfig);
-                const preloadActionIds: string = this.props.id;
-                const entityEditorProps: Object = {
-                    ...getConfigAsProps(config, {preloadActionIds})
-                };
-
-                return <ComposedComponent
-                    {...this.props}
-                    entityEditor={entityEditorProps}
-                    entityEditorRoutes={this.context.entityEditorRoutes}
-                />;
-            }
+        function EntityEditorItem(props: Object) {
+            return <ComposedComponent {...props} />;
         }
 
-        EntityEditorItem.contextTypes = {
-            entityEditorRoutes: PropTypes.object
-        };
-
-        return EntityEditorLoader({
+        const withLoader: Function = EntityEditorLoader({
             fetchComponent,
             errorComponent,
             receivedWhen,
             passThroughWhen: (props) => !props.id
-        })(EntityEditorItem);
+        });
+
+        const withHock: Function = EntityEditorHock({
+            ...userConfig,
+            promptComponent,
+            preloadActionIds: (props) => props.id
+        });
+
+        return withLoader(withHock(EntityEditorItem));
     }
 };

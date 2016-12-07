@@ -10,7 +10,7 @@ type Params = {
     paramId: string
 };
 
-const routePatterns: List<RegExp> = List.of(
+const entityEditorRoutePatterns: List<RegExp> = List.of(
     /^new$/,
     /\/edit$/
 );
@@ -33,27 +33,12 @@ export function createEditorRoutes(params: Params): ReactClass<Route> {
     </Route>;
 }
 
-
-
-
-/*
-function ItemComponentWrapper(paramId: string): ReactClass<any> {
-
-    class EntityEditorItemWrapper extends Component {
-
-        componentWillMount() {
-            this.onLeaveHook = (callback) => {
-                this.props.router.setRouteLeaveHook(this.props.route, callback);
-            };
-        }
-}*/
-
 function getBasePath(routes: Array<any>): string {
     return "/" + fromJS(routes)
         .filter(ii => !!ii.get('path') && ii.get('path') != "/") // remove routes that don't add to the path
         .map(ii => ii.get('path')) // get path for each route
         .takeWhile(path => { // only keep routes not made by entity editor
-            return !routePatterns.some(test => test.test(path));
+            return !entityEditorRoutePatterns.some(test => test.test(path));
         })
         .join("/");
 }
@@ -89,6 +74,31 @@ function getRouteProps(props: Object): Object {
         callbacks
     };
 }
+class EntityEditorWrapper extends Component {
+
+    onLeaveHook: Function;
+    leaveHookSet: boolean = false;
+
+    componentWillMount() {
+        this.onLeaveHook = (callback) => {
+            if(this.leaveHookSet) {
+                return;
+            }
+            this.props.router.setRouteLeaveHook(this.props.route, callback);
+            this.leaveHookSet = true;
+        };
+    }
+
+    getChildContext() {
+        return {
+            entityEditorRoutes: {
+                ...getRouteProps(this.props),
+                onLeaveHook: this.onLeaveHook
+            }
+        };
+    }
+}
+
 
 function wrapItemComponent(config: Object = {}): HockApplier {
     const {
@@ -97,22 +107,7 @@ function wrapItemComponent(config: Object = {}): HockApplier {
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
-        class EntityEditorItemWrapper extends Component {
-
-            /*
-            componentWillMount() {
-                this.onLeaveHook = (callback) => {
-                    this.props.router.setRouteLeaveHook(this.props.route, callback);
-                };
-            }
-            */
-
-            getChildContext() {
-                return {
-                    entityEditorRoutes: getRouteProps(this.props)
-                };
-            }
-
+        class EntityEditorItemWrapper extends EntityEditorWrapper {
             render() {
                 const entityEditorRoutesProps: Object = {
                     ...getRouteProps(this.props),
@@ -144,18 +139,15 @@ function wrapListComponent(config: Object = {}): HockApplier {
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
-        class EntityEditorListWrapper extends Component {
-
-            getChildContext() {
-                return {
-                    entityEditorRoutes: getRouteProps(this.props)
-                };
-            }
-
+        class EntityEditorListWrapper extends EntityEditorWrapper {
             render() {
+                const entityEditorRoutesProps: Object = {
+                    ...getRouteProps(this.props)
+                };
+
                 return <ComposedComponent
                     {...this.props}
-                    entityEditorRoutes={getRouteProps(this.props)}
+                    entityEditorRoutes={entityEditorRoutesProps}
                 />;
             }
         }
