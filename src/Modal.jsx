@@ -21,29 +21,21 @@ class Modal extends Component {
 
     render() {
         const {
-            // react component props
-            children,
-            // props for react modal
-            isOpen,
-            onAfterOpen,
-            onRequestClose,
-            // props for this component
+            open,
             title,
+            message,
             yes,
-            no,
-            onYes,
-            onNo
+            no
         } = this.props;
 
         return <ReactModal
-            isOpen={isOpen}
-            onAfterOpen={onAfterOpen}
+            isOpen={open}
             onRequestClose={this.onNo.bind(this)}
             className="Modal_content"
             overlayClassName="Modal">
             {title && <div className="Modal_title">{title}</div>}
             <div className="Modal_body">
-                {children}
+                {message}
                 <div className="Modal_buttons">
                     {no ? <a className="Button Button-grey " onClick={this.onNo.bind(this)}>{no}</a> : null}
                     {yes ? <a className="Button" onClick={this.onYes.bind(this)}>{yes}</a> : null}
@@ -54,23 +46,14 @@ class Modal extends Component {
 }
 
 Modal.propTypes = {
-    // props for react modal
-    isOpen: PropTypes.bool,
-    onAfterOpen: PropTypes.func,
-    onRequestClose: PropTypes.func,
-    // props for this component
+    message: PropTypes.any,
     title: PropTypes.string,
     yes: PropTypes.string,
     no: PropTypes.string,
+    open: PropTypes.bool,
     onYes: PropTypes.func,
     onNo: PropTypes.func,
-    type: PropTypes.string
-};
-
-Modal.defaultProps = {
-    title: 'Message',
-    yes: 'Okay',
-    no: null
+    onRequestClose: PropTypes.func
 };
 
 export default Modal;

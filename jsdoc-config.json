@@ -1,0 +1,29 @@
+{
+    "source": {
+    "include": [ "README.md", "src" ],
+    "includePattern": ".+jsx?"
+    },
+    "opts": {
+     "destination": "./docs/",
+     "recurse": true,
+     "template": "node_modules/jsdonk",
+     "jsdonk": {
+        "title": "Stampy",
+        "sections": {
+          "module": {
+            "typedef": false
+          },
+          "typedef": false
+        }
+     }
+  },
+  "plugins": [
+     "plugins/markdown",
+     "node_modules/jsdoc-babel"
+  ],
+  "babel": {
+    "extensions": ["js", "es6", "jsx"],
+    "presets": ["blueflag"],
+    "plugins": ["transform-flow-strip-types"]
+  }
+}
