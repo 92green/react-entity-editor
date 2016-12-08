@@ -1,7 +1,6 @@
 /* @flow */
 
 import React, {Component, PropTypes} from 'react';
-import {fromJS} from 'immutable';
 
 export default (config: Object = {}): HockApplier => {
 
@@ -35,12 +34,13 @@ export default (config: Object = {}): HockApplier => {
             }
 
             renderComposedComponent() {
-                const filteredProps: Object = fromJS(this.props)
-                    .delete('fetch')
-                    .delete('error')
-                    .delete('fetchComponent')
-                    .delete('errorComponent')
-                    .toJS();
+                const filteredProps: Object = Object.assign({}, this.props);
+                delete filteredProps.fetch;
+                delete filteredProps.error;
+                delete filteredProps.fetchComponent;
+                delete filteredProps.errorComponent;
+                delete filteredProps.passThroughWhen;
+                delete filteredProps.receivedWhen;
 
                 return <ComposedComponent {...filteredProps} />;
             }
