@@ -96,11 +96,16 @@ export default (userConfig: Object = {}): HockApplier => {
             }
 
             wrapActionInPrompts(config: Object, action: Function, actionName: string, actionProps:Object): Function {
+                const partialAction: Function = action(config);
+                if(typeof partialAction != "function") {
+                    throw `Entity Editor: action "${actionName} must be a function that returns an action function, such as (config) => (actionProps) => { /* return null, promise or false */ }"`;
+                }
+
                 // show confirmation prompt (if exists)
                 return this.getPromptPromise(config, 'confirm', actionName, actionProps)
                     .then(
                         (actionProps) => {
-                            return returnPromise(action(config)(actionProps))
+                            return returnPromise(partialAction(actionProps))
                                 .then(
                                     (result) => {
                                         // show success prompt (if exists)
@@ -137,8 +142,13 @@ export default (userConfig: Object = {}): HockApplier => {
                     })
                     .toJS();
 
+                const state: Object = {
+                    dirty: this.state.dirty
+                };
+
                 return {
-                    actions
+                    actions,
+                    state
                 };
             }
 
