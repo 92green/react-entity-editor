@@ -10,7 +10,7 @@ export default (userConfig: Object = {}): HockApplier => {
         fetchComponent,
         errorComponent,
         promptComponent,
-        receivedWhen = (props) => !!props.item
+        receivedWhen
     } = userConfig;
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
