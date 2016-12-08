@@ -4,49 +4,49 @@ import {fromJS, Map} from 'immutable';
 
 export const baseConfig = {
     actions: {
-        save: ({callbacks}) => (props: {id: string, data: Object}): void => {
-            if(!props.data) {
-                throw `EntityEditor: config.actions.save: props.data is not defined`;
+        save: ({callbacks}: {callbacks: Object}) => (actionProps: {id: string, payload: Object}): void => {
+            if(!actionProps.payload) {
+                throw `EntityEditor: config.actions.save: actionProps.payload is not defined`;
             }
-            return props.id
-                ? callbacks.onUpdate(props)
-                : callbacks.onCreate(props);
+            return actionProps.id
+                ? callbacks.onUpdate(actionProps)
+                : callbacks.onCreate(actionProps);
         },
-        saveNew: ({callbacks}) => (props: {id: string, data: Object}): void => {
-            if(!props.data) {
-                throw `EntityEditor: config.actions.saveNew: props.data is not defined`;
+        saveNew: ({callbacks} : {callbacks: Object}) => (actionProps: {id: string, payload: Object}): void => {
+            if(!actionProps.payload) {
+                throw `EntityEditor: config.actions.saveNew: actionProps.payload is not defined`;
             }
-            return callbacks.onCreate(props);
+            return callbacks.onCreate(actionProps);
         },
-        delete: ({callbacks}) => (props: {id: string}): void => {
-            if(!props.id) {
-                throw `EntityEditor: config.actions.delete: props.id is not defined`;
+        delete: ({callbacks} : {callbacks: Object}) => (actionProps: {id: string}): void => {
+            if(!actionProps.id) {
+                throw `EntityEditor: config.actions.delete: actionProps.id is not defined`;
             }
-            return callbacks.onDelete(props);
+            return callbacks.onDelete(actionProps);
         },
-        dirty: ({callbacks}) => (props: {dirty: Boolean}): void => {
-            return callbacks.onDirty({dirty: props.dirty});
+        dirty: ({callbacks} : {callbacks: Object}) => (actionProps: {dirty: Boolean}): void => {
+            return callbacks.onDirty({dirty: actionProps.dirty});
         },
-        goList: ({callbacks}) => (): void => {
+        goList: ({callbacks} : {callbacks: Object}) => (): void => {
             return callbacks.onGoList();
         },
-        goNew: ({callbacks}) => (): void => {
+        goNew: ({callbacks} : {callbacks: Object}) => (): void => {
             return callbacks.onGoNew();
         },
-        goEdit: ({callbacks}) => (props: {id: string}): void => {
-            if(!props.id) {
-                throw `EntityEditor: config.actions.saveNew: props.id is not defined`;
+        goEdit: ({callbacks} : {callbacks: Object}) => (actionProps: {id: string}): void => {
+            if(!actionProps.id) {
+                throw `EntityEditor: config.actions.saveNew: actionProps.id is not defined`;
             }
-            return callbacks.onGoEdit({id: props.id});
+            return callbacks.onGoEdit({id: actionProps.id});
         }
     },
     callbacks: {
-        onCreate: (props: {data: Object}) => {
-            console.warn(`Entity Editor: please define config.callbacks.onCreate({data: Object}) before using it`);
+        onCreate: (props: {payload: Object}) => {
+            console.warn(`Entity Editor: please define config.callbacks.onCreate({payload: Object}) before using it`);
             return false;
         },
-        onUpdate: (props: {id: string, data: Object}) => {
-            console.warn(`Entity Editor: please define config.callbacks.onUpdate({id: string, data: Object}) before using it`);
+        onUpdate: (props: {id: string, payload: Object}) => {
+            console.warn(`Entity Editor: please define config.callbacks.onUpdate({id: string, payload: Object}) before using it`);
             return false;
         },
         onDelete: (props: {id: string}) => {
@@ -79,7 +79,7 @@ export const baseConfig = {
             no: `Cancel`
         },
         go: {
-            showWhen: ({dirty}) => dirty,
+            showWhen: ({dirty}: {dirty: Boolean}) => dirty,
             title: `Unsaved changes`,
             message: `You have unsaved changes. What would you like to do?`,
             yes: `Discard changes`,
@@ -131,9 +131,9 @@ export function mergeWithBaseConfig(...mergeConfigs: Array<Object>): Object {
     return mergeConfig(baseConfig, ...mergeConfigs);
 }
 
-export function promptWithDefaults(configObject: Object, type: string, action: string, editorData: Object): Object {
+export function promptWithDefaults(configObject: Object, type: string, action: string, editorData: Object): ?Object {
     const config: Map<string, Map<string,*>> = fromJS(configObject);
-    const prompt: Map<string, *> = config.getIn([`${type}Prompts`, action]);
+    const prompt: ?Map<string, *> = config.getIn([`${type}Prompts`, action]);
 
     if(!prompt || (prompt.has('showWhen') && !prompt.get('showWhen')(editorData))) {
         return null;
