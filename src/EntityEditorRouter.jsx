@@ -22,14 +22,10 @@ export function createEditorRoutes(params: Params): ReactClass<Route> {
         paramId = 'id'
     } = params;
 
-    if(!itemComponent) {
-        throw `EntityEditorRouteer.createEditorRoutes() must be passed an object with an itemComponent property, which should be a React components to be rendered when editing an item`;
-    }
-
     return <Route>
         {listComponent && <IndexRoute component={wrapListComponent()(listComponent)} />}
-        <Route path="new" component={wrapItemComponent({paramId})(itemComponent)} />
-        <Route path={`:${paramId}/edit`} component={wrapItemComponent({paramId})(itemComponent)} />
+        {itemComponent && <Route path="new" component={wrapItemComponent({paramId})(itemComponent)} />}
+        {itemComponent && <Route path={`:${paramId}/edit`} component={wrapItemComponent({paramId})(itemComponent)} />}
     </Route>;
 }
 
@@ -100,7 +96,7 @@ class EntityEditorWrapper extends Component {
 }
 
 
-function wrapItemComponent(config: Object = {}): HockApplier {
+export function wrapItemComponent(config: Object = {}): HockApplier {
     const {
         paramId
     } = config;
@@ -135,7 +131,7 @@ function wrapItemComponent(config: Object = {}): HockApplier {
     };
 }
 
-function wrapListComponent(config: Object = {}): HockApplier {
+export function wrapListComponent(config: Object = {}): HockApplier {
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
