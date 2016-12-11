@@ -25,7 +25,7 @@ export default (userConfig: Object = {}): HockApplier => {
                 };
             }
 
-            componentWillMount() {
+            /*componentWillMount() {
                 const {
                     entityEditorRoutes: {
                         onLeaveHook
@@ -34,14 +34,14 @@ export default (userConfig: Object = {}): HockApplier => {
 
                 if(onLeaveHook) {
                     onLeaveHook((a,b) => {
-                        /*if(this.allowLeave) {
+                        if(this.allowLeave) {
                             return true;
                         }
                         try a generic "go" action
-                        return false;*/
+                        return false;
                     });
                 }
-            }
+            }*/
 
             componentWillUnmount() {
                 this.closePrompt();
