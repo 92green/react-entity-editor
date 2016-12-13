@@ -206,8 +206,13 @@ export default (userConfig: Object = {}): HockApplier => {
                     state
                 };
 
-                if(prompt && prompt.asProps) {
-                    props.prompt = prompt;
+                const {
+                    prompt,
+                    promptOpen
+                } = this.state;
+
+                if(promptOpen && prompt && prompt.asProps) {
+                    props.prompt = Object.assign({}, prompt);
                 }
 
                 return props;
