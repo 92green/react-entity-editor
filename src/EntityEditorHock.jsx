@@ -16,7 +16,7 @@ export default (userConfig: Object = {}): HockApplier => {
 
         class EntityEditorHock extends Component {
 
-            constructor(props) {
+            constructor(props: Object): void {
                 super(props);
                 this.state = {
                     dirty: false,
@@ -43,13 +43,29 @@ export default (userConfig: Object = {}): HockApplier => {
                 }
             }*/
 
-            componentWillUnmount() {
+            componentWillUnmount(): void {
                 this.closePrompt();
             }
 
-            shouldComponentUpdate(nextProps, nextState) {
+            shouldComponentUpdate(nextProps: Object, nextState: Object): boolean {
                 return fromJS(this.props).equals(fromJS(nextProps))
                     || fromJS(this.state).equals(fromJS(nextState));
+            }
+
+            getEditorState(): Object {
+                return {
+                    dirty: this.state.dirty
+                };
+            }
+
+            setEditorState(): Object {
+                return {
+                    dirty: (dirty) => {
+                        if(this.state.dirty != dirty) {
+                            this.setState({dirty});
+                        }
+                    }
+                };
             }
 
             openPrompt(prompt: Object): void {
@@ -75,15 +91,11 @@ export default (userConfig: Object = {}): HockApplier => {
             }
 
             getPromptPromise(config: Object, type: string, actionName: string, payload: Object): Promise<*> {
-                const editorData: Object = {
-                    dirty: this.state.dirty
-                };
-
-                var prompt: ?Object = promptWithDefaults(config, type, actionName, editorData);
+                var prompt: ?Object = promptWithDefaults(config, type, actionName, this.getEditorState());
 
                 // special case: actions staring with "go" can fallback to use "go" prompts
                 if(!prompt && /^go[A-Z]/.test(actionName)) {
-                    prompt = promptWithDefaults(config, type, "go", editorData);
+                    prompt = promptWithDefaults(config, type, "go", this.getEditorState());
                 }
 
                 return !prompt
@@ -95,53 +107,96 @@ export default (userConfig: Object = {}): HockApplier => {
                     });
             }
 
-            wrapActionInPrompts(config: Object, action: Function, actionName: string, actionProps:Object): Function {
+            wrapActionWithPrompts(config: Object, action: Function, actionName: string, actionProps:Object): Function {
                 const partialAction: Function = action(config);
                 if(typeof partialAction != "function") {
                     throw `Entity Editor: action "${actionName} must be a function that returns an action function, such as (config) => (actionProps) => { /* return null, promise or false */ }"`;
                 }
 
+                const doNothing = () => {};
+
                 // show confirmation prompt (if exists)
                 return this.getPromptPromise(config, 'confirm', actionName, actionProps)
                     .then(
                         (actionProps) => {
+                            // perform action
                             return returnPromise(partialAction(actionProps))
                                 .then(
                                     (result) => {
                                         // show success prompt (if exists)
-                                        this.getPromptPromise(config, 'success', actionName, result).catch(() => {});
-                                    }, (result) => {
+                                        return this.getPromptPromise(config, 'success', actionName, result)
+                                            .then(this.callAfter, this.callAfter);
+                                    },
+                                    (result) => {
                                         // show error prompt (if exists)
-                                        this.getPromptPromise(config, 'error', actionName, result).catch(() => {});
+                                        return this.getPromptPromise(config, 'error', actionName, result)
+                                            .then(doNothing, doNothing);
                                     }
                                 );
-                        }, () => {}
+                        }, doNothing
                     );
             }
 
-            entityEditorProps(config: Object): Object {
-                const modifiedConfig = {
-                    ...config,
-                    callbacks: {
-                        ...config.callbacks,
-                        onDirty: ({dirty}) => {
-                            if(this.state.dirty != dirty) {
-                                this.setState({dirty});
-                            }
-                        }
-                    }
-                };
+            wrapCallbackWithAfter(partialCallback: Function, key: string, callbacks: Object): Function {
+                return (...args): Promise<*> => {
+                    const after: ?Function = /^on/.test(key)
+                        ? callbacks[key.replace(/^on/, 'after')]
+                        : null;
 
+                    return returnPromise(partialCallback(...args))
+                        .then(response => ({response, after}));
+                };
+            }
+
+            callAfter({response, after}: {response: Object, after: ?Function}): void {
+                after && after(response);
+            }
+
+            getPreparedConfig(config): Object {
+                var callbacks: Object = {};
+
+                fromJS(config.callbacks)
+                    .reduce((callbacks: Object, callback: Function, key: string): Object => {
+                        // partially apply the callbacks so they have knowledge of the full set of callbacks and any other config they're allowed to receive
+                        const partialCallback: Function = callback({
+                            callbacks,
+                            setEditorState: this.setEditorState()
+                        });
+
+                        // if not a function then this callback hasnt been set up correctly, error out
+                        if(typeof partialCallback != "function") {
+                            throw `Entity Editor: callback "${key} must be a function that returns a 'callback' function, such as (config) => (callbackProps) => { /* return null, promise or false */ }"`;
+                        }
+
+                        // wrap partialCallback in a function that takes the callback response and nests it in a new object,
+                        // so we can also pass a reference to an 'after' function in the promise payload
+                        // the 'after' function will be called after the user closes out of a success dialog
+                        callbacks[key] = this.wrapCallbackWithAfter(partialCallback, key, callbacks);
+                        return callbacks;
+
+                    }, callbacks);
+
+                return fromJS(config)
+                    .set('callbacks', callbacks)
+                    .toJS();
+            }
+
+            entityEditorProps(config: Object): Object {
+                const preparedConfig = this.getPreparedConfig(config);
+
+                // wrap each of the actions in prompts so they can handle confirmation, success and error
+                // also preload action props with their ids if required (such as with EntityEditorItem)
                 const actions: Object = fromJS(config)
                     .get('actions', Map())
                     .map((action: Function, actionName: string) => (actionProps: Object) => {
                         if(preloadActionIds) {
                             actionProps.id = preloadActionIds(this.props);
                         }
-                        return this.wrapActionInPrompts(modifiedConfig, action, actionName, actionProps);
+                        return this.wrapActionWithPrompts(preparedConfig, action, actionName, actionProps);
                     })
                     .toJS();
 
+                // choose state vars to pass down in a state prop
                 const state: Object = {
                     dirty: this.state.dirty
                 };

@@ -5,9 +5,9 @@ import {Route, IndexRoute, withRouter} from 'react-router';
 import {List, fromJS} from 'immutable';
 
 type Params = {
-    itemComponent: ReactClass<any>,
-    listComponent: ReactClass<any>,
-    paramId: string
+    itemComponent: ?ReactClass<any>,
+    listComponent: ?ReactClass<any>,
+    paramId: ?string
 };
 
 const entityEditorRoutePatterns: List<RegExp> = List.of(
@@ -54,13 +54,13 @@ function getRouteProps(props: Object): Object {
     });
 
     const callbacks: Object = {
-        onGoList: () => {
+        onGoList: () => () => {
             router.push(paths().list);
         },
-        onGoNew: () => {
+        onGoNew: () => () => {
             router.push(paths().new);
         },
-        onGoEdit: (props: {id: string}) => {
+        onGoEdit: () => (props: {id: string}) => {
             router.push(paths(props.id).edit);
         }
     };
@@ -70,6 +70,7 @@ function getRouteProps(props: Object): Object {
         callbacks
     };
 }
+
 class EntityEditorWrapper extends Component {
 
     onLeaveHook: Function;
@@ -95,10 +96,9 @@ class EntityEditorWrapper extends Component {
     }
 }
 
-
 export function wrapItemComponent(config: Object = {}): HockApplier {
     const {
-        paramId
+        paramId = 'id'
     } = config;
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
