@@ -147,7 +147,8 @@ export const baseConfig: Config = {
             success: `Success`,
             error: `Error`
         },
-        yes: `Okay`
+        yes: `Okay`,
+        asProps: false
     }
 };
 
@@ -177,7 +178,7 @@ export function promptWithDefaults(configObject: Object, type: string, action: s
 
     const base: Map<string, *> = config
         .get('promptDefaults')
-        .map(ii => typeof ii == "string" ? ii : ii.get(type));
+        .map(ii => ii.get ? ii.get(type) : ii);
 
     return base
         .merge(prompt)

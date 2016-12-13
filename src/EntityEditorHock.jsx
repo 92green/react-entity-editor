@@ -113,7 +113,7 @@ export default (userConfig: Object = {}): HockApplier => {
                     throw `Entity Editor: action "${actionName} must be a function that returns an action function, such as (config) => (actionProps) => { /* return null, promise or false */ }"`;
                 }
 
-                const doNothing = () => {};
+                const doNothing: Function = () => {};
 
                 // show confirmation prompt (if exists)
                 return this.getPromptPromise(config, 'confirm', actionName, actionProps)
@@ -201,10 +201,16 @@ export default (userConfig: Object = {}): HockApplier => {
                     dirty: this.state.dirty
                 };
 
-                return {
+                var props = {
                     actions,
                     state
                 };
+
+                if(prompt && prompt.asProps) {
+                    props.prompt = prompt;
+                }
+
+                return props;
             }
 
             render() {
@@ -214,6 +220,8 @@ export default (userConfig: Object = {}): HockApplier => {
                     promptOpen
                 } = this.state;
 
+                const promptAsProps: boolean = prompt && prompt.asProps;
+
                 return <div>
                     <ComposedComponent
                         {...this.props}
@@ -222,7 +230,7 @@ export default (userConfig: Object = {}): HockApplier => {
                     />
                     {React.cloneElement(promptComponent(this.props), {
                         ...prompt,
-                        open: promptOpen,
+                        open: promptOpen && !promptAsProps,
                         onRequestClose: this.closePrompt.bind(this)
                     })}
                 </div>;

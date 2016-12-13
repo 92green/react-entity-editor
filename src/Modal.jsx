@@ -32,7 +32,9 @@ class Modal extends Component {
             isOpen={open}
             onRequestClose={this.onNo.bind(this)}
             className="Modal_content"
-            overlayClassName="Modal">
+            overlayClassName="Modal"
+            contentLabel={title || "Please note"}
+        >
             {title && <div className="Modal_title">{title}</div>}
             <div className="Modal_body">
                 {message}
