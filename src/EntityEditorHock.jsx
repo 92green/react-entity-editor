@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, {Component, PropTypes} from 'react';
-import {fromJS, Map} from 'immutable';
+import {fromJS, Map, List} from 'immutable';
 import {mergeWithBaseConfig, promptWithDefaults} from './Config';
 import Modal from './Modal';
 import {returnPromise} from './Utils';
@@ -114,6 +114,17 @@ export default (userConfig: Object = {}): HockApplier => {
                 }
 
                 const doNothing: Function = () => {};
+                const doSuccessAction: Function = (result) => {
+                    const successAction = config.successActions && config.successActions[actionName];
+                    if(!successAction) {
+                        return;
+                    }
+                    const partialSuccessAction = successAction(config);
+                    if(typeof partialSuccessAction != "function") {
+                        throw `Entity Editor: successAction "${actionName} must be a function that returns a successAction function, such as (config) => (result) => {}"`;
+                    }
+                    partialSuccessAction(result);
+                };
 
                 // show confirmation prompt (if exists)
                 return this.getPromptPromise(config, 'confirm', actionName, actionProps)
@@ -125,7 +136,7 @@ export default (userConfig: Object = {}): HockApplier => {
                                     (result) => {
                                         // show success prompt (if exists)
                                         return this.getPromptPromise(config, 'success', actionName, result)
-                                            .then(this.callAfter, this.callAfter);
+                                            .then(doSuccessAction, doSuccessAction);
                                     },
                                     (result) => {
                                         // show error prompt (if exists)
@@ -137,47 +148,60 @@ export default (userConfig: Object = {}): HockApplier => {
                     );
             }
 
-            wrapCallbackWithAfter(partialCallback: Function, key: string, callbacks: Object): Function {
-                return (...args): Promise<*> => {
-                    const after: ?Function = /^on/.test(key)
-                        ? callbacks[key.replace(/^on/, 'after')]
-                        : null;
-
-                    return returnPromise(partialCallback(...args))
-                        .then(response => ({response, after}));
-                };
-            }
-
-            callAfter({response, after}: {response: Object, after: ?Function}): void {
-                after && after(response);
-            }
-
             getPreparedConfig(config): Object {
+                const actionConfigFilter = fromJS([
+                    'actions',
+                    'callbacks',
+                    'successActions',
+                    'confirmPrompts',
+                    'successPrompts',
+                    'errorPrompts',
+                    'promptDefaults'
+                ]);
+
+                const immutableConfig = fromJS(config);
                 var callbacks: Object = {};
 
-                fromJS(config.callbacks)
+                immutableConfig
+                    .get('callbacks')
                     .reduce((callbacks: Object, callback: Function, key: string): Object => {
-                        // partially apply the callbacks so they have knowledge of the full set of callbacks and any other config they're allowed to receive
-                        const partialCallback: Function = callback({
-                            callbacks,
-                            setEditorState: this.setEditorState()
+
+                        // create arguments to be passed as config into each callback
+                        const callbackArgsWithSuper: Function = (_super: ?Function) => {
+                            return Map({
+                                    callbacks,
+                                    _super,
+                                    setEditorState: this.setEditorState()
+                                })
+                                .filter(ii => ii)
+                                .toObject();
+                        };
+
+                        // prepare object to pass as 'config' to every callback
+                        // first prepare every super call and recusively insert these into each other
+                        // so you can go config._super (and config._super._super) inside each
+                        const superCalls: List<Function> = immutableConfig.getIn(['_super', 'callbacks', key], List());
+                        const _super: Function = superCalls.reduce((reduction: ?Function, _super: Function) => {
+                            return _super(callbackArgsWithSuper(_super));
                         });
+
+                        // partially apply the callbacks so they have knowledge of the full set of callbacks and any other config they're allowed to receive
+                        const partialCallback: Function = callback(callbackArgsWithSuper(_super));
 
                         // if not a function then this callback hasnt been set up correctly, error out
                         if(typeof partialCallback != "function") {
                             throw `Entity Editor: callback "${key} must be a function that returns a 'callback' function, such as (config) => (callbackProps) => { /* return null, promise or false */ }"`;
                         }
 
-                        // wrap partialCallback in a function that takes the callback response and nests it in a new object,
-                        // so we can also pass a reference to an 'after' function in the promise payload
-                        // the 'after' function will be called after the user closes out of a success dialog
-                        callbacks[key] = this.wrapCallbackWithAfter(partialCallback, key, callbacks);
+                        // wrap partialCallback in a function that forces the callback to always return a promise
+                        callbacks[key] = (...args): Promise<*> => returnPromise(partialCallback(...args));
                         return callbacks;
 
                     }, callbacks);
 
                 return fromJS(config)
                     .set('callbacks', callbacks)
+                    .filter((ii, name) => actionConfigFilter.includes(name))
                     .toJS();
             }
 
