@@ -6,13 +6,13 @@ import {mergeWithBaseConfig, promptWithDefaults} from './Config';
 import Modal from './Modal';
 import {returnPromise} from './Utils';
 
-export default (userConfig: Object = {}): HockApplier => {
+export default (userConfig: Object = {}): Function => {
     const  {
         promptComponent = () => <Modal />,
         preloadActionIds
     } = userConfig;
 
-    return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
+    return (ComposedComponent) => {
 
         class EntityEditorHock extends Component {
 

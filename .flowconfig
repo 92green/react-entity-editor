@@ -4,5 +4,8 @@ module.system.node.resolve_dirname=..
 module.system.node.resolve_dirname=src
 
 [libs]
-src/typedef/
-node_modules/immutable-js/dist/immutable.js.flow
+node_modules/immutable/dist/immutable.js.flow
+
+[ignore]
+.*/node_modules/fbjs/.*
+.*/node_modules/react-side-effect/.*
