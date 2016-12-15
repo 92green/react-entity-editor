@@ -5,8 +5,8 @@ import {Route, IndexRoute, withRouter} from 'react-router';
 import {List, fromJS} from 'immutable';
 
 type Params = {
-    itemComponent: ?ReactClass<any>,
-    listComponent: ?ReactClass<any>,
+    itemComponent: ?React.Element<any>,
+    listComponent: ?React.Element<any>,
     paramId: ?string
 };
 
@@ -15,7 +15,7 @@ const entityEditorRoutePatterns: List<RegExp> = List.of(
     /\/edit$/
 );
 
-export function createEditorRoutes(params: Params): ReactClass<Route> {
+export function createEditorRoutes(params: Params): React.Element<Route> {
     const {
         itemComponent,
         listComponent,
@@ -74,7 +74,12 @@ function getRouteProps(props: Object): Object {
 class EntityEditorWrapper extends Component {
 
     onLeaveHook: Function;
-    leaveHookSet: boolean = false;
+    leaveHookSet: boolean;
+
+    constructor(props) {
+        super(props);
+        this.leaveHookSet = false;
+    }
 
     componentWillMount() {
         this.onLeaveHook = (callback) => {
@@ -96,12 +101,12 @@ class EntityEditorWrapper extends Component {
     }
 }
 
-export function wrapItemComponent(config: Object = {}): HockApplier {
+export function wrapItemComponent(config: Object = {}): Function {
     const {
         paramId = 'id'
     } = config;
 
-    return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
+    return (ComposedComponent: React.Element<any>) => {
 
         class EntityEditorItemWrapper extends EntityEditorWrapper {
             render() {
@@ -131,9 +136,9 @@ export function wrapItemComponent(config: Object = {}): HockApplier {
     };
 }
 
-export function wrapListComponent(config: Object = {}): HockApplier {
+export function wrapListComponent(): Function {
 
-    return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
+    return (ComposedComponent: React.Element<any>) => {
 
         class EntityEditorListWrapper extends EntityEditorWrapper {
             render() {
