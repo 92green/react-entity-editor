@@ -8,7 +8,7 @@
      "recurse": true,
      "template": "node_modules/jsdonk",
      "jsdonk": {
-        "title": "Stampy",
+        "title": "React Entity Editor",
         "sections": {
           "module": {
             "typedef": false

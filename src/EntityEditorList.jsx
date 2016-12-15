@@ -1,10 +1,21 @@
 /* @flow */
 
-import React, {Component} from 'react';
+import React from 'react';
 import EntityEditorLoader from './EntityEditorLoader';
 import EntityEditorHock from './EntityEditorHock';
 
-export default (userConfig: Object = {}): HockApplier => {
+type EntityEditorListConfig = {
+    fetchComponent?: React.Component<*,*,*>,
+    errorComponent?: React.Component<*,*,*>,
+    promptComponent?: React.Component<*,*,*>,
+    receivedWhen?: (props: Object) => boolean
+};
+
+/**
+ * @module Components
+ */
+
+export default (userConfig: EntityEditorListConfig = {}): Function => {
     const  {
         fetchComponent,
         errorComponent,
@@ -12,7 +23,7 @@ export default (userConfig: Object = {}): HockApplier => {
         receivedWhen
     } = userConfig;
 
-    return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
+    return (ComposedComponent): React.Element<any> => {
 
         function EntityEditorList(props: Object) {
             return <ComposedComponent {...props} />;

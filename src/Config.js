@@ -22,9 +22,9 @@ type CallbackConfig = {
 };
 
 type AfterActionProps = {
-    result: ?Object,
-    actionProps: ?Object,
-    called: ?string
+    result?: Object,
+    actionProps?: Object,
+    called?: string
 };
 
 type PromiseOrBoolean = ?Promise<*>|boolean;
