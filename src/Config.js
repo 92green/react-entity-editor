@@ -78,7 +78,7 @@ export const baseConfig: Config = {
         },
         goEdit: ({callbacks}: ActionConfig) => (actionProps: {id: string}): PromiseOrBoolean => {
             if(!actionProps.id) {
-                throw `EntityEditor: config.actions.saveNew: actionProps.id is not defined`;
+                throw `EntityEditor: config.actions.goEdit: actionProps.id is not defined`;
             }
             return callbacks
                 .onGoEdit({id: actionProps.id})
