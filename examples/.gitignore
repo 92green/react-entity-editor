@@ -1,0 +1,13 @@
+.env
+node_modules
+*.log
+.idea
+dist
+.DS_Store
+npm-debug.log
+docs
+lib
+.nyc_output
+coverage
+yarn-error.log
+*.orig

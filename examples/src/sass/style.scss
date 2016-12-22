@@ -1,0 +1,15 @@
+@import '../../node_modules/jsdonk/static/screen.css';
+
+.Button {
+    padding: .5rem;
+    background-color: #6CA6CE;
+    color: #FFF;
+    cursor: pointer;
+    border: none;
+    font-family: Menlo, Consolas, monospace;
+    margin-right: .2rem;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
