@@ -1,13 +1,14 @@
 @import '../../node_modules/jsdonk/static/screen.css';
 
 .Button {
-    padding: .5rem;
+    padding: .3rem .5rem;
     background-color: #6CA6CE;
     color: #FFF;
     cursor: pointer;
     border: none;
     font-family: Menlo, Consolas, monospace;
     margin-right: .2rem;
+    display: inline-block;
 
     &:hover {
         opacity: 0.8;
@@ -15,5 +16,78 @@
 
     &.Button-small {
         padding: .2rem;
+    }
+}
+
+.InputRow {
+    margin: 1rem 0;
+
+    * {
+        width: 50%;
+        float: left;
+    }
+
+    label {
+        width: 20%;
+    }
+
+    &:after {
+        visibility: hidden;
+        display: block;
+        font-size: 0;
+        content: " ";
+        clear: both;
+        height: 0;
+    }
+}
+
+.Table {
+    margin-top: 1.5rem;
+
+    th {
+        border-bottom: 1px #DDD solid;
+    }
+
+    td {
+        padding: .2rem 1rem;
+    }
+}
+
+.Modal {
+    background-color: rgba(0, 0, 0, .4);
+    cursor: pointer;
+    height: 100%;
+    left: 0;
+    overflow: auto;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 10;
+
+    .Modal_content {
+        background-color: #FFF;
+        height: auto;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%) translateX(-50%);
+        width: 36rem;
+        padding: 1.5rem;
+
+        &:focus {
+            outline: 0;
+        }
+    }
+
+    .Modal_title {
+        background-color: #6CA6CE;
+        color: #FFF;
+        font-size: 1.2rem;
+        margin: -1.5rem -1.5rem 1.5rem;
+        padding: 1rem 1.5rem;
+    }
+
+    .Modal_buttons {
+        margin-top: .5rem;
     }
 }
