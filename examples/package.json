@@ -36,7 +36,6 @@
   },
   "dependencies": {
     "classnames": "^2.2.5",
-    "dcme-api": "0.1.2",
     "immutable": "^3.8.1",
     "jsdonk": "^0.3.0",
     "react": "^15.3.2",
