@@ -39,13 +39,6 @@ class DogsEditForm extends Component {
         } = this.props;
 
         const payload = this.state.form;
-        entityEditor.actions.save({id, dispatch, payload})
-            .then(() => {
-                this.setState({
-                    pristineForm: this.state.form
-                });
-                this.props.entityEditor.actions.dirty({dirty: false});
-            });
     }
 
     delete() {
