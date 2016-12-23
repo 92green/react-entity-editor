@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {EntityEditorItem} from 'react-entity-editor';
-import {Button} from 'stampy';
 import {fromJS} from 'immutable';
 
 import DogsEntityEditorConfig from './DogsEntityEditorConfig';
@@ -12,7 +11,7 @@ class DogsEditForm extends Component {
         super(props);
         const emptyForm = fromJS({
             name: "",
-            match: ""
+            toy: ""
         });
         this.state = {
             form: props.dogs_get || emptyForm,
@@ -90,17 +89,17 @@ class DogsEditForm extends Component {
                 />
             </p>
             <p>
-                <label htmlFor="match">Match</label>
+                <label htmlFor="toy">Toy</label>
                 <input
-                    value={this.state.form.get('match')}
-                    onChange={this.onChangeField('match')}
-                    id="match"
+                    value={this.state.form.get('toy')}
+                    onChange={this.onChangeField('toy')}
+                    id="toy"
                 />
             </p>
-            <Button onClick={entityEditor.actions.goList}>Back</Button>
-            <Button onClick={this.save}>Save</Button>
-            <Button onClick={this.saveNew}>Save as new</Button>
-            <Button onClick={this.delete}>Delete</Button>
+            <button className="Button" onClick={entityEditor.actions.goList}>Back</button>
+            <button className="Button" onClick={this.save}>Save</button>
+            <button className="Button" onClick={this.saveNew}>Save as new</button>
+            <button className="Button" onClick={this.delete}>Delete</button>
         </div>;
     }
 }
