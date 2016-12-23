@@ -15,7 +15,7 @@ function DogsEdit(props) {
     return <div>
         <h1>Edit tag</h1>
         <DogsEditForm
-            dogs_get={dogs_get}
+            dogs_get={dogs_get && dogs_get.toJS()}
             id={id}
             receivedWhen={props => !!props.dogs_get}
             fetch={fetch}

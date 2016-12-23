@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {EntityEditorItem} from 'react-entity-editor';
-import {fromJS} from 'immutable';
 
 import DogsEntityEditorConfig from './DogsEntityEditorConfig';
 
@@ -9,26 +8,24 @@ class DogsEditForm extends Component {
 
     constructor(props) {
         super(props);
-        const emptyForm = fromJS({
-            name: "",
-            toy: ""
-        });
-        this.state = {
-            form: props.dogs_get || emptyForm,
-            pristineForm: props.dogs_get || emptyForm
-        };
+
+        var form = {};
+        for(var key in props.dogs_get) {
+            form[key] = props.dogs_get[key] || "";
+        }
+        this.state = {form};
+
         this.onChangeField = this.onChangeField.bind(this);
         this.save = this.save.bind(this);
-        this.saveNew = this.saveNew.bind(this);
         this.delete = this.delete.bind(this);
     }
 
     onChangeField(field) {
         return (event) => {
-            const form = this.state.form.set(field, event.target.value);
+            var form = Object.assign({}, this.state.form);
+            form[field] = event.target.value;
             this.setState({form});
-            const dirty = !form.equals(this.state.pristineForm);
-            this.props.entityEditor.actions.dirty({dirty});
+            this.props.entityEditor.actions.dirty({dirty: true});
         };
     }
 
@@ -41,7 +38,7 @@ class DogsEditForm extends Component {
             dispatch
         } = this.props;
 
-        const payload = this.state.form.toJS();
+        const payload = this.state.form;
         entityEditor.actions.save({id, dispatch, payload})
             .then(() => {
                 this.setState({
@@ -49,16 +46,6 @@ class DogsEditForm extends Component {
                 });
                 this.props.entityEditor.actions.dirty({dirty: false});
             });
-    }
-
-    saveNew() {
-        const {
-            entityEditor,
-            dispatch
-        } = this.props;
-
-        const payload = this.state.form.toJS();
-        entityEditor.actions.saveNew({dispatch, payload});
     }
 
     delete() {
@@ -80,25 +67,24 @@ class DogsEditForm extends Component {
         } = this.props;
 
         return <div>
-            <p>
+            <div className="InputRow">
                 <label htmlFor="name">Name</label>
                 <input
-                    value={this.state.form.get('name')}
+                    value={this.state.form.name}
                     onChange={this.onChangeField('name')}
                     id="name"
                 />
-            </p>
-            <p>
+            </div>
+            <div className="InputRow">
                 <label htmlFor="toy">Toy</label>
                 <input
-                    value={this.state.form.get('toy')}
+                    value={this.state.form.toy}
                     onChange={this.onChangeField('toy')}
                     id="toy"
                 />
-            </p>
+            </div>
             <button className="Button" onClick={entityEditor.actions.goList}>Back</button>
             <button className="Button" onClick={this.save}>Save</button>
-            <button className="Button" onClick={this.saveNew}>Save as new</button>
             <button className="Button" onClick={this.delete}>Delete</button>
         </div>;
     }

@@ -22,9 +22,9 @@ function DogsList(props) {
                 </tr>
             </thead>
             <tbody>
-                {dogs_list.map(dog => {
+                {dogs_list.map((dog, key) => {
                     const {id} = dog;
-                    return <tr>
+                    return <tr key={key}>
                         <td>{dog.name}</td>
                         <td>{dog.toy}</td>
                         <td>
