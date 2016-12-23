@@ -1,11 +1,14 @@
 import React from 'react';
+import {Link} from 'react-router';
 
 export default (props) => {
-    return <div className="Wrapper">
-        <h1>react-entity-editor</h1>
-        <ul className="Content"><li>Poo</li></ul>
-        <section>
-        {props.children}
-        </section>
+    return <div>
+        <ul className="Content">
+            <li className="Content_item"><Link to="/">react-entity-editor</Link></li>
+            <li className="Content_item"><Link to="/dogs">demo (with dogs)</Link></li>
+        </ul>
+        <div className="Wrapper">
+            {props.children}
+        </div>
     </div>
 }
