@@ -9,12 +9,15 @@ class DogsEditForm extends Component {
     constructor(props) {
         super(props);
 
+        // set up initial form state with any values from dogs_get
+        const fields = ['name', 'toy'];
         var form = {};
-        for(var key in props.dogs_get) {
+        fields.forEach(field => {
             form[key] = props.dogs_get[key] || "";
-        }
+        });
         this.state = {form};
 
+        // bind methods to this class
         this.onChangeField = this.onChangeField.bind(this);
         this.save = this.save.bind(this);
         this.delete = this.delete.bind(this);
@@ -22,35 +25,38 @@ class DogsEditForm extends Component {
 
     onChangeField(field) {
         return (event) => {
+            // set the new state of the form
             var form = Object.assign({}, this.state.form);
             form[field] = event.target.value;
             this.setState({form});
+
+            // tell entity editor that the form is now dirty
+            // note that you must pass in an object with a boolean property of 'dirty'
             this.props.entityEditor.actions.dirty({dirty: true});
         };
     }
 
     save() {
-        const {
-            entityEditor,
-            entityEditorRoutes: {
-                id
-            },
-            dispatch
-        } = this.props;
-
+        // the save action is supplied via the entityEditor prop
+        const save = this.props.entityEditor.actions.save;
+        // the id is provided by the entityEditorRoutes props in this example
+        // as we are using react router
+        const id = this.props.entityEditorRoutes.id;
+        // we're using redux in this example, and the callbacks defined in DogsEntityEditorConfig
+        // require the dispatch function to be passed to them
+        const dispatch = this.props.dispatch;
+        // when saving, the data to save should be on a property called payload
         const payload = this.state.form;
+
+        // call the entity editor action
+        save({id, dispatch, payload});
     }
 
     delete() {
-        const {
-            entityEditor,
-            entityEditorRoutes: {
-                id
-            },
-            dispatch
-        } = this.props;
-
-        entityEditor.actions.delete({id, dispatch});
+        const del = this.props.entityEditor.actions.delete;
+        const id = this.props.entityEditorRoutes.id;
+        const dispatch = this.props.dispatch;
+        del({id, dispatch});
     }
 
     render() {
@@ -83,6 +89,10 @@ class DogsEditForm extends Component {
     }
 }
 
+// the DogsEditForm component must be decorated by the EntityEditorItem higher order component
+// to get the entityEditor prop passed to it
 const withEntityEditor = EntityEditorItem(DogsEntityEditorConfig);
+
+// react-redux connect is used here so the DogsEditForm component is passed dispatch
 const withRedux = connect();
 export default withEntityEditor(withRedux(DogsEditForm));
