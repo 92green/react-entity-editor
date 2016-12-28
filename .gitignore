@@ -1,7 +1,6 @@
 node_modules
 *.log
 .idea
-dist
 .DS_Store
 npm-debug.log
 .nyc_output
