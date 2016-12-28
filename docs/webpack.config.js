@@ -36,9 +36,9 @@ const development = {
     devtool: 'source-map',
     entry: './src/index.js',
     output: {
-        path: './dist',
+        path: './lib',
         filename: 'bundle.js',
-        publicPath: '/dist/'
+        publicPath: '/lib/'
     },
     resolve: {
         extensions: ['', '.jsx', '.js'],
@@ -71,7 +71,7 @@ const development = {
     },
     devServer : {
         host: '0.0.0.0',
-        publicPath : '/dist/',
+        publicPath : '/lib/',
         port: process.env.PORT || 3000,
         historyApiFallback: true
     }
