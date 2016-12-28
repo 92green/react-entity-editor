@@ -13,7 +13,7 @@ class DogsEditForm extends Component {
         const fields = ['name', 'toy'];
         var form = {};
         fields.forEach(field => {
-            form[key] = props.dogs_get[key] || "";
+            form[field] = (props.dogs_get && props.dogs_get[field]) || "";
         });
         this.state = {form};
 
@@ -49,7 +49,11 @@ class DogsEditForm extends Component {
         const payload = this.state.form;
 
         // call the entity editor action
-        save({id, dispatch, payload});
+        save({id, dispatch, payload}).then((data) => {
+            // on success, mark the form as being clean / up to date with underlying data
+            this.setState({dirty: false});
+            this.props.entityEditor.actions.dirty({dirty: false});
+        });
     }
 
     delete() {
@@ -82,15 +86,15 @@ class DogsEditForm extends Component {
                     id="toy"
                 />
             </div>
-            <button className="Button" onClick={entityEditor.actions.goList}>Back</button>
+            <button className="Button Button-grey" onClick={entityEditor.actions.goList}>Back</button>
             <button className="Button" onClick={this.save}>Save</button>
-            <button className="Button" onClick={this.delete}>Delete</button>
+            {/*<button className="Button" onClick={this.delete}>Delete</button>*/}
         </div>;
     }
 }
 
 // the DogsEditForm component must be decorated by the EntityEditorItem higher order component
-// to get the entityEditor prop passed to it
+// so it will get the entityEditor prop passed to it
 const withEntityEditor = EntityEditorItem(DogsEntityEditorConfig);
 
 // react-redux connect is used here so the DogsEditForm component is passed dispatch

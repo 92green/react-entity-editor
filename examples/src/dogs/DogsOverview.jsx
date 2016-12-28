@@ -14,6 +14,7 @@ function DogsOverview(props) {
 
     return <div>
         <h1>Dogs</h1>
+        <h5>Under development</h5>
         <p>This example demonstrates a standard setup with <code>list</code> and <code>item</code> pages.
         <br/>It uses <a href="https://github.com/reactjs/redux">redux</a> for state management and actions and <a href="https://github.com/ReactTraining/react-router">react-router v3</a> for routing.</p>
         <p><Source exampleDir="dogs">Source</Source></p>

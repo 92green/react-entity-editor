@@ -99,9 +99,11 @@ export default function FakeApiMethods(apiSchema, initialData = {}, options = {}
                         return;
                     }
 
+                    const item = fromJS(payload).set('id', id);
+
                     log(`PUT ${path}/${id}`, payload);
-                    setData(data.setIn([path, id], fromJS(payload)));
-                    resolve(payload);
+                    setData(data.setIn([path, id], item));
+                    resolve(item.toJS());
                 };
                 setTimeout(callback, delay);
             }),

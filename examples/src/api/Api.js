@@ -24,7 +24,7 @@ export const ApiSchema = {
 
 const initialData = {
     dogs: [
-        {id: 1, name: "Charlie", toy: "Ball"}
+        {id: "1", name: "Charlie", toy: "Ball"}
     ]
 };
 

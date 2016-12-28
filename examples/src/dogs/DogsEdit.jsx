@@ -13,7 +13,7 @@ function DogsEdit(props) {
     } = props;
 
     return <div>
-        <h1>Edit tag</h1>
+        <h1>Edit dog</h1>
         <DogsEditForm
             dogs_get={dogs_get && dogs_get.toJS()}
             id={id}
