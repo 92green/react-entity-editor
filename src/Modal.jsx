@@ -33,14 +33,13 @@ class Modal extends Component {
             onRequestClose={this.onNo.bind(this)}
             className="Modal_content"
             overlayClassName="Modal"
-            contentLabel={title || "Please note"}
-        >
+            contentLabel={title || (no ? "Confirm" : "Alert")}>
             {title && <div className="Modal_title">{title}</div>}
             <div className="Modal_body">
                 {message}
                 <div className="Modal_buttons">
-                    {no ? <a className="Button Button-grey " onClick={this.onNo.bind(this)}>{no}</a> : null}
                     {yes ? <a className="Button" onClick={this.onYes.bind(this)}>{yes}</a> : null}
+                    {no ? <a className="Button Button-grey" onClick={this.onNo.bind(this)}>{no}</a> : null}
                 </div>
             </div>
         </ReactModal>;

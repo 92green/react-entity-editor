@@ -125,7 +125,8 @@ export const baseConfig: Config = {
             // do nothing
         },
         afterDelete: ({callbacks}: CallbackConfig) => (): PromiseOrBoolean => {
-            callbacks.onGoList();
+            console.log('after delete');
+            //callbacks.onGoList();
         },
         afterGoList: () => (): PromiseOrBoolean => {
             // do nothing
