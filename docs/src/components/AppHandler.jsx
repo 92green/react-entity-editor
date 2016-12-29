@@ -4,8 +4,18 @@ import {Link} from 'react-router';
 export default (props) => {
     return <div>
         <ul className="Content">
-            <li className="Content_item"><Link to="/">react-entity-editor</Link></li>
-            <li className="Content_item"><Link to="/dogs">demo (with dogs)</Link></li>
+            <li className="Content_item">
+                <ul className="Content_section">
+                    <li className="Content_item"><a href="https://github.com/dxinteractive/react-entity-editor">github</a></li>
+                </ul>
+            </li>
+            <li className="Content_item">
+                <ul className="Content_section">
+                    <li className="Content_item"><Link to="/">react-entity-editor</Link></li>
+                    <li className="Content_item"><Link to="/dogs">demo (with dogs)</Link></li>
+                </ul>
+            </li>
+
             {/*<li className="Content_item">...with redux form</li>*/}
             {/*<li className="Content_item">...with custom error / loader</li>*/}
             {/*<li className="Content_item">...with custom actions</li>*/}

@@ -10,7 +10,7 @@ function Source(props) {
 
     var href = "#";
     if(exampleDir) {
-        href = `${repo}/tree/master/examples/src/${props.exampleDir}`;
+        href = `${repo}/tree/master/docs/src/${props.exampleDir}`;
     }
     return <a href={href}>{children}</a>;
 }
