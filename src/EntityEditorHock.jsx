@@ -140,6 +140,7 @@ export default (userConfig: Object = {}): Function => {
                                     },
                                     (result) => {
                                         // show error prompt (if exists)
+                                        console.error(result);
                                         return this.getPromptPromise(config, 'error', actionName, result)
                                             .then(doNothing, doNothing);
                                     }
@@ -150,13 +151,7 @@ export default (userConfig: Object = {}): Function => {
 
             getPreparedConfig(config): Object {
                 const actionConfigFilter = fromJS([
-                    'actions',
-                    'callbacks',
-                    'successActions',
-                    'confirmPrompts',
-                    'successPrompts',
-                    'errorPrompts',
-                    'promptDefaults'
+                    'callbacks'
                 ]);
 
                 const immutableConfig = fromJS(config);
