@@ -108,7 +108,11 @@ export default (userConfig: Object = {}): Function => {
             }
 
             wrapActionWithPrompts(config: Object, action: Function, actionName: string, actionProps:Object): Function {
-                const partialAction: Function = action(config);
+                // partially apply actions, giving it a subset of config (at this point only callbacks are provided)
+                const partialAction: Function = action({
+                    callbacks: config.callbacks
+                });
+
                 if(typeof partialAction != "function") {
                     throw `Entity Editor: action "${actionName} must be a function that returns an action function, such as (config) => (actionProps) => { /* return null, promise or false */ }"`;
                 }
@@ -150,10 +154,6 @@ export default (userConfig: Object = {}): Function => {
             }
 
             getPreparedConfig(config): Object {
-                const actionConfigFilter = fromJS([
-                    'callbacks'
-                ]);
-
                 const immutableConfig = fromJS(config);
                 var callbacks: Object = {};
 
@@ -196,7 +196,6 @@ export default (userConfig: Object = {}): Function => {
 
                 return fromJS(config)
                     .set('callbacks', callbacks)
-                    .filter((ii, name) => actionConfigFilter.includes(name))
                     .toJS();
             }
 
