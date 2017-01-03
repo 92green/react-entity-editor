@@ -4,14 +4,31 @@ import React, {PropTypes} from 'react';
 import {withRouter} from 'react-router';
 import EntityEditorRouteHock from './EntityEditorRouteHock';
 
-function EntityEditorRoute(): Function {
+function EntityEditorRoute(config: Object = {}): Function {
+    const {
+        basePath
+    } = config;
+
+    const routePropOptions = {
+        basePath
+    };
 
     return (ComposedComponent: React.Element<any>) => {
 
         class EntityEditorRouteWrapper extends EntityEditorRouteHock {
+
+            getChildContext() {
+                return {
+                    entityEditorRoutes: {
+                        ...this.getRouteProps(routePropOptions),
+                        onLeaveHook: this.onLeaveHook
+                    }
+                };
+            }
+
             render() {
                 const entityEditorRoutesProps: Object = {
-                    ...this.getRouteProps()
+                    ...this.getRouteProps(routePropOptions)
                 };
 
                 return <ComposedComponent

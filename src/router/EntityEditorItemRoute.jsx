@@ -6,16 +6,31 @@ import EntityEditorRouteHock from './EntityEditorRouteHock';
 
 function EntityEditorItemRoute(config: Object = {}): Function {
     const {
-        paramId = 'id'
+        paramName = 'id',
+        basePath
     } = config;
+
+    const routePropOptions = {
+        basePath
+    };
 
     return (ComposedComponent: React.Element<any>) => {
 
         class EntityEditorRouteItemWrapper extends EntityEditorRouteHock {
+
+            getChildContext() {
+                return {
+                    entityEditorRoutes: {
+                        ...this.getRouteProps(routePropOptions),
+                        onLeaveHook: this.onLeaveHook
+                    }
+                };
+            }
+
             render() {
                 const entityEditorRoutesProps: Object = {
-                    ...this.getRouteProps(),
-                    id: this.props.params[paramId]
+                    ...this.getRouteProps(routePropOptions),
+                    id: this.props.params[paramName]
                 };
 
                 return <ComposedComponent

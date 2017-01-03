@@ -28,16 +28,7 @@ class EntityEditorRouteHock extends Component {
         };
     }
 
-    getChildContext() {
-        return {
-            entityEditorRoutes: {
-                ...this.getRouteProps(),
-                onLeaveHook: this.onLeaveHook
-            }
-        };
-    }
-
-    getBasePath(routes: Array<any>): string {
+    inferBasePath(routes: Array<any>): string {
         return "/" + fromJS(routes)
             .filter(ii => !!ii.get('path') && ii.get('path') != "/") // remove routes that don't add to the path
             .map(ii => ii.get('path')) // get path for each route
@@ -47,13 +38,13 @@ class EntityEditorRouteHock extends Component {
             .join("/");
     }
 
-    getRouteProps(): Object {
+    getRouteProps({basePath}): Object {
         const {
             router,
             routes
         } = this.props;
 
-        const base: string = this.getBasePath(routes);
+        const base: string = basePath || this.inferBasePath(routes);
         const paths: Function = (id: string) => ({
             base,
             list: base,
