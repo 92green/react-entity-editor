@@ -1,35 +1,12 @@
 /* @flow */
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
 
 import {fromJS, Map, List} from 'immutable';
 
-type Config = {
-    actions: Object,
-    callbacks: Object,
-    prompts: Object,
-    promptDefaults: Object
-};
-
-type ActionConfig = {
-    actions: Object,
-    callbacks: Object
-};
-
-type CallbackConfig = {
-    callbacks: Object,
-    setEditorState: Object
-};
-
-type AfterActionProps = {
-    result?: Object,
-    actionProps?: Object,
-    called?: string
-};
-
-type PromiseOrBoolean = ?Promise<*>|boolean;
-
 export const baseConfig: Config = {
     actions: {
-        save: ({callbacks}: ActionConfig) => (actionProps: {id: ?string, payload: Object}): PromiseOrBoolean => {
+        save: ({callbacks}: ActionConfig) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
             if(!actionProps.payload) {
                 throw `EntityEditor: config.actions.save: actionProps.payload is not defined`;
             }
@@ -43,7 +20,7 @@ export const baseConfig: Config = {
                 .onCreate(actionProps)
                 .then((result): AfterActionProps => ({result, actionProps, called: 'onCreate'}));
         },
-        saveNew: ({callbacks}: ActionConfig) => (actionProps: {id: ?string, payload: Object}): PromiseOrBoolean => {
+        saveNew: ({callbacks}: ActionConfig) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
             if(!actionProps.payload) {
                 throw `EntityEditor: config.actions.saveNew: actionProps.payload is not defined`;
             }
@@ -51,7 +28,7 @@ export const baseConfig: Config = {
                 .onCreate(actionProps)
                 .then((result): AfterActionProps => ({result, actionProps, called: 'onCreate'}));
         },
-        delete: ({callbacks}: ActionConfig) => (actionProps: {id: string}): PromiseOrBoolean => {
+        delete: ({callbacks}: ActionConfig) => (actionProps: {id: string}): Promiseable => {
             if(!actionProps.id) {
                 throw `EntityEditor: config.actions.delete: actionProps.id is not defined`;
             }
@@ -59,22 +36,22 @@ export const baseConfig: Config = {
                 .onDelete(actionProps)
                 .then((result): AfterActionProps => ({result, actionProps, called: 'onDelete'}));
         },
-        dirty: ({callbacks}: ActionConfig) => (actionProps: {dirty: Boolean}): PromiseOrBoolean => {
+        dirty: ({callbacks}: ActionConfig) => (actionProps: {dirty: Boolean}): Promiseable => {
             return callbacks
                 .onDirty({dirty: actionProps.dirty})
                 .then((result): AfterActionProps => ({result, actionProps, called: 'onDirty'}));
         },
-        goList: ({callbacks}: ActionConfig) => (actionProps: Object): PromiseOrBoolean => {
+        goList: ({callbacks}: ActionConfig) => (actionProps: Object): Promiseable => {
             return callbacks
                 .onGoList()
                 .then((result): AfterActionProps => ({result, actionProps, called: 'onGoList'}));
         },
-        goNew: ({callbacks}: ActionConfig) => (actionProps: Object): PromiseOrBoolean => {
+        goNew: ({callbacks}: ActionConfig) => (actionProps: Object): Promiseable => {
             return callbacks
                 .onGoNew()
                 .then((result): AfterActionProps => ({result, actionProps, called: 'onGoNew'}));
         },
-        goEdit: ({callbacks}: ActionConfig) => (actionProps: {id: string}): PromiseOrBoolean => {
+        goEdit: ({callbacks}: ActionConfig) => (actionProps: {id: string}): Promiseable => {
             if(!actionProps.id) {
                 throw `EntityEditor: config.actions.goEdit: actionProps.id is not defined`;
             }
@@ -84,31 +61,31 @@ export const baseConfig: Config = {
         }
     },
     callbacks: {
-        onCreate: () => (): PromiseOrBoolean => {
+        onCreate: (callbackConfig: CallbackConfig) => (): Promiseable => {
             console.warn(`Entity Editor: please define config.callbacks.onCreate(config: Object) => ({payload: Object}) before using it`);
             return false;
         },
-        onUpdate: () => (): PromiseOrBoolean => {
+        onUpdate: (callbackConfig: CallbackConfig) => (): Promiseable => {
             console.warn(`Entity Editor: please define config.callbacks.onUpdate(config: Object) => ({id: string, payload: Object}) before using it`);
             return false;
         },
-        onDelete: () => (): PromiseOrBoolean => {
+        onDelete: (callbackConfig: CallbackConfig) => (): Promiseable => {
             console.warn(`Entity Editor: please define config.callbacks.onDelete(config: Object) => ({id: string}) before using it`);
             return false;
         },
-        onGoList: () => (): PromiseOrBoolean => {
+        onGoList: (callbackConfig: CallbackConfig) => (): Promiseable => {
             console.warn(`Entity Editor: please define config.callbacks.onGoList(config: Object) => () before using it`);
             return false;
         },
-        onGoNew: () => (): PromiseOrBoolean => {
+        onGoNew: (callbackConfig: CallbackConfig) => (): Promiseable => {
             console.warn(`Entity Editor: please define config.callbacks.onGoNew(config: Object) => () before using it`);
             return false;
         },
-        onGoEdit: () => (): PromiseOrBoolean => {
+        onGoEdit: (callbackConfig: CallbackConfig) => (): Promiseable => {
             console.warn(`Entity Editor: please define config.callbacks.onGoEdit(config: Object) => ({id: string}) before using it`);
             return false;
         },
-        onDirty: ({setEditorState}: CallbackConfig) => (callbackProps: {dirty: boolean}): PromiseOrBoolean => {
+        onDirty: ({setEditorState}: CallbackConfig) => (callbackProps: {dirty: boolean}): Promiseable => {
             setEditorState.dirty(callbackProps.dirty);
         },
 
@@ -116,27 +93,15 @@ export const baseConfig: Config = {
         // callbacks called after success of an action
         //
 
-        afterCreate: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            callbacks.onGoList();
+        afterCreate: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): Promiseable => {
+            return callbacks.onGoList();
         },
-        afterUpdate: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            // do nothing
-        },
-        afterDelete: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            callbacks.onGoList();
-        },
-        afterGoList: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            // do nothing
-        },
-        afterGoNew: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            // do nothing
-        },
-        afterGoEdit: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            // do nothing
+        afterDelete: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): Promiseable => {
+            return callbacks.onGoList();
         }
     },
     successActions: {
-        save: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
+        save: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): Promiseable => {
             const {called} = successActionProps;
             if(called == 'onUpdate') {
                 return callbacks.afterUpdate(successActionProps);

@@ -48,11 +48,20 @@ class DogsEditForm extends Component {
         // when saving, the data to save should be on a property called payload
         const payload = this.state.form;
 
-        // call the entity editor action
-        save({id, dispatch, payload}).then((data) => {
-            // on success, mark the form as being clean / up to date with underlying data
-            this.setState({dirty: false});
-            this.props.entityEditor.actions.dirty({dirty: false});
+        // call the entity editor action, passing in:
+        // + the id (which wont exist for new items)
+        // + the payload containing the updated dog
+        // + redux's dispatch prop so redux actions can be dispatched
+        // + an optional onSuccess function, which will be called immediately after the action has succeeded
+        save({
+            id,
+            dispatch,
+            payload,
+            onSuccess: () => {
+                // on success, mark the form as being clean and up-to-date with underlying data
+                this.setState({dirty: false});
+                this.props.entityEditor.actions.dirty({dirty: false});
+            }
         });
     }
 

@@ -109,7 +109,7 @@ export default (userConfig: Object = {}): Function => {
                     });
             }
 
-            wrapActionWithPrompts(config: Object, action: Function, actionName: string, actionProps:Object): Function {
+            wrapActionWithPrompts(config: Object, action: Function, actionName: string, actionProps: Object): Function {
                 // partially apply actions, giving it a subset of config (at this point only callbacks are provided)
                 const partialAction: Function = action({
                     callbacks: config.callbacks
@@ -128,7 +128,8 @@ export default (userConfig: Object = {}): Function => {
                     if(!successAction) {
                         successAction = ({callbacks}) => (successActionProps) => {
                             const after = `after${actionName.charAt(0).toUpperCase()}${actionName.slice(1)}`;
-                            return callbacks[after] && callbacks[after](successActionProps);
+                            callbacks[after] && callbacks[after](successActionProps);
+                            return successActionProps;
                         };
                     }
 
@@ -136,15 +137,39 @@ export default (userConfig: Object = {}): Function => {
                     if(typeof partialSuccessAction != "function") {
                         throw `Entity Editor: successAction "${actionName} must be a function that returns a successAction function, such as (config) => (successActionProps) => {}"`;
                     }
-                    partialSuccessAction(result);
+                    return returnPromise(partialSuccessAction(result));
                 };
+
+                // create promises for onConfirm, onSuccess and onError, and simply pass through where they don't exist
+                const {
+                    onConfirm,
+                    onSuccess,
+                    onError
+                } = actionProps;
 
                 // show confirmation prompt (if exists)
                 return this.getPromptPromise(config, 'confirm', actionName, actionProps)
+                    .then((actionProps) => {
+                        // call onConfirm (if exists)
+                        onConfirm && onConfirm(actionProps);
+                        return actionProps;
+                    })
                     .then(
                         (actionProps) => {
-                            // perform action
+                            // perform action and continue promise chain
                             return returnPromise(partialAction(actionProps))
+                                .then(
+                                    (result) => {
+                                        // call onSuccess (if exists)
+                                        onSuccess && onSuccess(result);
+                                        return result;
+                                    },
+                                    (result) => {
+                                        // call onError (if exists)
+                                        onError && onError(result);
+                                        return result;
+                                    }
+                                )
                                 .then(
                                     (result) => {
                                         // show success prompt (if exists)
