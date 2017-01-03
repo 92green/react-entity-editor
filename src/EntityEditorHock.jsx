@@ -9,7 +9,9 @@ import {returnPromise} from './Utils';
 export default (userConfig: Object = {}): Function => {
     const  {
         promptComponent = () => <Modal />,
-        preloadActionIds
+        preloadActionIds,
+        entityEditorProp = "entityEditor",
+        entityEditorRoutesProp = "entityEditorRoutes"
     } = userConfig;
 
     return (ComposedComponent) => {
@@ -250,14 +252,16 @@ export default (userConfig: Object = {}): Function => {
                     promptOpen
                 } = this.state;
 
+                const props = {
+                    ...this.props,
+                    [entityEditorProp]: this.entityEditorProps(config),
+                    [entityEditorRoutesProp]: this.context.entityEditorRoutes
+                };
+
                 const promptAsProps: boolean = prompt && prompt.asProps;
 
                 return <div>
-                    <ComposedComponent
-                        {...this.props}
-                        entityEditor={this.entityEditorProps(config)}
-                        entityEditorRoutes={this.context.entityEditorRoutes}
-                    />
+                    <ComposedComponent {...props} />
                     {React.cloneElement(promptComponent(this.props), {
                         ...prompt,
                         open: promptOpen && !promptAsProps,
