@@ -119,13 +119,20 @@ export default (userConfig: Object = {}): Function => {
 
                 const doNothing: Function = () => {};
                 const doSuccessAction: Function = (result) => {
-                    const successAction = config.successActions && config.successActions[actionName];
+                    var successAction = config.successActions && config.successActions[actionName];
+
+                    // use default successAction if none explicitly provided
+                    // which will call callbacks.after<ACTIONNAME> if it exists
                     if(!successAction) {
-                        return;
+                        successAction = ({callbacks}) => (successActionProps) => {
+                            const after = `after${actionName.charAt(0).toUpperCase()}${actionName.slice(1)}`;
+                            return callbacks[after] && callbacks[after](successActionProps);
+                        };
                     }
+
                     const partialSuccessAction = successAction(config);
                     if(typeof partialSuccessAction != "function") {
-                        throw `Entity Editor: successAction "${actionName} must be a function that returns a successAction function, such as (config) => (result) => {}"`;
+                        throw `Entity Editor: successAction "${actionName} must be a function that returns a successAction function, such as (config) => (successActionProps) => {}"`;
                     }
                     partialSuccessAction(result);
                 };

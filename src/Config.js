@@ -5,9 +5,7 @@ import {fromJS, Map, List} from 'immutable';
 type Config = {
     actions: Object,
     callbacks: Object,
-    confirmPrompts: Object,
-    successPrompts: Object,
-    errorPrompts: Object,
+    prompts: Object,
     promptDefaults: Object
 };
 
@@ -118,23 +116,22 @@ export const baseConfig: Config = {
         // callbacks called after success of an action
         //
 
-        afterCreate: ({callbacks}: CallbackConfig) => (): PromiseOrBoolean => {
+        afterCreate: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
             callbacks.onGoList();
         },
-        afterUpdate: () => (): PromiseOrBoolean => {
+        afterUpdate: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
             // do nothing
         },
-        afterDelete: ({callbacks}: CallbackConfig) => (): PromiseOrBoolean => {
-            console.log('after delete');
-            //callbacks.onGoList();
+        afterDelete: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
+            callbacks.onGoList();
         },
-        afterGoList: () => (): PromiseOrBoolean => {
+        afterGoList: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
             // do nothing
         },
-        afterGoNew: () => (): PromiseOrBoolean => {
+        afterGoNew: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
             // do nothing
         },
-        afterGoEdit: () => (): PromiseOrBoolean => {
+        afterGoEdit: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
             // do nothing
         }
     },
@@ -145,64 +142,55 @@ export const baseConfig: Config = {
                 return callbacks.afterUpdate(successActionProps);
             }
             return callbacks.afterCreate(successActionProps);
-        },
-        // remove these and autogenerate them
-        saveNew: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            return callbacks.afterCreate(successActionProps);
-        },
-        delete: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            return callbacks.afterDelete(successActionProps);
-        },
-        goList: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            return callbacks.afterGoList(successActionProps);
-        },
-        goNew: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            return callbacks.afterGoNew(successActionProps);
-        },
-        goEdit: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): PromiseOrBoolean => {
-            return callbacks.afterGoEdit(successActionProps);
         }
     },
-    confirmPrompts: {
+    prompts: {
+        save: {
+            success: {
+                message: `Item saved.`
+            },
+            error: {
+                message: `An error has occured, your item could not be saved right now.`
+            }
+        },
         saveNew: {
-            message: `Are you sure you want to save a new copy of this item?`,
-            yes: `Save as new`,
-            no: `Cancel`
+            confirm: {
+                message: `Are you sure you want to save this as a new item?`,
+                yes: `Save as new`,
+                no: `Cancel`
+            },
+            success: {
+                message: `Item saved.`
+            },
+            error: {
+                message: `An error has occured, your item could not be saved right now.`
+            }
         },
         delete: {
-            message: `Are you sure you want to delete this item?`,
-            yes: `Delete`,
-            no: `Cancel`
+            confirm: {
+                message: `Are you sure you want to delete this item?`,
+                yes: `Delete`,
+                no: `Cancel`
+            },
+            success: {
+                message: `Item deleted.`
+            },
+            error: {
+                message: `An error has occured, your item could not be deleted right now.`
+            }
         },
         go: {
-            showWhen: ({dirty}: {dirty: Boolean}) => dirty,
-            title: `Unsaved changes`,
-            message: `You have unsaved changes. What would you like to do?`,
-            yes: `Discard changes`,
-            no: `Keep editing`
-        }
-    },
-    successPrompts: {
-        save: {
-            message: `Item saved.`
+            confirm: {
+                showWhen: ({dirty}: {dirty: Boolean}) => dirty,
+                title: `Unsaved changes`,
+                message: `You have unsaved changes. What would you like to do?`,
+                yes: `Discard changes`,
+                no: `Keep editing`
+            }
         },
-        saveNew: {
-            message: `Item saved.`
-        },
-        delete: {
-            message: `Item deleted.`
-        }
-    },
-    errorPrompts: {
-        save: {
-            message: `An error has occured, your item could not be saved right now.`
-        },
-        saveNew: {
-            message: `An error has occured, your item could not be saved right now.`
-        },
-        delete: {
-            message: `An error has occured, your item could not be deleted right now.`
-        }
+        goList: {},
+        goNew: {},
+        goEdit: {}
     },
     promptDefaults: {
         title: {
@@ -247,7 +235,7 @@ export function mergeWithBaseConfig(...mergeConfigs: Array<Object>): Object {
 
 export function promptWithDefaults(configObject: Object, type: string, action: string, editorData: Object): ?Object {
     const config: Map<string, Map<string,*>> = fromJS(configObject);
-    const prompt: ?Map<string, *> = config.getIn([`${type}Prompts`, action]);
+    const prompt: ?Map<string, *> = config.getIn(['prompts', action, type]);
 
     if(!prompt || (prompt.has('showWhen') && !prompt.get('showWhen')(editorData))) {
         return null;
