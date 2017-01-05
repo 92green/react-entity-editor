@@ -19,8 +19,8 @@ function ModalContent(props): React.Element<any> {
         <div className={classNames.modalBody}>
             {message}
             <div className={classNames.modalButtonContainer}>
-                {yes ? <button className={classNames.modalButton} onClick={onYes.bind(this)}>{yes}</button> : null}
-                {no ? <button className={classNames.modalButtonSecondary} onClick={onNo.bind(this)}>{no}</button> : null}
+                {yes ? <button type="button" className={classNames.modalButton} onClick={onYes.bind(this)}>{yes}</button> : null}
+                {no ? <button type="button" className={classNames.modalButtonSecondary} onClick={onNo.bind(this)}>{no}</button> : null}
             </div>
         </div>
     </div>;
