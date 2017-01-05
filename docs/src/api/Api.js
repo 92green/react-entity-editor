@@ -19,12 +19,16 @@ import CreateApiActions from './ApiActions';
 import CreateApiSync from './ApiSync';
 
 export const ApiSchema = {
-    dogs: 'dogs'
+    dogs: 'dogs',
+    sloths: 'sloths'
 };
 
 const initialData = {
     dogs: [
         {id: "1", name: "Charlie", toy: "Ball"}
+    ],
+    sloths: [
+        {id: "1", name: "Steven", speed: "0.0002"}
     ]
 };
 

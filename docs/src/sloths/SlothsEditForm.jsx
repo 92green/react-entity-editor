@@ -2,25 +2,24 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {EntityEditorItem} from 'react-entity-editor';
 
-import DogsEntityEditorConfig from './DogsEntityEditorConfig';
+import SlothsEntityEditorConfig from './SlothsEntityEditorConfig';
 
-class DogsEditForm extends Component {
+class SlothsEditForm extends Component {
 
     constructor(props) {
         super(props);
 
-        // set up initial form state with any values from dogs_get
-        const fields = ['name', 'toy'];
+        // set up initial form state with any values from sloths_get
+        const fields = ['name', 'speed'];
         var form = {};
         fields.forEach(field => {
-            form[field] = (props.dogs_get && props.dogs_get[field]) || "";
+            form[field] = (props.sloths_get && props.sloths_get[field]) || "";
         });
         this.state = {form};
 
         // bind methods to this class
         this.onChangeField = this.onChangeField.bind(this);
         this.save = this.save.bind(this);
-        this.delete = this.delete.bind(this);
     }
 
     onChangeField(field) {
@@ -42,39 +41,23 @@ class DogsEditForm extends Component {
         // the id is provided by the entityEditorRoutes props in this example
         // as we are using react router
         const id = this.props.entityEditorRoutes.id;
-        // we're using redux in this example, and the callbacks defined in DogsEntityEditorConfig
+        // we're using redux in this example, and the callbacks defined in SlothsEntityEditorConfig
         // require the dispatch function to be passed to them
         const dispatch = this.props.dispatch;
         // when saving, the data to save should be on a property called payload
         const payload = this.state.form;
 
-        // call the entity editor action, passing in:
-        // + the id (which wont exist for new items)
-        // + the payload containing the updated dog
-        // + redux's dispatch prop so redux actions can be dispatched
-        // + an optional onSuccess function, which will be called immediately after the action has succeeded
-        save({
-            id,
-            dispatch,
-            payload,
-            onSuccess: () => {
-                // on success, mark the form as being clean and up-to-date with underlying data
-                this.setState({dirty: false});
-                this.props.entityEditor.actions.dirty({dirty: false});
-            }
+        // call the entity editor action
+        save({id, dispatch, payload}).then((data) => {
+            // on success, mark the form as being clean / up to date with underlying data
+            this.setState({dirty: false});
+            this.props.entityEditor.actions.dirty({dirty: false});
         });
-    }
-
-    delete() {
-        const del = this.props.entityEditor.actions.delete;
-        const id = this.props.entityEditorRoutes.id;
-        const dispatch = this.props.dispatch;
-        del({id, dispatch});
     }
 
     render() {
         const {
-            dogs_get,
+            sloths_get,
             entityEditor
         } = this.props;
 
@@ -88,24 +71,23 @@ class DogsEditForm extends Component {
                 />
             </div>
             <div className="InputRow">
-                <label htmlFor="toy">Toy</label>
+                <label htmlFor="speed">Speed (km/h)</label>
                 <input
-                    value={this.state.form.toy}
-                    onChange={this.onChangeField('toy')}
-                    id="toy"
+                    value={this.state.form.speed}
+                    onChange={this.onChangeField('speed')}
+                    id="speed"
                 />
             </div>
             <button className="Button Button-grey" onClick={entityEditor.actions.goList}>Back</button>
             <button className="Button" onClick={this.save}>Save</button>
-            {/*<button className="Button" onClick={this.delete}>Delete</button>*/}
         </div>;
     }
 }
 
-// the DogsEditForm component must be decorated by the EntityEditorItem higher order component
+// the SlothsEditForm component must be decorated by the EntityEditorItem higher order component
 // so it will get the entityEditor prop passed to it
-const withEntityEditor = EntityEditorItem(DogsEntityEditorConfig);
+const withEntityEditor = EntityEditorItem(SlothsEntityEditorConfig);
 
-// react-redux connect is used here so the DogsEditForm component is passed dispatch
+// react-redux connect is used here so the SlothsEditForm component is passed a dispatch prop
 const withRedux = connect();
-export default withEntityEditor(withRedux(DogsEditForm));
+export default withEntityEditor(withRedux(SlothsEditForm));

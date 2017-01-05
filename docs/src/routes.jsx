@@ -1,22 +1,17 @@
 import React from 'react';
 import {Route, IndexRoute} from 'react-router';
-import {createEditorRoutes} from 'react-entity-editor';
 
 import AppHandler from 'components/AppHandler';
 import ErrorHandler from 'components/ErrorHandler';
 import HomePage from 'pages/HomePage';
 
-import DogsOverview from 'dogs/DogsOverview';
-import DogsEdit from 'dogs/DogsEdit';
+import DogsRoutes from 'dogs/DogsRoutes';
+import SlothsRoutes from 'sloths/SlothsRoutes';
 
 const routes = <Route component={AppHandler} path="/">
     <IndexRoute component={HomePage} />
-    <Route path="dogs">
-        {createEditorRoutes({
-            listComponent: DogsOverview,
-            itemComponent: DogsEdit
-        })}
-    </Route>
+    {DogsRoutes}
+    {SlothsRoutes}
     <Route path="*" component={ErrorHandler}/>
 </Route>;
 

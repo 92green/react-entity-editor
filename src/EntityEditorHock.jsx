@@ -4,12 +4,15 @@ import React, {Component, PropTypes} from 'react';
 import {fromJS, Map, List} from 'immutable';
 import {mergeWithBaseConfig, promptWithDefaults} from './Config';
 import Modal from './Modal';
+import ModalContent from './ModalContent';
 import {returnPromise} from './Utils';
 
 export default (userConfig: Object = {}): Function => {
     const  {
-        promptComponent = () => <Modal />,
-        preloadActionIds
+        preloadActionIds,
+        entityEditorProp = "entityEditor",
+        entityEditorRoutesProp = "entityEditorRoutes",
+        promptComponent = (props) => <Modal><ModalContent /></Modal>
     } = userConfig;
 
     return (ComposedComponent) => {
@@ -107,7 +110,7 @@ export default (userConfig: Object = {}): Function => {
                     });
             }
 
-            wrapActionWithPrompts(config: Object, action: Function, actionName: string, actionProps:Object): Function {
+            wrapActionWithPrompts(config: Object, action: Function, actionName: string, actionProps: Object): Function {
                 // partially apply actions, giving it a subset of config (at this point only callbacks are provided)
                 const partialAction: Function = action({
                     callbacks: config.callbacks
@@ -119,23 +122,55 @@ export default (userConfig: Object = {}): Function => {
 
                 const doNothing: Function = () => {};
                 const doSuccessAction: Function = (result) => {
-                    const successAction = config.successActions && config.successActions[actionName];
+                    var successAction = config.successActions && config.successActions[actionName];
+
+                    // use default successAction if none explicitly provided
+                    // which will call callbacks.after<ACTIONNAME> if it exists
                     if(!successAction) {
-                        return;
+                        successAction = ({callbacks}) => (successActionProps) => {
+                            const after = `after${actionName.charAt(0).toUpperCase()}${actionName.slice(1)}`;
+                            callbacks[after] && callbacks[after](successActionProps);
+                            return successActionProps;
+                        };
                     }
+
                     const partialSuccessAction = successAction(config);
                     if(typeof partialSuccessAction != "function") {
-                        throw `Entity Editor: successAction "${actionName} must be a function that returns a successAction function, such as (config) => (result) => {}"`;
+                        throw `Entity Editor: successAction "${actionName} must be a function that returns a successAction function, such as (config) => (successActionProps) => {}"`;
                     }
-                    partialSuccessAction(result);
+                    return returnPromise(partialSuccessAction(result));
                 };
+
+                // create promises for onConfirm, onSuccess and onError, and simply pass through where they don't exist
+                const {
+                    onConfirm,
+                    onSuccess,
+                    onError
+                } = actionProps;
 
                 // show confirmation prompt (if exists)
                 return this.getPromptPromise(config, 'confirm', actionName, actionProps)
+                    .then((actionProps) => {
+                        // call onConfirm (if exists)
+                        onConfirm && onConfirm(actionProps);
+                        return actionProps;
+                    })
                     .then(
                         (actionProps) => {
-                            // perform action
+                            // perform action and continue promise chain
                             return returnPromise(partialAction(actionProps))
+                                .then(
+                                    (result) => {
+                                        // call onSuccess (if exists)
+                                        onSuccess && onSuccess(result);
+                                        return result;
+                                    },
+                                    (result) => {
+                                        // call onError (if exists)
+                                        onError && onError(result);
+                                        return result;
+                                    }
+                                )
                                 .then(
                                     (result) => {
                                         // show success prompt (if exists)
@@ -243,14 +278,16 @@ export default (userConfig: Object = {}): Function => {
                     promptOpen
                 } = this.state;
 
+                const props = {
+                    ...this.props,
+                    [entityEditorProp]: this.entityEditorProps(config),
+                    [entityEditorRoutesProp]: this.context.entityEditorRoutes
+                };
+
                 const promptAsProps: boolean = prompt && prompt.asProps;
 
                 return <div>
-                    <ComposedComponent
-                        {...this.props}
-                        entityEditor={this.entityEditorProps(config)}
-                        entityEditorRoutes={this.context.entityEditorRoutes}
-                    />
+                    <ComposedComponent {...props} />
                     {React.cloneElement(promptComponent(this.props), {
                         ...prompt,
                         open: promptOpen && !promptAsProps,

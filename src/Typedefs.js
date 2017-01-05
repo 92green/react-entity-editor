@@ -1,12 +1,43 @@
 /* @flow */
 /* eslint-disable no-unused-vars */
-import {List} from 'immutable';
-import React from 'react';
 
-type HockApplier = (ComposedComponent: ReactClass<any>) => ReactClass<any>;
+type Config = {
+    actions: Object,
+    callbacks: Object,
+    prompts: {
+        [key: string]: {
+            confirm?: PromptConfig,
+            success?: PromptConfig,
+            error?: PromptConfig
+        }
+    },
+    promptDefaults: PromptConfig
+};
 
-type OnChange = (newValue: string|boolean) => void;
+type PromptConfig = {
+    message?: string,
+    yes?: string,
+    no?: string,
+    title?: string|Object,
+    showWhen?: Function,
+    asProps?: boolean
+};
 
-type OnClick = (event: Object) => void;
+type ActionConfig = {
+    actions: Object,
+    callbacks: Object
+};
 
-type Modifier = string | Object;
+type CallbackConfig = {
+    callbacks: Object,
+    setEditorState: Object
+};
+
+type AfterActionProps = {
+    result?: Object,
+    actionProps?: Object,
+    called?: string
+};
+
+// Promiseable is a type that includes everything that Utils.returnPromise() can accept
+type Promiseable = ?Promise<*>|Object|boolean;
