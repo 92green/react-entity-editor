@@ -40,6 +40,6 @@ export default (userConfig: EntityEditorListConfig = {}): Function => {
             promptComponent
         });
 
-        return withLoader(withHock(EntityEditorList));
+        return withHock(withLoader(EntityEditorList));
     }
 };

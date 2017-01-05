@@ -96,6 +96,8 @@ export const baseConfig: Config = {
         afterCreate: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): Promiseable => {
             return callbacks.onGoList();
         },
+        afterUpdate: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): Promiseable => {
+        },
         afterDelete: ({callbacks}: CallbackConfig) => (successActionProps: AfterActionProps): Promiseable => {
             return callbacks.onGoList();
         }

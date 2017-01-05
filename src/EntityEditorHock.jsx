@@ -149,7 +149,7 @@ export default (userConfig: Object = {}): Function => {
                 } = actionProps;
 
                 // show confirmation prompt (if exists)
-                return this.getPromptPromise(config, 'confirm', actionName, actionProps)
+                this.getPromptPromise(config, 'confirm', actionName, actionProps)
                     .then((actionProps) => {
                         // call onConfirm (if exists)
                         onConfirm && onConfirm(actionProps);
