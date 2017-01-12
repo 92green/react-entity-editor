@@ -66,8 +66,7 @@
   "dependencies": {
     "babel-runtime": "^6.5.0",
     "immutable": "^3.8.1",
-    "react-modal": "^1.4.0",
-    "stampy": "^0.9.1"
+    "react-modal": "^1.4.0"
   },
   "main": "lib/index.js",
   "engines": {

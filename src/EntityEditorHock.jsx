@@ -3,8 +3,8 @@
 import React, {Component, PropTypes} from 'react';
 import {fromJS, Map, List} from 'immutable';
 import {mergeWithBaseConfig, promptWithDefaults} from './Config';
-import Modal from './Modal';
-import ModalContent from './ModalContent';
+import Modal from './modal/Modal';
+import ModalContent from './modal/ModalContent';
 import {returnPromise} from './Utils';
 
 export default (userConfig: Object = {}): Function => {
