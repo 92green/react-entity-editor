@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react';
-import {ApiSync} from '../api/Api';
+import {SlowApiSync} from '../api/Api';
 import SlothsEditForm from './SlothsEditForm';
 
 function SlothsEdit(props) {
@@ -15,7 +15,7 @@ function SlothsEdit(props) {
     return <div>
         <h1>Edit sloth</h1>
         <SlothsEditForm
-            sloths_get={sloths_get && sloths_get.toJS()}
+            sloths_get={sloths_get}
             id={id}
             receivedWhen={props => !!props.sloths_get}
             fetch={fetch}
@@ -30,5 +30,6 @@ SlothsEdit.propTypes = {
     error: PropTypes.object
 };
 
-const withSync = ApiSync.sloths.get((props, request) => props.entityEditorRoutes.id && request(props.entityEditorRoutes.id));
+// only request data when props.entityEditorRoutes.id exists
+const withSync = SlowApiSync.sloths.get((props, request) => props.entityEditorRoutes.id && request(props.entityEditorRoutes.id));
 export default withSync(SlothsEdit);

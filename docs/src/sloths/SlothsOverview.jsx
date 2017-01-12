@@ -1,10 +1,10 @@
 import React, {PropTypes} from 'react';
-import Source from '../components/Source';
 import {Link} from 'react-router';
-//import js from '!!raw!./SlothsOverview.jsx';
 
-import {ApiSync} from '../api/Api';
+import {SlowApiSync} from '../api/Api';
 import SlothsList from './SlothsList';
+
+import Source from '../components/Source';
 
 function SlothsOverview(props) {
     const {
@@ -20,7 +20,7 @@ function SlothsOverview(props) {
         <p>All actions are artificially slowed down so you can see them.</p>
         <p><Source exampleDir="sloths">Source</Source></p>
         <SlothsList
-            sloths_list={sloths_list.toJS()}
+            sloths_list={sloths_list}
             receivedWhen={props => !!props.sloths_list}
             fetch={fetch}
             error={error}
@@ -29,10 +29,10 @@ function SlothsOverview(props) {
 }
 
 SlothsOverview.propTypes = {
-    sloths_list: PropTypes.object,
+    sloths_list: PropTypes.array,
     fetch: PropTypes.bool,
     error: PropTypes.object
 };
 
-const withSync = ApiSync.sloths.list();
+const withSync = SlowApiSync.sloths.list();
 export default withSync(SlothsOverview);

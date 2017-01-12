@@ -1,16 +1,16 @@
-import {ApiActions} from '../api/Api';
+import {SlowApiActions} from '../api/Api';
 
 const SlothsEntityEditorConfig = {
     callbacks: {
-        // each of these "ApiActions.sloths.xyz" redux actions returns a promise
+        // each of these "SlowApiActions.sloths.xyz" redux actions returns a promise
         onCreate: () => ({payload, dispatch}) => {
-            return dispatch(ApiActions.sloths.create(payload));
+            return dispatch(SlowApiActions.sloths.create(payload));
         },
         onUpdate: () => ({id, payload, dispatch}) => {
-            return dispatch(ApiActions.sloths.update(id, payload));
+            return dispatch(SlowApiActions.sloths.update(id, payload));
         },
         onDelete: () => ({id, dispatch}) => {
-            return dispatch(ApiActions.sloths.delete(id));
+            return dispatch(SlowApiActions.sloths.delete(id));
         }
     }
 };
