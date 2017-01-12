@@ -13,7 +13,7 @@ export default (props) => {
                 <ul className="Content_section">
                     <li className="Content_item"><Link to="/">react-entity-editor</Link></li>
                     <li className="Content_item"><Link to="/dogs">standard demo (with dogs)</Link></li>
-                    {/*<li className="Content_item"><Link to="/sloths">loaders & errors (with sloths)</Link></li>*/}
+                    <li className="Content_item"><Link to="/sloths">loaders & errors (with sloths)</Link></li>
                 </ul>
             </li>
 
