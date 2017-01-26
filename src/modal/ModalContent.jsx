@@ -28,7 +28,7 @@ function ModalContent(props): React.Element<any> {
 
 ModalContent.propTypes = {
     title: PropTypes.string,
-    message: PropTypes.any,
+    message: PropTypes.node,
     yes: PropTypes.string,
     no: PropTypes.string,
     onYes: PropTypes.func,

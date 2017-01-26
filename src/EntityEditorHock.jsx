@@ -271,28 +271,34 @@ export default (userConfig: Object = {}): Function => {
                 return props;
             }
 
-            render() {
-                const config: Object = mergeWithBaseConfig(this.context.entityEditorRoutes, userConfig);
+            renderPrompt() {
                 const {
                     prompt,
                     promptOpen
                 } = this.state;
 
+                const promptAsProps: boolean = prompt && prompt.asProps;
+                const Message = prompt && prompt.message;
+
+                return React.cloneElement(promptComponent(this.props), {
+                    ...prompt,
+                    open: promptOpen && !promptAsProps,
+                    onRequestClose: this.closePrompt.bind(this),
+                    message: Message && <Message {...prompt.item} />
+                });
+            }
+
+            render() {
+                const config: Object = mergeWithBaseConfig(this.context.entityEditorRoutes, userConfig);
                 const props = {
                     ...this.props,
                     [entityEditorProp]: this.entityEditorProps(config),
                     [entityEditorRoutesProp]: this.context.entityEditorRoutes
                 };
 
-                const promptAsProps: boolean = prompt && prompt.asProps;
-
                 return <div>
                     <ComposedComponent {...props} />
-                    {React.cloneElement(promptComponent(this.props), {
-                        ...prompt,
-                        open: promptOpen && !promptAsProps,
-                        onRequestClose: this.closePrompt.bind(this)
-                    })}
+                    {this.renderPrompt()}
                 </div>;
             }
         }

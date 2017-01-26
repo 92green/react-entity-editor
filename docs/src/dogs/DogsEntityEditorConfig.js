@@ -1,6 +1,9 @@
 import {ApiActions} from '../api/Api';
 
 const DogsEntityEditorConfig = {
+    item: {
+        single: "dog"
+    },
     callbacks: {
         // each of these "ApiActions.dogs.xyz" redux actions returns a promise
         onCreate: () => ({payload, dispatch}) => {
