@@ -1,6 +1,9 @@
 import {SlowApiActions} from '../api/Api';
 
 const SlothsEntityEditorConfig = {
+    item: {
+        single: "sloth"
+    },
     callbacks: {
         // each of these "SlowApiActions.sloths.xyz" redux actions returns a promise
         onCreate: () => ({payload, dispatch}) => {
