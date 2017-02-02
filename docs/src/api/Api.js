@@ -27,7 +27,8 @@ import CreateApiSync from './ApiSync';
 
 export const ApiSchema = {
     dogs: 'dogs',
-    sloths: 'sloths'
+    sloths: 'sloths',
+    dodos: 'dodos'
 };
 
 const initialData = {
@@ -36,6 +37,9 @@ const initialData = {
     ],
     sloths: [
         {id: "1", name: "Steven", speed: "0.0002"}
+    ],
+    dodos: [
+        {id: "1", name: "Wilbur", deadness: "Significant"}
     ]
 };
 
@@ -46,3 +50,7 @@ export const ApiSync = CreateApiSync(ApiActions);
 export const SlowApiMethods = CreateFakeApiMethods(ApiSchema, initialData, {log: true, delay: 1500});
 export const SlowApiActions = CreateApiActions(SlowApiMethods);
 export const SlowApiSync = CreateApiSync(SlowApiActions);
+
+export const FaultyApiMethods = CreateFakeApiMethods(ApiSchema, initialData, {log: true, faulty: true});
+export const FaultyApiActions = CreateApiActions(FaultyApiMethods);
+export const FaultyApiSync = CreateApiSync(FaultyApiActions);

@@ -14,10 +14,10 @@ function SlothsOverview(props) {
     } = props;
 
     return <div>
-        <h1>Custom loaders and errors with sloths</h1>
-        <h5>Under development</h5>
-        <p>This example shows how to provide your own loader and error components, building upon the basic structure of the <Link to="/dogs">dogs example</Link>.</p>
+        <h1>Custom loaders with sloths</h1>
+        <p>This example shows what loaders are and how to provide your own loader components, building upon the basic structure of the <Link to="/dogs">dogs example</Link>.</p>
         <p>All actions are artificially slowed down so you can see them.</p>
+
         <p><Source exampleDir="sloths">Source</Source></p>
         <SlothsList
             sloths_list={sloths_list}

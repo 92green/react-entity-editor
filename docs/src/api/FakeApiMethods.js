@@ -24,6 +24,7 @@
 import {fromJS, Map} from 'immutable';
 
 export default function FakeApiMethods(apiSchema, initialData = {}, options = {}) {
+    // set initial data according to schema and initialData
     var data = fromJS(apiSchema)
         .mapEntries(([key, value]) => [value, Map()])
         .merge(fromJS(initialData)
@@ -34,6 +35,7 @@ export default function FakeApiMethods(apiSchema, initialData = {}, options = {}
             })
         );
 
+    // set initial autoincrement ids, pretending to be a database
     var autoIncrementIds = data
         .map(list => {
             if(list.isEmpty()) {
@@ -46,22 +48,42 @@ export default function FakeApiMethods(apiSchema, initialData = {}, options = {}
             return Number(maxId);
         });
 
+    // fake api call have a fake delay
     const delay = options.delay || 250;
 
+    // this applies the fake delay, and also introduces a chance of errors if options.faulty == true
+    const tryFakeRequest = (fakeRequest, resolve, reject, failChance) => {
+        const success = () => resolve(fakeRequest());
+        const fail = () => reject({status: 500, message: "Something went wrong"});
+
+        const willFail = options.faulty && Math.random() < failChance;
+        if(options.log && options.faulty) {
+            if(willFail) {
+                console.warn(`Oh no! This faulty API call will probably fail!`);
+            } else {
+                console.warn(`This API call looks like it will succeed, but you might not be so lucky nect time...`);
+            }
+        }
+        setTimeout(willFail ? fail : success, delay);
+    };
+
+    // set data in the "database"
     const setData = (newData) => {
         data = newData;
     };
 
+    // log info to console only when options.log == true
     const log = (...args) => {
         if(options.log) {
             console.log(...args);
         }
     }
 
+    // create the 5 methods for each type of entity in the api schema
     return fromJS(apiSchema)
         .map((path) => ({
             get: (id) => new Promise((resolve, reject) => {
-                const callback = () => {
+                const fakeRequest = () => {
                     if(!data.hasIn([path, id])) {
                         log(`Fake GET ${path}/${id} not found`);
                         reject("Not found");
@@ -73,13 +95,13 @@ export default function FakeApiMethods(apiSchema, initialData = {}, options = {}
                         .toJS();
 
                     log(`Fake GET ${path}/${id} done`, item);
-                    resolve(item);
+                    return item;
                 };
                 log(`Requesting fake GET ${path}/${id}...`);
-                setTimeout(callback, delay);
+                tryFakeRequest(fakeRequest, resolve, reject, 0.5);
             }),
             list: () => new Promise((resolve, reject) => {
-                const callback = () => {
+                const fakeRequest = () => {
                     if(!data.has(path)) {
                         log(`Fake GET ${path} not found`);
                         reject("Not found");
@@ -93,13 +115,13 @@ export default function FakeApiMethods(apiSchema, initialData = {}, options = {}
                         .toJS();
 
                     log(`Fake GET ${path} done`, list);
-                    resolve(list);
+                    return list;
                 };
                 log(`Requesting fake GET ${path}...`);
-                setTimeout(callback, delay);
+                tryFakeRequest(fakeRequest, resolve, reject, 0.5);
             }),
             create: (payload) => new Promise((resolve, reject) => {
-                const callback = () => {
+                const fakeRequest = () => {
                     if(!data.has(path)) {
                         log(`Fake POST ${path} not found`);
                         reject("Not found");
@@ -112,13 +134,13 @@ export default function FakeApiMethods(apiSchema, initialData = {}, options = {}
 
                     setData(data.setIn([path, nextId.toString()], item));
                     log(`Fake POST ${path} done`, item.toJS());
-                    resolve(item.toJS());
+                    return item.toJS();
                 };
                 log(`Requesting fake POST ${path}...`);
-                setTimeout(callback, delay);
+                tryFakeRequest(fakeRequest, resolve, reject, 1);
             }),
             update: (id, payload) => new Promise((resolve, reject) => {
-                const callback = () => {
+                const fakeRequest = () => {
                     if(!data.hasIn([path, id])) {
                         log(`Fake PUT ${path}/${id} not found`);
                         reject("Not found");
@@ -128,13 +150,13 @@ export default function FakeApiMethods(apiSchema, initialData = {}, options = {}
                     const item = fromJS(payload).set('id', id);
                     setData(data.setIn([path, id], item));
                     log(`Fake PUT ${path}/${id} done`, payload);
-                    resolve(item.toJS());
+                    return item.toJS();
                 };
                 log(`Requesting fake PUT ${path}/${id}...`);
-                setTimeout(callback, delay);
+                tryFakeRequest(fakeRequest, resolve, reject, 1);
             }),
             delete: (id) => new Promise((resolve, reject) => {
-                const callback = () => {
+                const fakeRequest = () => {
                     if(!data.hasIn([path, id])) {
                         log(`Fake DELETE ${path}/${id} not found`);
                         reject("Not found");
@@ -143,10 +165,10 @@ export default function FakeApiMethods(apiSchema, initialData = {}, options = {}
 
                     setData(data.deleteIn([path, id]));
                     log(`Fake DELETE ${path}/${id} done`);
-                    resolve({id});
+                    return {id};
                 };
                 log(`Requesting fake DELETE ${path}/${id}...`);
-                setTimeout(callback, delay);
+                tryFakeRequest(fakeRequest, resolve, reject, 1);
             })
         }))
         .toJS();

@@ -7,11 +7,13 @@ import HomePage from 'pages/HomePage';
 
 import DogsRoutes from 'dogs/DogsRoutes';
 import SlothsRoutes from 'sloths/SlothsRoutes';
+import DodosRoutes from 'dodos/DodosRoutes';
 
 const routes = <Route component={AppHandler} path="/">
     <IndexRoute component={HomePage} />
     {DogsRoutes}
     {SlothsRoutes}
+    {DodosRoutes}
     <Route path="*" component={ErrorHandler}/>
 </Route>;
 

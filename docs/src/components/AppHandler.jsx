@@ -13,13 +13,12 @@ export default (props) => {
                 <ul className="Content_section">
                     <li className="Content_item"><Link to="/">react-entity-editor</Link></li>
                     <li className="Content_item"><Link to="/dogs">standard demo (with dogs)</Link></li>
-                    <li className="Content_item"><Link to="/sloths">loaders & errors (with sloths)</Link></li>
+                    <li className="Content_item"><Link to="/sloths">loaders (with sloths)</Link></li>
+                    <li className="Content_item"><Link to="/dodos">errors (with dodos)</Link></li>
                 </ul>
             </li>
 
             {/*<li className="Content_item">...with redux form</li>*/}
-            {/*<li className="Content_item">...with custom error / loader</li>*/}
-            {/*<li className="Content_item">...with custom actions</li>*/}
             {/*<li className="Content_item">...without router</li>*/}
         </ul>
         <div className="Wrapper">
