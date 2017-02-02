@@ -14,6 +14,7 @@ function DodosEdit(props) {
 
     return <div>
         <h1>Edit dodo</h1>
+        <p><strong>Keep refreshing the page to see it fail!</strong></p>
         <DodosEditForm
             dodos_get={dodos_get}
             id={id}

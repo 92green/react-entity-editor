@@ -61,7 +61,7 @@ export default function FakeApiMethods(apiSchema, initialData = {}, options = {}
             if(willFail) {
                 console.warn(`Oh no! This faulty API call will probably fail!`);
             } else {
-                console.warn(`This API call looks like it will succeed, but you might not be so lucky nect time...`);
+                console.warn(`This API call looks like it will succeed, but you might not be so lucky next time...`);
             }
         }
         setTimeout(willFail ? fail : success, delay);
