@@ -6,7 +6,7 @@ import ReactModal from 'react-modal';
 function ModalContent(props): React.Element<any> {
     const {
         title,
-        message,
+        children,
         yes,
         no,
         onYes,
@@ -17,7 +17,7 @@ function ModalContent(props): React.Element<any> {
     return <div>
         {title && <div className={classNames.modalTitle}>{title}</div>}
         <div className={classNames.modalBody}>
-            {message}
+            {children}
             <div className={classNames.modalButtonContainer}>
                 {yes ? <button className={classNames.modalButton} onClick={onYes.bind(this)}>{yes}</button> : null}
                 {no ? <button className={classNames.modalButtonSecondary} onClick={onNo.bind(this)}>{no}</button> : null}
@@ -28,7 +28,6 @@ function ModalContent(props): React.Element<any> {
 
 ModalContent.propTypes = {
     title: PropTypes.string,
-    message: PropTypes.node,
     yes: PropTypes.string,
     no: PropTypes.string,
     onYes: PropTypes.func,

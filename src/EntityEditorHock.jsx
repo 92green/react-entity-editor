@@ -2,17 +2,15 @@
 
 import React, {Component, PropTypes} from 'react';
 import {fromJS, Map, List} from 'immutable';
-import {mergeWithBaseConfig, promptWithDefaults} from './Config';
-import Modal from './modal/Modal';
-import ModalContent from './modal/ModalContent';
+import {mergeWithBaseConfig, promptWithDefaults} from './Config';;
 import {returnPromise} from './Utils';
 
 export default (userConfig: Object = {}): Function => {
     const  {
         preloadActionIds,
+        // group these under a propNames: {} object?
         entityEditorProp = "entityEditor",
-        entityEditorRoutesProp = "entityEditorRoutes",
-        promptComponent = (props) => <Modal><ModalContent /></Modal>
+        entityEditorRoutesProp = "entityEditorRoutes"
     } = userConfig;
 
     return (ComposedComponent) => {
@@ -106,6 +104,7 @@ export default (userConfig: Object = {}): Function => {
                     : new Promise((resolve, reject) => {
                         prompt.onYes = () => resolve(payload);
                         prompt.onNo = () => reject(payload);
+                        prompt.payload = payload;
                         this.openPrompt(prompt);
                     });
             }
@@ -168,7 +167,7 @@ export default (userConfig: Object = {}): Function => {
                                     (result) => {
                                         // call onError (if exists)
                                         onError && onError(result);
-                                        return result;
+                                        throw result;
                                     }
                                 )
                                 .then(
@@ -271,7 +270,7 @@ export default (userConfig: Object = {}): Function => {
                 return props;
             }
 
-            renderPrompt() {
+            renderPrompt(config) {
                 const {
                     prompt,
                     promptOpen
@@ -279,13 +278,20 @@ export default (userConfig: Object = {}): Function => {
 
                 const promptAsProps: boolean = prompt && prompt.asProps;
                 const Message = prompt && prompt.message;
+                const Prompt = config.components.prompt;
+                const PromptContent = config.components.promptContent;
 
-                return React.cloneElement(promptComponent(this.props), {
-                    ...prompt,
-                    open: promptOpen && !promptAsProps,
-                    onRequestClose: this.closePrompt.bind(this),
-                    message: Message && <Message {...prompt.item} />
-                });
+                return <Prompt
+                    {...prompt}
+                    open={promptOpen && !promptAsProps}
+                    onRequestClose={this.closePrompt.bind(this)}
+                >
+                    {prompt &&
+                        <PromptContent {...prompt}>
+                            <Message {...prompt.item} />
+                        </PromptContent>
+                    }
+                </Prompt>
             }
 
             render() {
@@ -298,7 +304,7 @@ export default (userConfig: Object = {}): Function => {
 
                 return <div>
                     <ComposedComponent {...props} />
-                    {this.renderPrompt()}
+                    {this.renderPrompt(config)}
                 </div>;
             }
         }
