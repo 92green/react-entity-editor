@@ -18,7 +18,7 @@ function DodosOverview(props) {
         <p>This example shows how errors work, building upon the basic structure of the <Link to="/dogs">dogs example</Link>.</p>
         <p>Loading the list here, or loading an extsing dodo will fail about half the time to demonstrate errors being displayed in the page.</p>
         <p>Create, updated and delete fail all the time to demonstrate error prompts.</p>
-        <p><strong>Keep refreshing the page to see this fail!</strong></p>
+        <p><strong>Keep refreshing the page to see it fail!</strong></p>
 
         <p><Source exampleDir="dodos">Source</Source></p>
         <DodosList
