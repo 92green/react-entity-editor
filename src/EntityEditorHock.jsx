@@ -168,7 +168,7 @@ export default (userConfig: Object = {}): Function => {
                                     (result) => {
                                         // call onError (if exists)
                                         onError && onError(result);
-                                        return result;
+                                        throw result;
                                     }
                                 )
                                 .then(
