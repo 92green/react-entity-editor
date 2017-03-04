@@ -205,7 +205,7 @@ export default (userConfig: Object = {}): Function => {
                 };
 
                 // show confirmation prompt (if exists)
-                return this.getPromptPromise(config, 'confirm', actionName, actionProps)
+                this.getPromptPromise(config, 'confirm', actionName, actionProps)
                     .then(callOnConfirm)
                     .then(beginPending)
                     .then(

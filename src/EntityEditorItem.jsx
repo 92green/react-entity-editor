@@ -23,6 +23,6 @@ export default (userConfig = {}): Function => {
             preloadActionIds: (props) => props.id
         });
 
-        return withLoader(withHock(EntityEditorItem));
+        return withHock(withLoader(EntityEditorItem));
     }
 };
