@@ -80,6 +80,8 @@ class SlothsEditForm extends Component {
             </div>
             <button className="Button Button-grey" onClick={entityEditor.actions.goList}>Back</button>
             <button className="Button" onClick={this.save}>Save</button>
+            {entityEditor.pending.save && <em>Saving...</em>}
+            {entityEditor.pending.delete && <em>Deleting...</em>}
         </div>;
     }
 }
