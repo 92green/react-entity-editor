@@ -22,7 +22,8 @@ export default (userConfig: Object = {}): Function => {
                 this.state = {
                     dirty: false,
                     prompt: null,
-                    promptOpen: false
+                    promptOpen: false,
+                    pending: {}
                 };
             }
 
@@ -69,6 +70,16 @@ export default (userConfig: Object = {}): Function => {
                 };
             }
 
+            setPending(actionName: string, pending: boolean): void {
+                this.setState({
+                    pending: Object.assign(
+                        {},
+                        this.state.pending,
+                        {[actionName]: pending}
+                    )
+                });
+            }
+
             openPrompt(prompt: Object): void {
                 this.setState({
                     prompt,
@@ -109,18 +120,8 @@ export default (userConfig: Object = {}): Function => {
                     });
             }
 
-            wrapActionWithPrompts(config: Object, action: Function, actionName: string, actionProps: Object): Function {
-                // partially apply actions, giving it a subset of config (at this point only callbacks are provided)
-                const partialAction: Function = action({
-                    callbacks: config.callbacks
-                });
-
-                if(typeof partialAction != "function") {
-                    throw `Entity Editor: action "${actionName} must be a function that returns an action function, such as (config) => (actionProps) => { /* return null, promise or false */ }"`;
-                }
-
-                const doNothing: Function = () => {};
-                const doSuccessAction: Function = (result) => {
+            getSuccessAction(config: Object, actionName: string): Function {
+                return (result) => {
                     var successAction = config.successActions && config.successActions[actionName];
 
                     // use default successAction if none explicitly provided
@@ -139,6 +140,17 @@ export default (userConfig: Object = {}): Function => {
                     }
                     return returnPromise(partialSuccessAction(result));
                 };
+            }
+
+            wrapActionWithPrompts(config: Object, action: Function, actionName: string, actionProps: Object): Function {
+                // partially apply actions, giving it a subset of config (at this point only callbacks are provided)
+                const partialAction: Function = action({
+                    callbacks: config.callbacks
+                });
+
+                if(typeof partialAction != "function") {
+                    throw `Entity Editor: action "${actionName} must be a function that returns an action function, such as (config) => (actionProps) => { /* return null, promise or false */ }"`;
+                }
 
                 // create promises for onConfirm, onSuccess and onError, and simply pass through where they don't exist
                 const {
@@ -147,43 +159,64 @@ export default (userConfig: Object = {}): Function => {
                     onError
                 } = actionProps;
 
+                const callOnConfirm: Function = (actionProps) => {
+                    onConfirm && onConfirm(actionProps);
+                    return actionProps;
+                };
+
+                const beginPending: Function = (actionProps) => {
+                    this.setPending(actionName, true);
+                    return actionProps;
+                }
+
+                const endPendingSuccess: Function = (result) => {
+                    this.setPending(actionName, false);
+                    return result;
+                };
+
+                const endPendingError: Function = (result) => {
+                    this.setPending(actionName, false);
+                    throw result;
+                };
+
+                const callOnSuccess: Function = (result) => {
+                    onSuccess && onSuccess(result);
+                    return result;
+                };
+
+                const callOnError: Function = (result) => {
+                    onError && onError(result);
+                    throw result;
+                };
+
+                const doNothing: Function = () => {};
+
+                const doSuccessAction: Function = this.getSuccessAction(config, actionName);
+
+                const showSuccessPrompt: Function = (result) => {
+                    return this.getPromptPromise(config, 'success', actionName, result)
+                        .then(doSuccessAction, doSuccessAction);
+                };
+
+                const showErrorPrompt: Function = (result) => {
+                    console.error(result);
+                    return this.getPromptPromise(config, 'error', actionName, result)
+                        .then(doNothing, doNothing);
+                };
+
                 // show confirmation prompt (if exists)
                 return this.getPromptPromise(config, 'confirm', actionName, actionProps)
-                    .then((actionProps) => {
-                        // call onConfirm (if exists)
-                        onConfirm && onConfirm(actionProps);
-                        return actionProps;
-                    })
+                    .then(callOnConfirm)
+                    .then(beginPending)
                     .then(
                         (actionProps) => {
                             // perform action and continue promise chain
                             return returnPromise(partialAction(actionProps))
-                                .then(
-                                    (result) => {
-                                        // call onSuccess (if exists)
-                                        onSuccess && onSuccess(result);
-                                        return result;
-                                    },
-                                    (result) => {
-                                        // call onError (if exists)
-                                        onError && onError(result);
-                                        throw result;
-                                    }
-                                )
-                                .then(
-                                    (result) => {
-                                        // show success prompt (if exists)
-                                        return this.getPromptPromise(config, 'success', actionName, result)
-                                            .then(doSuccessAction, doSuccessAction);
-                                    },
-                                    (result) => {
-                                        // show error prompt (if exists)
-                                        console.error(result);
-                                        return this.getPromptPromise(config, 'error', actionName, result)
-                                            .then(doNothing, doNothing);
-                                    }
-                                );
-                        }, doNothing
+                                .then(endPendingSuccess, endPendingError)
+                                .then(callOnSuccess, callOnError)
+                                .then(showSuccessPrompt, showErrorPrompt);
+                        },
+                        doNothing
                     );
             }
 
@@ -249,13 +282,18 @@ export default (userConfig: Object = {}): Function => {
                     .toJS();
 
                 // choose state vars to pass down in a state prop
-                const state: Object = {
-                    dirty: this.state.dirty
-                };
+                // removed until use case is confirmed
+                // const state: Object = {
+                //    dirty: this.state.dirty
+                // };
+
+                // pending actions
+                const pending: Object = this.state.pending;
 
                 var props = {
                     actions,
-                    state
+                    //state,
+                    pending
                 };
 
                 const {
@@ -296,7 +334,7 @@ export default (userConfig: Object = {}): Function => {
 
             render() {
                 const config: Object = mergeWithBaseConfig(this.context.entityEditorRoutes, userConfig);
-                const props = {
+                const props: Object = {
                     ...this.props,
                     [entityEditorProp]: this.entityEditorProps(config),
                     [entityEditorRoutesProp]: this.context.entityEditorRoutes

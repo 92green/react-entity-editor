@@ -38,13 +38,13 @@ class EntityEditorRouteHock extends Component {
             .join("/");
     }
 
-    getRouteProps({basePath}): Object {
+    getRouteProps(): Object {
         const {
             router,
             routes
         } = this.props;
 
-        const base: string = basePath || this.inferBasePath(routes);
+        const base: string = this.inferBasePath(routes);
         const paths: Function = (id: string) => ({
             base,
             list: base,
