@@ -1,8 +1,20 @@
 /* @flow */
 
 import React, {Component, PropTypes} from 'react';
+import {mergeWithBaseConfig, promptWithDefaults} from './Config';
 
-export default (config: Object = {}): HockApplier => {
+export default (actionName: string, config: Object = {}): HockApplier => {
+    const mergedConfig = mergeWithBaseConfig(config);
+    const {
+        loader: {
+            passThroughWhen = null,
+            receivedWhen = null
+        } = {},
+        components: {
+            loader: loaderComponent,
+            error: errorComponent
+        }
+    } = mergedConfig;
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
@@ -12,7 +24,7 @@ export default (config: Object = {}): HockApplier => {
                 const {
                     fetch,
                     error,
-                    fetchComponent,
+                    loaderComponent,
                     errorComponent,
                     passThroughWhen,
                     receivedWhen
@@ -22,10 +34,21 @@ export default (config: Object = {}): HockApplier => {
                     return this.renderComposedComponent();
                 }
                 if(fetch) {
-                    return fetchComponent(this.props);
+                    return loaderComponent({});
                 }
                 if(error) {
-                    return errorComponent(this.props);
+                    const {
+                        message,
+                        title,
+                        item
+                    } = promptWithDefaults(mergedConfig, "error", actionName);
+
+                    return errorComponent({
+                        error,
+                        Message: message,
+                        title,
+                        item
+                    });
                 }
                 if(receivedWhen && !receivedWhen(this.props)) {
                     return null;
@@ -37,7 +60,7 @@ export default (config: Object = {}): HockApplier => {
                 const filteredProps: Object = Object.assign({}, this.props);
                 delete filteredProps.fetch;
                 delete filteredProps.error;
-                delete filteredProps.fetchComponent;
+                delete filteredProps.loaderComponent;
                 delete filteredProps.errorComponent;
                 delete filteredProps.passThroughWhen;
                 delete filteredProps.receivedWhen;
@@ -49,7 +72,7 @@ export default (config: Object = {}): HockApplier => {
         EntityEditorLoader.propTypes = {
             fetch: PropTypes.bool,
             error: PropTypes.object,
-            fetchComponent: PropTypes.func,
+            loaderComponent: PropTypes.func,
             errorComponent: PropTypes.func,
             passThroughWhen: PropTypes.func,
             receivedWhen: PropTypes.func
@@ -58,10 +81,10 @@ export default (config: Object = {}): HockApplier => {
         EntityEditorLoader.defaultProps = {
             fetch: false,
             error: null,
-            fetchComponent: config.fetchComponent ? config.fetchComponent : () => <p>Loading...</p>,
-            errorComponent: config.errorComponent ? config.errorComponent : () => <p>Error</p>,
-            passThroughWhen: config.passThroughWhen || null,
-            receivedWhen: config.receivedWhen || null
+            loaderComponent,
+            errorComponent,
+            passThroughWhen,
+            receivedWhen
         };
 
         return EntityEditorLoader;

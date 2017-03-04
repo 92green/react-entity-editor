@@ -1,10 +1,10 @@
 import React, {PropTypes} from 'react';
-import Source from '../components/Source';
 import {Link} from 'react-router';
-//import js from '!!raw!./SlothsOverview.jsx';
 
-import {ApiSync} from '../api/Api';
+import {SlowApiSync} from '../api/Api';
 import SlothsList from './SlothsList';
+
+import Source from '../components/Source';
 
 function SlothsOverview(props) {
     const {
@@ -14,13 +14,13 @@ function SlothsOverview(props) {
     } = props;
 
     return <div>
-        <h1>Custom loaders and errors with sloths</h1>
-        <h5>Under development</h5>
-        <p>This example shows how to provide your own loader and error components, building upon the basic structure of the <Link to="/dogs">dogs example</Link>.</p>
+        <h1>Custom loaders with sloths</h1>
+        <p>This example shows what loaders are and how to provide your own loader components, building upon the basic structure of the <Link to="/dogs">dogs example</Link>.</p>
         <p>All actions are artificially slowed down so you can see them.</p>
+
         <p><Source exampleDir="sloths">Source</Source></p>
         <SlothsList
-            sloths_list={sloths_list.toJS()}
+            sloths_list={sloths_list}
             receivedWhen={props => !!props.sloths_list}
             fetch={fetch}
             error={error}
@@ -29,10 +29,10 @@ function SlothsOverview(props) {
 }
 
 SlothsOverview.propTypes = {
-    sloths_list: PropTypes.object,
+    sloths_list: PropTypes.array,
     fetch: PropTypes.bool,
     error: PropTypes.object
 };
 
-const withSync = ApiSync.sloths.list();
+const withSync = SlowApiSync.sloths.list();
 export default withSync(SlothsOverview);

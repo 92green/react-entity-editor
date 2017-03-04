@@ -2,9 +2,15 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 
+import React from 'react';
 import {fromJS, Map, List} from 'immutable';
+import Modal from './modal/Modal';
+import ModalContent from './modal/ModalContent'
 
 export const baseConfig: Config = {
+    item: {
+        single: "item"
+    },
     actions: {
         save: ({callbacks}: ActionConfig) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
             if(!actionProps.payload) {
@@ -112,45 +118,57 @@ export const baseConfig: Config = {
         }
     },
     prompts: {
+        get: {
+            // get can only have an error message
+            error: {
+                message: ({item}) => <span>An error has occurred, this {item} could not be loaded right now.</span>
+            }
+        },
+        list: {
+            // list can only have an error message
+            error: {
+                message: ({items}) => <span>An error has occurred, these {items} could not be loaded right now.</span>
+            }
+        },
         save: {
             success: {
-                message: `Item saved.`
+                message: ({Item}) => <span>{Item} saved.</span>
             },
             error: {
-                message: `An error has occured, your item could not be saved right now.`
+                message: ({item}) => <span>An error has occurred, this {item} could not be saved right now.</span>
             }
         },
         saveNew: {
             confirm: {
-                message: `Are you sure you want to save this as a new item?`,
+                message: ({item}) => <span>Are you sure you want to save this as a new {item}?</span>,
                 yes: `Save as new`,
                 no: `Cancel`
             },
             success: {
-                message: `Item saved.`
+                message: ({Item}) => <span>{Item} saved.</span>
             },
             error: {
-                message: `An error has occured, your item could not be saved right now.`
+                message: ({item}) => <span>An error has occurred, this {item} could not be saved right now.</span>
             }
         },
         delete: {
             confirm: {
-                message: `Are you sure you want to delete this item?`,
+                message: ({item}) => <span>Are you sure you want to delete this {item}?</span>,
                 yes: `Delete`,
                 no: `Cancel`
             },
             success: {
-                message: `Item deleted.`
+                message: ({Item}) => <span>{Item} deleted.</span>
             },
             error: {
-                message: `An error has occured, your item could not be deleted right now.`
+                message: ({item}) => <span>An error has occurred, this {item} could not be deleted right now.</span>
             }
         },
         go: {
             confirm: {
                 showWhen: ({dirty}: {dirty: Boolean}) => dirty,
                 title: `Unsaved changes`,
-                message: `You have unsaved changes. What would you like to do?`,
+                message: () => <span>You have unsaved changes. What would you like to do?</span>,
                 yes: `Discard changes`,
                 no: `Keep editing`
             }
@@ -167,6 +185,17 @@ export const baseConfig: Config = {
         },
         yes: `Okay`,
         asProps: false
+    },
+    components: {
+        loader: (props) => <p>Loading...</p>,
+        error: ({title, Message, item}) => {
+            return <div>
+                <p><strong>{title}</strong></p>
+                <Message {...item} />
+            </div>;
+        },
+        prompt: (props) => <Modal {...props} />,
+        promptContent: (props) => <ModalContent {...props} />,
     }
 };
 
@@ -179,14 +208,16 @@ export function mergeConfig(...mergeConfigs: Array<Object>): Object {
 
     var _super = fromJS({});
 
+    // merge configs together
     return fromJS(mergeConfigs)
         .filter(ii => ii)
         .reduce((config, ii) => {
+            // merge each config with the next and deal with conflicts
             return config.mergeWith((prev, next, key) => {
                 return !superableKeys.includes(key)
                     ? prev.mergeDeep(next)
                     : prev.mergeWith((prev, next, subKey) => {
-                        // keep overrriden versions of callbacks and actions so they can each call super
+                        // keep overriden versions of callbacks and actions so they can each call super
                         _super = _super.updateIn([key, subKey], List(), ii => ii.push(prev));
                         return next;
                     }, next);
@@ -200,14 +231,14 @@ export function mergeWithBaseConfig(...mergeConfigs: Array<Object>): Object {
     return mergeConfig(baseConfig, ...mergeConfigs);
 }
 
-export function promptWithDefaults(configObject: Object, type: string, action: string, editorData: Object): ?Object {
+export function promptWithDefaults(configObject: Object, type: string, action: string, editorData: Object = {}): ?Object {
     const config: Map<string, Map<string,*>> = fromJS(configObject);
     const prompt: ?Map<string, *> = config.getIn(['prompts', action, type]);
 
     if(!prompt || (prompt.has('showWhen') && !prompt.get('showWhen')(editorData))) {
         return null;
     }
-    if(!config.has(`promptDefaults`)) {
+    if(!config.has('promptDefaults')) {
         return prompt;
     }
 
@@ -217,6 +248,20 @@ export function promptWithDefaults(configObject: Object, type: string, action: s
 
     return base
         .merge(prompt)
+        .set('item', itemNames(config.get('item')))
+        .set('type', type)
         .toJS();
 }
 
+function itemNames(configItem: Map<string, string>): Map<string, string> {
+    const ucfirst = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+    const item: string = configItem.get('single', 'item');
+    const items: string = configItem.get('plural', `${item}s`);
+
+    return Map({
+        item,
+        items,
+        Item: ucfirst(item),
+        Items: ucfirst(items)
+    });
+}

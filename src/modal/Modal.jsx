@@ -33,7 +33,6 @@ class Modal extends Component {
         } = this.props;
 
         var propsForChildren: Object = {
-            ...this.props,
             onYes: this.onYes.bind(this),
             onNo: this.onNo.bind(this)
         };

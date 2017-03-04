@@ -96,8 +96,10 @@ class DogsEditForm extends Component {
                 />
             </div>
             <button className="Button Button-grey" onClick={entityEditor.actions.goList}>Back</button>
-            <button className="Button" onClick={this.save}>Save</button>
-            {/*<button className="Button" onClick={this.delete}>Delete</button>*/}
+            <button className="Button" onClick={this.save} disabled={entityEditor.pending.save}>Save</button>
+            {/*<button className="Button" onClick={this.delete} disabled={entityEditor.pending.delete}>Delete</button>*/}
+            {entityEditor.pending.save && <em>Saving...</em>}
+            {entityEditor.pending.delete && <em>Deleting...</em>}
         </div>;
     }
 }
