@@ -1,11 +1,12 @@
+import {BaseConfig} from 'react-entity-editor';
 import {SlowApiActions} from '../api/Api';
 import CustomLoader from './CustomLoader';
 
-const SlothsEntityEditorConfig = {
+const SlothsEntityEditorConfig = BaseConfig.merge({
     item: {
         single: "sloth"
     },
-    callbacks: {
+    operations: {
         // each of these "SlowApiActions.sloths.xyz" redux actions returns a promise
         onCreate: () => ({payload, dispatch}) => {
             return dispatch(SlowApiActions.sloths.create(payload));
@@ -22,6 +23,6 @@ const SlothsEntityEditorConfig = {
     components: {
         loader: CustomLoader
     }
-};
+});
 
 export default SlothsEntityEditorConfig;

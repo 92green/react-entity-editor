@@ -1,20 +1,26 @@
 /* @flow */
 
 import React, {Component, PropTypes} from 'react';
-import {mergeWithBaseConfig, promptWithDefaults} from './Config';
+import {EntityEditorConfig} from './config/EntityEditorConfig';
 
-export default (actionName: string, config: Object = {}): HockApplier => {
-    const mergedConfig = mergeWithBaseConfig(config);
+type EntityEditorLoaderOptions = {
+    config: EntityEditorConfig,
+    actionName?: string,
+    passThroughWhen?: Function,
+    receivedWhen?: Function
+};
+
+export default (options: EntityEditorLoaderOptions): HockApplier => {
+
     const {
-        loader: {
-            passThroughWhen = null,
-            receivedWhen = null
-        } = {},
-        components: {
-            loader: loaderComponent,
-            error: errorComponent
-        }
-    } = mergedConfig;
+        config,
+        actionName,
+        passThroughWhen = null,
+        receivedWhen = null
+    } = options;
+
+    const loaderComponent: ReactClass<any> = config.getIn(['components', 'loader']);
+    const errorComponent: ReactClass<any> = config.getIn(['components', 'error']);
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
@@ -41,7 +47,7 @@ export default (actionName: string, config: Object = {}): HockApplier => {
                         message,
                         title,
                         item
-                    } = promptWithDefaults(mergedConfig, "error", actionName);
+                    } = fullConfig.prompt(actionName, "error");
 
                     return errorComponent({
                         error,
@@ -58,6 +64,7 @@ export default (actionName: string, config: Object = {}): HockApplier => {
 
             renderComposedComponent() {
                 const filteredProps: Object = Object.assign({}, this.props);
+
                 delete filteredProps.fetch;
                 delete filteredProps.error;
                 delete filteredProps.loaderComponent;

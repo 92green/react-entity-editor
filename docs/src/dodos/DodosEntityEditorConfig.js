@@ -1,11 +1,12 @@
+import {BaseConfig} from 'react-entity-editor';
 import {FaultyApiActions} from '../api/Api';
 import CustomError from './CustomError';
 
-const DodosEntityEditorConfig = {
+const DodosEntityEditorConfig = BaseConfig.merge({
     item: {
         single: "dodo"
     },
-    callbacks: {
+    operations: {
         // each of these "FaultyApiActions.dodos.xyz" redux actions returns a promise
         // and they each only work half the time, rejecting promises containing errors when they dont work
         onCreate: () => ({payload, dispatch}) => {
@@ -25,6 +26,6 @@ const DodosEntityEditorConfig = {
     components: {
         //error: CustomError,
     }
-};
+});
 
 export default DodosEntityEditorConfig;

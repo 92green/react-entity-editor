@@ -4,23 +4,19 @@ import React, {PropTypes} from 'react';
 import {withRouter} from 'react-router';
 import EntityEditorRouteHock from './EntityEditorRouteHock';
 
-function EntityEditorRoute(config: Object = {}): Function {
+function EntityEditorItemRoute(config: Object = {}): Function {
     const {
-        basePath
+        paramName = 'id'
     } = config;
-
-    const routePropOptions = {
-        basePath
-    };
 
     return (ComposedComponent: React.Element<any>) => {
 
-        class EntityEditorRouteWrapper extends EntityEditorRouteHock {
+        class EntityEditorRouteItemWrapper extends EntityEditorRouteHock {
 
             getChildContext() {
                 return {
                     entityEditorRoutes: {
-                        ...this.getRouteProps(routePropOptions),
+                        ...this.getRouteProps(),
                         onLeaveHook: this.onLeaveHook
                     }
                 };
@@ -28,7 +24,8 @@ function EntityEditorRoute(config: Object = {}): Function {
 
             render() {
                 const entityEditorRoutesProps: Object = {
-                    ...this.getRouteProps(routePropOptions)
+                    ...this.getRouteProps().props,
+                    id: this.props.params[paramName]
                 };
 
                 return <ComposedComponent
@@ -38,18 +35,18 @@ function EntityEditorRoute(config: Object = {}): Function {
             }
         }
 
-        EntityEditorRouteWrapper.propTypes = {
+        EntityEditorRouteItemWrapper.propTypes = {
             routes: PropTypes.array.isRequired,
             params: PropTypes.object.isRequired,
             router: PropTypes.object
         };
 
-        EntityEditorRouteWrapper.childContextTypes = {
+        EntityEditorRouteItemWrapper.childContextTypes = {
             entityEditorRoutes: PropTypes.object
         };
 
-        return withRouter(EntityEditorRouteWrapper);
+        return withRouter(EntityEditorRouteItemWrapper);
     };
 }
 
-export default EntityEditorRoute;
+export default EntityEditorItemRoute;

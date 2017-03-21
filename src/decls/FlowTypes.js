@@ -15,7 +15,7 @@ type Config = {
 };
 
 type PromptConfig = {
-    message?: string,
+    message?: ReactClass<any>|string,
     yes?: string,
     no?: string,
     title?: string|Object,

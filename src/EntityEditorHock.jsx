@@ -2,20 +2,35 @@
 
 import React, {Component, PropTypes} from 'react';
 import {fromJS, Map, List} from 'immutable';
-import {mergeWithBaseConfig, promptWithDefaults} from './Config';;
+import {EntityEditorConfig} from './config/EntityEditorConfig';
 import {returnPromise} from './Utils';
 
-export default (userConfig: Object = {}): Function => {
-    const  {
-        preloadActionIds,
-        // group these under a propNames: {} object?
-        entityEditorProp = "entityEditor",
-        entityEditorRoutesProp = "entityEditorRoutes"
-    } = userConfig;
+type PropNames = {
+    entityEditor?: string,
+    entityEditorRoutes?: string
+};
 
-    return (ComposedComponent) => {
+type EntityEditorHockOptions = {
+    config: EntityEditorConfig,
+    preloadActionIds?: Function,
+    propNames?: PropNames
+};
+
+export default (options: EntityEditorHockOptions): Function => {
+    const {
+        config: userConfig,
+        preloadActionIds,
+        propNames = {}
+    } = options;
+
+    const entityEditorProp = propNames.entityEditor || "entityEditor";
+    const entityEditorRoutesProp = propNames.entityEditorRoutes || "entityEditorRoutes";
+
+    return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
         class EntityEditorHock extends Component {
+
+            state: Object;
 
             constructor(props: Object): void {
                 super(props);
@@ -49,10 +64,10 @@ export default (userConfig: Object = {}): Function => {
                 this.closePrompt();
             }
 
-            shouldComponentUpdate(nextProps: Object, nextState: Object): boolean {
+            /*shouldComponentUpdate(nextProps: Object, nextState: Object): boolean {
                 return fromJS(this.props).equals(fromJS(nextProps))
                     || fromJS(this.state).equals(fromJS(nextState));
-            }
+            }*/
 
             getEditorState(): Object {
                 return {
@@ -70,13 +85,17 @@ export default (userConfig: Object = {}): Function => {
                 };
             }
 
-            setPending(actionName: string, pending: boolean): void {
+            getPending(id: string, actionName: string): boolean {
+                return !!this.state.pending[`${id}|${actionName}`];
+            }
+
+            setPending(id: string, actionName: string, pending: boolean): void {
                 this.setState({
                     pending: Object.assign(
                         {},
                         this.state.pending,
-                        {[actionName]: pending}
-                    )
+                        {[`${id}|${actionName}`]: pending
+                    })
                 });
             }
 
@@ -102,55 +121,57 @@ export default (userConfig: Object = {}): Function => {
                 });
             }
 
-            getPromptPromise(config: Object, type: string, actionName: string, payload: Object): Promise<*> {
-                var prompt: ?Object = promptWithDefaults(config, type, actionName, this.getEditorState());
-
-                // special case: actions staring with "go" can fallback to use "go" prompts
-                if(!prompt && /^go[A-Z]/.test(actionName)) {
-                    prompt = promptWithDefaults(config, type, "go", this.getEditorState());
+            getPromptPromise(config: EntityEditorConfig, type: string, actionName: string, payload: Object): Promise<*> {
+                var prompt: ?Object = config.prompt(actionName, type, this.getEditorState());
+                if(!prompt) {
+                    return new Promise(resolve => resolve(payload));
                 }
 
-                return !prompt
-                    ? new Promise(resolve => resolve(payload))
-                    : new Promise((resolve, reject) => {
-                        prompt.onYes = () => resolve(payload);
-                        prompt.onNo = () => reject(payload);
-                        prompt.payload = payload;
-                        this.openPrompt(prompt);
-                    });
+                return new Promise((resolve, reject) => {
+                    prompt.onYes = () => resolve(payload);
+                    prompt.onNo = () => reject(payload);
+                    prompt.payload = payload;
+                    this.openPrompt(prompt);
+                });
             }
 
-            getSuccessAction(config: Object, actionName: string): Function {
-                return (result) => {
-                    var successAction = config.successActions && config.successActions[actionName];
+            wrapActionWithPrompts(config: EntityEditorConfig, action: Function, actionName: string, actionProps: Object): Function {
 
-                    // use default successAction if none explicitly provided
-                    // which will call callbacks.after<ACTIONNAME> if it exists
-                    if(!successAction) {
-                        successAction = ({callbacks}) => (successActionProps) => {
-                            const after = `after${actionName.charAt(0).toUpperCase()}${actionName.slice(1)}`;
-                            callbacks[after] && callbacks[after](successActionProps);
-                            return successActionProps;
-                        };
-                    }
-
-                    const partialSuccessAction = successAction(config);
-                    if(typeof partialSuccessAction != "function") {
-                        throw `Entity Editor: successAction "${actionName} must be a function that returns a successAction function, such as (config) => (successActionProps) => {}"`;
-                    }
-                    return returnPromise(partialSuccessAction(result));
-                };
-            }
-
-            wrapActionWithPrompts(config: Object, action: Function, actionName: string, actionProps: Object): Function {
-                // partially apply actions, giving it a subset of config (at this point only callbacks are provided)
+                // partially apply actions, giving it a subset of config (at this point only operations are provided)
                 const partialAction: Function = action({
-                    callbacks: config.callbacks
+                    operations: config.partiallyApplyOperations({
+                        setEditorState: this.setEditorState()
+                    })
                 });
 
                 if(typeof partialAction != "function") {
                     throw `Entity Editor: action "${actionName} must be a function that returns an action function, such as (config) => (actionProps) => { /* return null, promise or false */ }"`;
                 }
+
+                const getSuccessAction: Function = (config: EntityEditorConfig, actionName: string): Function => {
+                    return (...args) => {};
+
+                    /*
+                    return (result) => {
+                        var successAction = config.getIn(['successActions', actionName]);
+
+                        // use default successAction if none explicitly provided
+                        // which will call operations.after<ACTIONNAME> if it exists
+                        if(!successAction) {
+                            successAction = ({operations}) => (successActionProps) => {
+                                const after = `after${actionName.charAt(0).toUpperCase()}${actionName.slice(1)}`;
+                                operations[after] && operations[after](successActionProps);
+                                return successActionProps;
+                            };
+                        }
+
+                        const partialSuccessAction = successAction(config);
+                        if(typeof partialSuccessAction != "function") {
+                            throw `Entity Editor: successAction "${actionName} must be a function that returns a successAction function, such as (config) => (successActionProps) => {}"`;
+                        }
+                        return returnPromise(partialSuccessAction(result));
+                    };*/
+                };
 
                 // create promises for onConfirm, onSuccess and onError, and simply pass through where they don't exist
                 const {
@@ -165,17 +186,21 @@ export default (userConfig: Object = {}): Function => {
                 };
 
                 const beginPending: Function = (actionProps) => {
-                    this.setPending(actionName, true);
+                    if(!config.getIn(['excludePending', actionName])) {
+                        this.setPending(actionProps.id, actionName, true);
+                    }
                     return actionProps;
                 }
 
                 const endPendingSuccess: Function = (result) => {
-                    this.setPending(actionName, false);
+                    if(!config.getIn(['excludePending', actionName])) {
+                        this.setPending(actionProps.id, actionName, false);
+                    }
                     return result;
                 };
 
                 const endPendingError: Function = (result) => {
-                    this.setPending(actionName, false);
+                    this.setPending(actionProps.id, actionName, false);
                     throw result;
                 };
 
@@ -191,7 +216,7 @@ export default (userConfig: Object = {}): Function => {
 
                 const doNothing: Function = () => {};
 
-                const doSuccessAction: Function = this.getSuccessAction(config, actionName);
+                const doSuccessAction: Function = getSuccessAction(config, actionName);
 
                 const showSuccessPrompt: Function = (result) => {
                     return this.getPromptPromise(config, 'success', actionName, result)
@@ -220,80 +245,32 @@ export default (userConfig: Object = {}): Function => {
                     );
             }
 
-            getPreparedConfig(config): Object {
-                const immutableConfig = fromJS(config);
-                var callbacks: Object = {};
-
-                immutableConfig
-                    .get('callbacks')
-                    .reduce((callbacks: Object, callback: Function, key: string): Object => {
-
-                        // create arguments to be passed as config into each callback
-                        const callbackArgsWithSuper: Function = (_super: ?Function) => {
-                            return Map({
-                                    callbacks,
-                                    _super,
-                                    setEditorState: this.setEditorState()
-                                })
-                                .filter(ii => ii)
-                                .toObject();
-                        };
-
-                        // prepare object to pass as 'config' to every callback
-                        // first prepare every super call and recusively insert these into each other
-                        // so you can go config._super (and config._super._super) inside each
-                        const superCalls: List<Function> = immutableConfig.getIn(['_super', 'callbacks', key], List());
-                        const _super: Function = superCalls.reduce((reduction: ?Function, _super: Function) => {
-                            return _super(callbackArgsWithSuper(_super));
-                        });
-
-                        // partially apply the callbacks so they have knowledge of the full set of callbacks and any other config they're allowed to receive
-                        const partialCallback: Function = callback(callbackArgsWithSuper(_super));
-
-                        // if not a function then this callback hasnt been set up correctly, error out
-                        if(typeof partialCallback != "function") {
-                            throw `Entity Editor: callback "${key} must be a function that returns a 'callback' function, such as (config) => (callbackProps) => { /* return null, promise or false */ }"`;
-                        }
-
-                        // wrap partialCallback in a function that forces the callback to always return a promise
-                        callbacks[key] = (...args): Promise<*> => returnPromise(partialCallback(...args));
-                        return callbacks;
-
-                    }, callbacks);
-
-                return fromJS(config)
-                    .set('callbacks', callbacks)
-                    .toJS();
-            }
-
-            entityEditorProps(config: Object): Object {
-                const preparedConfig = this.getPreparedConfig(config);
-
+            entityEditorProps(config: EntityEditorConfig): Object {
                 // wrap each of the actions in prompts so they can handle confirmation, success and error
                 // also preload action props with their ids if required (such as with EntityEditorItem)
-                const actions: Object = fromJS(config)
+                const actions: Object = config
+                    .data()
                     .get('actions', Map())
                     .map((action: Function, actionName: string) => (actionProps: Object) => {
                         if(preloadActionIds) {
                             actionProps.id = preloadActionIds(this.props);
                         }
-                        return this.wrapActionWithPrompts(preparedConfig, action, actionName, actionProps);
+                        return this.wrapActionWithPrompts(
+                            config,
+                            action,
+                            actionName,
+                            actionProps
+                        );
                     })
                     .toJS();
 
-                // choose state vars to pass down in a state prop
-                // removed until use case is confirmed
-                // const state: Object = {
-                //    dirty: this.state.dirty
-                // };
-
                 // pending actions
-                const pending: Object = this.state.pending;
+                //const pending: Object = this.getPending;
 
-                var props = {
+                var props: Object = {
                     actions,
                     //state,
-                    pending
+                    pending: this.getPending
                 };
 
                 const {
@@ -308,7 +285,7 @@ export default (userConfig: Object = {}): Function => {
                 return props;
             }
 
-            renderPrompt(config) {
+            renderPrompt(config: EntityEditorConfig) {
                 const {
                     prompt,
                     promptOpen
@@ -316,8 +293,8 @@ export default (userConfig: Object = {}): Function => {
 
                 const promptAsProps: boolean = prompt && prompt.asProps;
                 const Message = prompt && prompt.message;
-                const Prompt = config.components.prompt;
-                const PromptContent = config.components.promptContent;
+                const Prompt = config.getIn(['components','prompt']);
+                const PromptContent = config.getIn(['components','promptContent']);
 
                 return <Prompt
                     {...prompt}
@@ -333,11 +310,13 @@ export default (userConfig: Object = {}): Function => {
             }
 
             render() {
-                const config: Object = mergeWithBaseConfig(this.context.entityEditorRoutes, userConfig);
+                const config: EntityEditorConfig = userConfig
+                    .merge(this.context.entityEditorRoutes.config);
+
                 const props: Object = {
                     ...this.props,
                     [entityEditorProp]: this.entityEditorProps(config),
-                    [entityEditorRoutesProp]: this.context.entityEditorRoutes
+                    [entityEditorRoutesProp]: this.context.entityEditorRoutes.props
                 };
 
                 return <div>

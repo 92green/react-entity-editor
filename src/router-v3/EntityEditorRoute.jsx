@@ -4,19 +4,23 @@ import React, {PropTypes} from 'react';
 import {withRouter} from 'react-router';
 import EntityEditorRouteHock from './EntityEditorRouteHock';
 
-function EntityEditorItemRoute(config: Object = {}): Function {
+function EntityEditorRoute(config: Object = {}): Function {
     const {
-        paramName = 'id'
+        basePath
     } = config;
+
+    const routePropOptions = {
+        basePath
+    };
 
     return (ComposedComponent: React.Element<any>) => {
 
-        class EntityEditorRouteItemWrapper extends EntityEditorRouteHock {
+        class EntityEditorRouteWrapper extends EntityEditorRouteHock {
 
             getChildContext() {
                 return {
                     entityEditorRoutes: {
-                        ...this.getRouteProps(),
+                        ...this.getRouteProps(routePropOptions),
                         onLeaveHook: this.onLeaveHook
                     }
                 };
@@ -24,29 +28,28 @@ function EntityEditorItemRoute(config: Object = {}): Function {
 
             render() {
                 const entityEditorRoutesProps: Object = {
-                    ...this.getRouteProps(),
-                    id: this.props.params[paramName]
+                    ...this.getRouteProps(routePropOptions).props
                 };
 
                 return <ComposedComponent
                     {...this.props}
-                    entityEditorRoutes={entityEditorRoutesProps}
+                    entityEditorRoutes={entityEditorRoutesProps.props}
                 />;
             }
         }
 
-        EntityEditorRouteItemWrapper.propTypes = {
+        EntityEditorRouteWrapper.propTypes = {
             routes: PropTypes.array.isRequired,
             params: PropTypes.object.isRequired,
             router: PropTypes.object
         };
 
-        EntityEditorRouteItemWrapper.childContextTypes = {
+        EntityEditorRouteWrapper.childContextTypes = {
             entityEditorRoutes: PropTypes.object
         };
 
-        return withRouter(EntityEditorRouteItemWrapper);
+        return withRouter(EntityEditorRouteWrapper);
     };
 }
 
-export default EntityEditorItemRoute;
+export default EntityEditorRoute;
