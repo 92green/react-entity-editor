@@ -245,7 +245,19 @@ export default (options: EntityEditorHockOptions): Function => {
                     );
             }
 
+            pendingProps(config: EntityEditorConfig): Function {
+                return (id: string) => {
+                    return config
+                        .get('actions')
+                        .map((action, actionName) => this.getPending(id, actionName))
+                        .toObject();
+                };
+            }
+
             entityEditorProps(config: EntityEditorConfig): Object {
+
+                const preloadedActionId: ?string = preloadActionIds && preloadActionIds(this.props);
+
                 // wrap each of the actions in prompts so they can handle confirmation, success and error
                 // also preload action props with their ids if required (such as with EntityEditorItem)
                 const actions: Object = config
@@ -253,7 +265,7 @@ export default (options: EntityEditorHockOptions): Function => {
                     .get('actions', Map())
                     .map((action: Function, actionName: string) => (actionProps: Object) => {
                         if(preloadActionIds) {
-                            actionProps.id = preloadActionIds(this.props);
+                            actionProps.id = preloadedActionId;
                         }
                         return this.wrapActionWithPrompts(
                             config,
@@ -265,13 +277,15 @@ export default (options: EntityEditorHockOptions): Function => {
                     .toJS();
 
                 // pending actions
-                //const pending: Object = this.getPending;
-
                 var props: Object = {
                     actions,
                     //state,
-                    pending: this.getPending
+                    pending: this.pendingProps(config)
                 };
+
+                if(preloadActionIds) {
+                    props.pending = props.pending(preloadedActionId);
+                }
 
                 const {
                     prompt,
