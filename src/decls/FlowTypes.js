@@ -3,7 +3,7 @@
 
 type Config = {
     actions: Object,
-    callbacks: Object,
+    operations: Object,
     prompts: {
         [key: string]: {
             confirm?: PromptConfig,
@@ -25,18 +25,12 @@ type PromptConfig = {
 
 type ActionConfig = {
     actions: Object,
-    callbacks: Object
+    operations: Object
 };
 
 type CallbackConfig = {
-    callbacks: Object,
+    operations: Object,
     setEditorState: Object
-};
-
-type AfterActionProps = {
-    result?: Object,
-    actionProps?: Object,
-    called?: string
 };
 
 // Promiseable is a type that includes everything that Utils.returnPromise() can accept
