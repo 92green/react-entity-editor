@@ -27,8 +27,6 @@ class Modal extends Component {
             open,
             title,
             no,
-            onYes,
-            onNo,
             classNames
         } = this.props;
 

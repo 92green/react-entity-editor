@@ -28,7 +28,7 @@ function DodosList(props) {
                         <td>{dodo.name}</td>
                         <td>{dodo.deadness}</td>
                         <td>
-                            <button className="Button Button-small" onClick={entityEditor.actions.goEdit.bind(this, {id})}>edit</button>
+                            <button className="Button Button-small" onClick={entityEditor.actions.goItem.bind(this, {id})}>edit</button>
                             <button className="Button Button-small" onClick={entityEditor.actions.delete.bind(this, {id, dispatch})}>delete</button>
                         </td>
                     </tr>;

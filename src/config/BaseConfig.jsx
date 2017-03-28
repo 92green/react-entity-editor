@@ -20,6 +20,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 error: {
                     type: "prompt",
                     prompt: ({item}) => ({
+                        title: "Error",
                         message: <span>An error has occurred, this {item} could not be loaded right now.</span>
                     })
                 }
@@ -107,6 +108,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 confirm: {
                     type: "prompt",
                     prompt: ({item}) => ({
+                        title: "Confirm",
                         message: <span>Are you sure you want to save this as a new {item}?</span>,
                         yes: `Save as new`,
                         no: `Cancel`
@@ -157,6 +159,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 confirm: {
                     type: "prompt",
                     prompt: ({item}) => ({
+                        title: "Confirm",
                         message: <span>Are you sure you want to delete this {item}?</span>,
                         yes: `Delete`,
                         no: `Cancel`

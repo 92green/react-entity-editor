@@ -2,6 +2,7 @@
 
 import React, {Component, PropTypes} from 'react';
 import {fromJS, Map, List} from 'immutable';
+import WorkflowHock from './workflow/WorkflowHock';
 import {EntityEditorConfig} from './config/EntityEditorConfig';
 import {returnPromise} from './Utils';
 
@@ -36,8 +37,8 @@ export default (options: EntityEditorHockOptions): Function => {
                 super(props);
                 this.state = {
                     dirty: false,
-                    prompt: null,
-                    promptOpen: false,
+                    /*prompt: null,
+                    promptOpen: false,*/
                     pending: {}
                 };
             }
@@ -61,7 +62,7 @@ export default (options: EntityEditorHockOptions): Function => {
             }*/
 
             componentWillUnmount(): void {
-                this.closePrompt();
+                //this.closePrompt();
             }
 
             /*shouldComponentUpdate(nextProps: Object, nextState: Object): boolean {
@@ -99,7 +100,7 @@ export default (options: EntityEditorHockOptions): Function => {
                 });
             }
 
-            openPrompt(prompt: Object): void {
+            /*openPrompt(prompt: Object): void {
                 this.setState({
                     prompt,
                     promptOpen: true
@@ -119,7 +120,7 @@ export default (options: EntityEditorHockOptions): Function => {
                 this.setState({
                     promptOpen: false
                 });
-            }
+            }*/
 
             getPromptPromise(config: EntityEditorConfig, type: string, actionName: string, payload: Object): Promise<*> {
                 var prompt: ?Object = config.prompt(actionName, type, this.getEditorState());
@@ -254,27 +255,56 @@ export default (options: EntityEditorHockOptions): Function => {
                 };
             }
 
+            setWorkflow(actionName: string, actionConfig: Object): void {
+                const workflow: Object = actionConfig.get('workflow');
+                if(!workflow) {
+                    throw new Error(`EntityEditor error: A workflow must be defined on the config object for ${actionName}`);
+                }
+
+                const nextSteps: Object = workflow
+                    .filter((value, key) => key != "task")
+                    .toJS();
+
+                this.props.setWorkflow({
+                    workflow: actionName,
+                    step: workflow.get("task"),
+                    nextSteps
+                });
+            }
+
             entityEditorProps(config: EntityEditorConfig): Object {
 
                 const preloadedActionId: ?string = preloadActionIds && preloadActionIds(this.props);
 
                 // wrap each of the actions in prompts so they can handle confirmation, success and error
                 // also preload action props with their ids if required (such as with EntityEditorItem)
+
+
                 const actions: Object = config
-                    .data()
                     .get('actions', Map())
-                    .map((action: Function, actionName: string) => (actionProps: Object) => {
+                    .map((actionConfig: Object, actionName: string) => (actionProps: Object) => {
                         if(preloadActionIds) {
                             actionProps.id = preloadedActionId;
                         }
+
+                        this.setWorkflow(actionName, actionConfig);
+                        /*
+
+                        return (...args) => {
+                            console.log(actionName, "!!!", args);
+                        };
+
+                        /*
                         return this.wrapActionWithPrompts(
                             config,
                             action,
                             actionName,
                             actionProps
-                        );
+                        );*/
                     })
                     .toJS();
+
+
 
                 // pending actions
                 var props: Object = {
@@ -301,23 +331,37 @@ export default (options: EntityEditorHockOptions): Function => {
 
             renderPrompt(config: EntityEditorConfig) {
                 const {
-                    prompt,
-                    promptOpen
-                } = this.state;
+                    workflow,
+                    step,
+                    nextSteps
+                } = this.props;
 
-                const promptAsProps: boolean = prompt && prompt.asProps;
-                const Message = prompt && prompt.message;
-                const Prompt = config.getIn(['components','prompt']);
-                const PromptContent = config.getIn(['components','promptContent']);
+                const task: Object = config.getIn(['actions', workflow, 'tasks', step]);
+                const promptOpen: boolean = task && task.get('type') == "prompt";
+                const prompt: ?Function = promptOpen && task.get('prompt');
+                var promptDetails: ?Object = null;
+
+                if(prompt) {
+                    promptDetails = prompt({item: "???", Item: "???"});
+                }
+
+                const Prompt: ReactClass<any> = config.getIn(['components', 'prompt']);
+                const PromptContent: ReactClass<any>  = config.getIn(['components', 'promptContent']);
+
+                console.log("nextSteps", nextSteps);
+                // TODO: setWorkflow
+
 
                 return <Prompt
-                    {...prompt}
-                    open={promptOpen && !promptAsProps}
-                    onRequestClose={this.closePrompt.bind(this)}
+                    {...promptDetails}
+                    open={promptOpen}
+                    onRequestClose={ii => console.log("...")}
+                    onYes={null}
+                    onNo={null}
                 >
                     {prompt &&
-                        <PromptContent {...prompt}>
-                            <Message {...prompt.item} />
+                        <PromptContent {...promptDetails}>
+                            {promptDetails && promptDetails.message}
                         </PromptContent>
                     }
                 </Prompt>
@@ -344,6 +388,7 @@ export default (options: EntityEditorHockOptions): Function => {
             entityEditorRoutes: PropTypes.object
         };
 
-        return EntityEditorHock;
+        const withWorkflowHock: Function = WorkflowHock();
+        return withWorkflowHock(EntityEditorHock);
     }
 };
