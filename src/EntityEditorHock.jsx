@@ -61,6 +61,17 @@ export default (options: EntityEditorHockOptions): Function => {
                 }
             }*/
 
+            componentWillReceiveProps(nextProps: Object): void {
+                const {task, name} = nextProps.workflow;
+                if(nextProps.workflow.task == "operation") {
+                    const taskFunction: Function = this.getWorkflowTask(task, name);
+                    if(typeof taskFunction != "function") {
+                        throw new Error(`Entity Editor: task of type "operation" must be a function`);
+                    }
+                    console.log("OPERATION!", taskFunction);
+                }
+            }
+
             componentWillUnmount(): void {
                 //this.closePrompt();
             }
@@ -98,6 +109,10 @@ export default (options: EntityEditorHockOptions): Function => {
                         {[`${id}|${actionName}`]: pending
                     })
                 });
+            }
+
+            getConfig(): EntityEditorConfig {
+                return userConfig.merge(this.context.entityEditorRoutes.config);
             }
 
             /*openPrompt(prompt: Object): void {
@@ -255,39 +270,43 @@ export default (options: EntityEditorHockOptions): Function => {
                 };
             }
 
-            setWorkflow(actionName: string, actionConfig: Object): void {
+            getWorkflowTask(task, name): any {
+                task = task || this.props.workflow.task;
+                name = name || this.props.workflow.name;
+                return this.getConfig().getIn(['actions', name, 'tasks', task]);
+            }
+
+            workflowStart(actionName: string, actionConfig: Object): void {
                 const workflow: Object = actionConfig.get('workflow');
                 if(!workflow) {
                     throw new Error(`EntityEditor error: A workflow must be defined on the config object for ${actionName}`);
                 }
-
-                const nextSteps: Object = workflow
-                    .filter((value, key) => key != "task")
-                    .toJS();
-
-                this.props.setWorkflow({
-                    workflow: actionName,
-                    step: workflow.get("task"),
-                    nextSteps
-                });
+                this.props.workflow.start(workflow.toJS(), actionName);
             }
 
-            entityEditorProps(config: EntityEditorConfig): Object {
+            workflowNext(nextTask: string): void {
+                this.props.workflow.next(nextTask);
+            }
 
+            workflowEnd(): void {
+                this.props.workflow.end();
+            }
+
+            entityEditorProps(): Object {
+                const config = this.getConfig();
                 const preloadedActionId: ?string = preloadActionIds && preloadActionIds(this.props);
 
                 // wrap each of the actions in prompts so they can handle confirmation, success and error
                 // also preload action props with their ids if required (such as with EntityEditorItem)
 
-
-                const actions: Object = config
+                const actions: Object = this.getConfig()
                     .get('actions', Map())
                     .map((actionConfig: Object, actionName: string) => (actionProps: Object) => {
                         if(preloadActionIds) {
                             actionProps.id = preloadedActionId;
                         }
 
-                        this.setWorkflow(actionName, actionConfig);
+                        this.workflowStart(actionName, actionConfig);
                         /*
 
                         return (...args) => {
@@ -329,16 +348,13 @@ export default (options: EntityEditorHockOptions): Function => {
                 return props;
             }
 
-            renderPrompt(config: EntityEditorConfig) {
-                const {
-                    workflow,
-                    step,
-                    nextSteps
-                } = this.props;
+            renderPrompt() {
+                const config = this.getConfig();
+                const {nextSteps} = this.props.workflow;
 
-                const task: Object = config.getIn(['actions', workflow, 'tasks', step]);
-                const promptOpen: boolean = task && task.get('type') == "prompt";
-                const prompt: ?Function = promptOpen && task.get('prompt');
+                const workflowTask: ?Object = this.getWorkflowTask();
+                const promptOpen: boolean = workflowTask && workflowTask.get('type') == "prompt";
+                const prompt: ?Function = promptOpen ? workflowTask.get('prompt') : null;
                 var promptDetails: ?Object = null;
 
                 if(prompt) {
@@ -348,16 +364,23 @@ export default (options: EntityEditorHockOptions): Function => {
                 const Prompt: ReactClass<any> = config.getIn(['components', 'prompt']);
                 const PromptContent: ReactClass<any>  = config.getIn(['components', 'promptContent']);
 
-                console.log("nextSteps", nextSteps);
-                // TODO: setWorkflow
+                console.log('nextSteps', nextSteps);
+
+                const onYes = () => {
+                    this.workflowNext("onYes");
+                };
+
+                const onNo = () => {
+                    this.workflowEnd();
+                };
+
 
 
                 return <Prompt
                     {...promptDetails}
                     open={promptOpen}
-                    onRequestClose={ii => console.log("...")}
-                    onYes={null}
-                    onNo={null}
+                    onYes={onYes}
+                    onNo={onNo}
                 >
                     {prompt &&
                         <PromptContent {...promptDetails}>
@@ -368,18 +391,15 @@ export default (options: EntityEditorHockOptions): Function => {
             }
 
             render() {
-                const config: EntityEditorConfig = userConfig
-                    .merge(this.context.entityEditorRoutes.config);
-
                 const props: Object = {
                     ...this.props,
-                    [entityEditorProp]: this.entityEditorProps(config),
+                    [entityEditorProp]: this.entityEditorProps(),
                     [entityEditorRoutesProp]: this.context.entityEditorRoutes.props
                 };
 
                 return <div>
                     <ComposedComponent {...props} />
-                    {this.renderPrompt(config)}
+                    {this.renderPrompt()}
                 </div>;
             }
         }

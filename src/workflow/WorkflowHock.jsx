@@ -7,36 +7,72 @@ export default (): Function => {
 
         class WorkflowDecorator extends Component {
 
+            // keep flow happy by specifying members mentioned in constructor
             state: Object;
+            workflowStart: Function;
+            workflowNext: Function;
+            workflowEnd: Function;
 
             constructor(props) {
                 super(props);
                 this.state = {
                     workflow: null,
-                    step: null,
-                    nextSteps: null
+                    name: null
                 };
 
-                this.setWorkflow = this.setWorkflow.bind(this);
+                this.workflowStart = this.workflowStart.bind(this);
+                this.workflowNext = this.workflowNext.bind(this);
+                this.workflowEnd = this.workflowEnd.bind(this);
             }
 
-            setWorkflow(options: Object): void {
-                const {workflow, step, nextSteps} = options;
+            workflowSet(options: Object): void {
+                const {workflow, name} = options;
                 this.setState({
                     workflow,
-                    step,
-                    nextSteps
+                    name
                 });
             }
 
+            workflowStart(workflow: Object, name: string): void {
+                this.workflowSet({
+                    workflow,
+                    name
+                });
+            }
+
+            workflowNext(nextStep: string): void {
+                if(nextStep == "task") {
+                    throw new Error(`Entity Editor error: "task" is not a valid nextStep.`);
+                }
+                if(!this.state.workflow.hasOwnProperty(nextStep)) {
+                    throw new Error(`Entity Editor error: "${nextStep}" is not a valid nextStep for the current workflow.`);
+                }
+                this.workflowSet({
+                    workflow: this.state.workflow[nextStep]
+                });
+            }
+
+            workflowEnd(): void {
+                this.workflowSet({});
+            }
+
             render(): React.Element<any> {
-                const {workflow, step, nextSteps} = this.state;
+                const {workflow, name} = this.state;
+                const task = workflow ? workflow.task : null;
+
+                var nextSteps = Object.assign({}, workflow);
+                delete nextSteps.task;
+
                 return <ComposedComponent
                     {...this.props}
-                    workflow={workflow}
-                    step={step}
-                    nextSteps={nextSteps || {}}
-                    setWorkflow={this.setWorkflow}
+                    workflow={{
+                        name,
+                        task,
+                        nextSteps,
+                        start: this.workflowStart,
+                        next: this.workflowNext,
+                        end: this.workflowEnd
+                    }}
                 />;
             }
         }
