@@ -33,7 +33,9 @@ function RouterConfigCreator(): EntityEditorConfig {
                         type: "prompt",
                         prompt: ({item}) => ({
                             title: "Confirm",
-                            message: <span>Ready set go.</span>
+                            message: <span>Ready set go.</span>,
+                            yes: "Yes",
+                            no: "Cancel"
                         })
                     }
                 }
@@ -57,7 +59,9 @@ function RouterConfigCreator(): EntityEditorConfig {
                         type: "prompt",
                         prompt: ({item}) => ({
                             title: "Confirm",
-                            message: <span>Ready set go.</span>
+                            message: <span>Ready set go.</span>,
+                            yes: "Yes",
+                            no: "Cancel"
                         })
                     }
                 }
@@ -78,7 +82,9 @@ function RouterConfigCreator(): EntityEditorConfig {
                         type: "prompt",
                         prompt: ({item}) => ({
                             title: "Confirm",
-                            message: <span>Ready set go.</span>
+                            message: <span>Ready set go.</span>,
+                            yes: "Yes",
+                            no: "Cancel"
                         })
                     }
                 }
