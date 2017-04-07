@@ -40,39 +40,24 @@ class CatsItemForm extends Component {
         // the id is provided by the cat
         // keep in mind that when making a new cat this.props.cat wont exist yet
         const id = this.props.cat ? this.props.cat.id : null;
-        const catModifier = this.props.catModifier;
         // when saving, the data to save should be on a property called payload
         const payload = this.state.form;
 
         // call the entity editor action, passing in:
         // + the id (which wont exist for new items)
         // + the payload containing the updated dog
-        // + the catModifier
-        // + an optional onSuccess function, which will be called immediately after the action has succeeded
-        save({
-            id,
-            payload,
-            catModifier,
-            onSuccess: () => {
-                // on success, mark the form as being clean and up-to-date with underlying data
-                this.setState({dirty: false});
-                this.props.entityEditor.actions.dirty({dirty: false});
-            }
-        });
+        save({id, payload});
     }
 
     delete() {
         const del = this.props.entityEditor.actions.delete;
         const id = this.props.cat.id;
-        const catModifier = this.props.catModifier;
-        del({
-            id,
-            catModifier
-        });
+        del({id});
     }
 
     render() {
         const {entityEditor} = this.props;
+        console.log(entityEditor);
 
         return <div>
             <div className="InputRow">
@@ -96,6 +81,7 @@ class CatsItemForm extends Component {
             {<button className="Button" onClick={this.delete} disabled={!this.props.cat || entityEditor.pending.delete}>Delete</button>}
             {entityEditor.pending.save && <em>Saving...</em>}
             {entityEditor.pending.delete && <em>Deleting...</em>}
+            {entityEditor.prompt && entityEditor.prompt.title}
         </div>;
     }
 }

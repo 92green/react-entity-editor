@@ -3,6 +3,7 @@
 import React, {Component, PropTypes} from 'react';
 import {Map} from 'immutable';
 import WorkflowHock from './workflow/WorkflowHock';
+import ModalContainer from './modal/ModalContainer';
 import {EntityEditorConfig} from './config/EntityEditorConfig';
 import {returnPromise} from './Utils';
 
@@ -32,8 +33,6 @@ export default (options: EntityEditorHockOptions): Function => {
             state: Object;
             onOperationSuccess: Function;
             onOperationError: Function;
-            promptOnYes: Function;
-            promptOnNo: Function;
             componentIsMounted: boolean;
 
             constructor(props: Object): void {
@@ -45,8 +44,6 @@ export default (options: EntityEditorHockOptions): Function => {
                 };
                 this.onOperationSuccess = this.onOperationSuccess.bind(this);
                 this.onOperationError = this.onOperationError.bind(this);
-                this.promptOnYes = this.promptOnYes.bind(this);
-                this.promptOnNo = this.promptOnNo.bind(this);
             }
 
             /*
@@ -170,14 +167,19 @@ export default (options: EntityEditorHockOptions): Function => {
                 // create mutable operations object with the aim of passing a reference to it into each partial application
                 var mutableOperations: Object = {};
 
+                // get additional operations props passed through config, and make them all return promises
+                const additional: Object = Map(additionalOperationProps(props))
+                    .map(fn => (...args) => returnPromise(fn(...args)))
+                    .toObject();
+
                 operations.forEach((operation: Function, key: string) => {
 
                     // create operationsProps object to be passed into the first operation function
                     // it will contain a reference to mutableOperations which will be updated each iteration
                     const operationProps: Object = Map({
-                        ...additionalOperationProps(props),
+                        ...additional,
                         operations: mutableOperations,
-                        setEditorState: this.setEditorState() // TODO is this named correctly?
+                        setEditorState: this.setEditorState()
                     })
                         .filter(ii => ii)
                         .toObject();
@@ -230,76 +232,40 @@ export default (options: EntityEditorHockOptions): Function => {
             }
 
             /*
-             * prompts
-             */
-
-            renderPrompt() {
-                const {task, name} = this.props.workflow;
-                const workflowTask: ?Object = userConfig.getWorkflowTask(task, name);
-                const promptOpen: boolean = !!workflowTask && workflowTask.get('type') == "prompt";
-                const prompt: ?Function = promptOpen && workflowTask ? workflowTask.get('prompt') : null;
-                var promptDetails: ?Object = null;
-
-                if(prompt) {
-                    const promptProps: Object = {
-                        editorState: this.getEditorState(),
-                        ...userConfig.itemNames()
-                    };
-                    promptDetails = prompt(promptProps);
-                }
-
-                const Prompt: ReactClass<any> = userConfig.getIn(['components', 'prompt']);
-                const PromptContent: ReactClass<any>  = userConfig.getIn(['components', 'promptContent']);
-
-                return <Prompt
-                    {...promptDetails}
-                    open={promptOpen}
-                    onYes={this.promptOnYes}
-                    onNo={this.promptOnNo}
-                >
-                    {prompt &&
-                        <PromptContent {...promptDetails}>
-                            {promptDetails && promptDetails.message}
-                        </PromptContent>
-                    }
-                </Prompt>
-            }
-
-            promptOnYes(): void {
-                this.props.workflow.next("onYes", this.props.workflow.end);
-            }
-
-            promptOnNo(): void {
-                this.props.workflow.next("onNo", this.props.workflow.end);
-            }
-
-            /*
              * prop calculation
              */
 
-            entityEditorProps(): Object {
-                const config = userConfig;
-
-                // wrap each of the actions in prompts so they can handle confirmation, success and error
-                // also preload action props with their ids if required (such as with EntityEditorItem)
+            entityEditorProps(promptProps: Object): Object {
+                const {
+                    workflow: {
+                        task,
+                        name
+                    }
+                } = this.props;
 
                 const actions: Object = userConfig
                     .get('actions', Map())
                     .map((actionConfig: Object, actionName: string) => (actionProps: Object) => {
-                        //console.log(actionConfig);
-                        //this.operation();
-                        // THIS SHIT NEEDS TO HAPPEN IN COMPONENT WILL RECEIVE PROPS
                         this.workflowStart(actionName, actionConfig, actionProps);
                     })
                     .toJS();
 
-                const prompt: Object = {};
+                const workflowTask: ?Object = userConfig.getWorkflowTask(task, name);
+                const promptAsProps: boolean = !!workflowTask
+                    && workflowTask.get('type') == "prompt"
+                    && workflowTask.get('style') == "props";
+
+                const prompt: ?Object = promptAsProps && workflowTask
+                    ? workflowTask.get('prompt')(promptProps)
+                    : null;
+
+                const pending: Object = {}; // TODOthis.pendingProps(config)
 
                 // pending actions
                 var props: Object = {
                     actions,
                     prompt,
-                    pending: {} // TODOthis.pendingProps(config)
+                    pending
                 };
 
                 return props;
@@ -310,14 +276,26 @@ export default (options: EntityEditorHockOptions): Function => {
              */
 
             render() {
+                const {workflow} = this.props;
+                const promptProps: Object = {
+                    editorState: this.getEditorState(),
+                    ...userConfig.itemNames()
+                };
+
                 const props: Object = {
                     ...this.props,
-                    [entityEditorProp]: this.entityEditorProps()
+                    [entityEditorProp]: this.entityEditorProps(promptProps)
                 };
 
                 return <div>
-                    <ComposedComponent {...props} />
-                    {this.renderPrompt()}
+                    <ComposedComponent
+                        {...props}
+                    />
+                    <ModalContainer
+                        workflow={workflow}
+                        userConfig={userConfig}
+                        promptProps={promptProps}
+                    />
                 </div>;
             }
         }

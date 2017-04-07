@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, PropTypes } from 'react';
+import React, {Component, PropTypes} from 'react';
 import ReactModal from 'react-modal';
 
 class Modal extends Component {

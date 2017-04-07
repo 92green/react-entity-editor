@@ -40,7 +40,9 @@ export default (): Function => {
                 this.onCreate = this.onCreate.bind(this);
                 this.onUpdate = this.onUpdate.bind(this);
                 this.onDelete = this.onDelete.bind(this);
-                // this.onCreateAsync = this.onCreateAsync.bind(this);
+                this.onCreateAsync = this.onCreateAsync.bind(this);
+                this.onUpdateAsync = this.onUpdateAsync.bind(this);
+                this.onDeleteAsync = this.onDeleteAsync.bind(this);
             }
 
             // onGet(id) {
@@ -71,6 +73,8 @@ export default (): Function => {
                 this.setState({
                     cats: [...cats, newCat]
                 });
+
+                return newCat;
             }
 
             onUpdate(id, payload) {
@@ -84,33 +88,62 @@ export default (): Function => {
                     return;
                 }
 
-                var newCats = cats.slice();
-                newCats[catIndex] = {
+                const newCat = {
                     ...payload,
                     id
                 };
 
+                var newCats = cats.slice();
+                newCats[catIndex] = newCat;
+
                 this.setState({
                     cats: newCats
                 });
+
+                return newCat;
             }
 
             onDelete(id) {
-                console.log('cat state: delete cat', id, this);
+                console.log('cat state: delete cat', id);
                 const {cats} = this.state;
+                const catIndex = cats
+                    .map(cat => cat.id)
+                    .indexOf(id);
+
+                if(catIndex == -1) {
+                    return;
+                }
+
+                var newCats = cats.slice();
+                newCats.splice(catIndex, 1);
+
                 this.setState({
-                    cats: cats.splice(id, 1)
+                    cats: newCats
                 });
+
+                return {id};
             }
 
-            // onCreateAsync(payload) {
-            //     return new Promise((resolve) => {
-            //         setTimeout(() => {
+            onCreateAsync(payload) {
+                return this.fakeAsync(this.onCreate, [payload]);
+            }
 
-            //             resolve();
-            //         }, 500);
-            //     });
-            // }
+            onUpdateAsync(id, payload) {
+                return this.fakeAsync(this.onUpdate, [id, payload]);
+            }
+
+            onDeleteAsync(id) {
+                return this.fakeAsync(this.onDelete, [id]);
+            }
+
+            fakeAsync(callback, args) {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        callback(...args);
+                        resolve();
+                    }, 500);
+                });
+            }
 
             render(): React.Element<any> {
                 return <ComposedComponent
@@ -121,6 +154,9 @@ export default (): Function => {
                     onCreate={this.onCreate}
                     onUpdate={this.onUpdate}
                     onDelete={this.onDelete}
+                    onCreateAsync={this.onCreateAsync}
+                    onUpdateAsync={this.onUpdateAsync}
+                    onDeleteAsync={this.onDeleteAsync}
                 />;
             }
         }

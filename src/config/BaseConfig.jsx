@@ -19,6 +19,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             tasks: {
                 error: {
                     type: "prompt",
+                    style: "modal",
                     prompt: ({item}) => ({
                         title: "Error",
                         message: <span>An error has occurred, this {item} could not be loaded right now.</span>
@@ -31,6 +32,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             tasks: {
                 error: {
                     type: "prompt",
+                    style: "modal",
                     prompt: ({item}) => ({
                         title: "Error",
                         message: ({items}) => <span>An error has occurred, these {items} could not be loaded right now.</span>
@@ -58,24 +60,28 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                         if(!actionProps.payload) {
                             throw `EntityEditor: config.actions.save: actionProps.payload is not defined`;
                         }
-                        console.log('actionProps', actionProps)
-
                         if(actionProps.id) {
-                            return operations.onUpdate(actionProps);
+                            return operations
+                                .onUpdate(actionProps)
+                                .then(() => operations.onDirty({dirty: false}));
                         }
-                        return operations.onCreate(actionProps);
+                        return operations
+                            .onCreate(actionProps)
+                            .then(() => operations.onDirty({dirty: false}));
                     }
                 },
                 success: {
                     type: "prompt",
+                    style: "modal",
                     prompt: ({Item}) => ({
-                        title: "Success",
+                        title: "Saved",
                         message: <span>{Item} saved.</span>,
                         yes: "Okay"
                     })
                 },
                 error: {
                     type: "prompt",
+                    style: "modal",
                     prompt: ({item}) => ({
                         title: "Error",
                         message: <span>An error has occurred, this {item} could not be saved right now.</span>,
@@ -107,11 +113,14 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                         if(!actionProps.payload) {
                             throw `EntityEditor: config.actions.saveNew: actionProps.payload is not defined`;
                         }
-                        return operations.onCreate(actionProps);
+                        return operations
+                            .onCreate(actionProps)
+                            .then(() => operations.onDirty({dirty: false}));
                     }
                 },
                 confirm: {
                     type: "prompt",
+                    style: "modal",
                     prompt: ({item}) => ({
                         title: "Confirm",
                         message: <span>Are you sure you want to save this as a new {item}?</span>,
@@ -121,14 +130,16 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 },
                 success: {
                     type: "prompt",
+                    style: "modal",
                     prompt: ({item}) => ({
-                        title: "Success",
+                        title: "Saved",
                         message: <span>New {item} saved.</span>,
                         yes: "Okay"
                     })
                 },
                 error: {
                     type: "prompt",
+                    style: "modal",
                     prompt: ({item}) => ({
                         title: "Error",
                         message: <span>An error has occurred, this {item} could not be saved right now.</span>,
@@ -162,11 +173,14 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                         if(!actionProps.id) {
                             throw `EntityEditor: config.actions.delete: actionProps.id is not defined`;
                         }
-                        return operations.onDelete(actionProps);
+                        return operations
+                            .onDelete(actionProps)
+                            .then(() => operations.onDirty({dirty: false}));
                     }
                 },
                 confirm: {
                     type: "prompt",
+                    style: "modal",
                     prompt: ({item}) => ({
                         title: "Confirm",
                         message: <span>Are you sure you want to delete this {item}?</span>,
@@ -176,14 +190,16 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 },
                 success: {
                     type: "prompt",
+                    style: "modal",
                     prompt: ({Item}) => ({
-                        title: "Success",
+                        title: "Deleted",
                         message: <span>{Item} deleted.</span>,
                         yes: "Okay"
                     })
                 },
                 error: {
                     type: "prompt",
+                    style: "modal",
                     prompt: ({item}) => ({
                         title: "Error",
                         message: <span>An error has occurred, this {item} could not be deleted right now.</span>,
@@ -206,11 +222,14 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 operate: {
                     type: "operate",
                     operate: ({operations}) => (actionProps: Object) => {
-                        return operations.onGo(actionProps);
+                        return operations
+                            .onGo(actionProps)
+                            .then(() => operations.onDirty({dirty: false}));
                     }
                 },
                 confirm: {
                     type: "prompt",
+                    style: "modal",
                     skip: ({editorState}) => editorState.dirty ? null : "onYes",
                     prompt: () => ({
                         title: "Unsaved changes",
@@ -221,7 +240,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 }
             }
         },
-        dirty: { // WATCH OUT FOR RERENDERS CAUSED BY THIS!!!
+        dirty: {
             description: "Sets the 'dirty' state of the editor. The editor is dirty when there are unsaved changes.",
             workflow: {
                 task: "operate"

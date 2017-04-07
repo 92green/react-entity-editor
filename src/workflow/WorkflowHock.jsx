@@ -31,7 +31,6 @@ export default (): Function => {
              */
 
             workflowSet(options: Object): void {
-                console.log('workflowSet', options);
                 const {workflow, name, meta} = options;
                 this.setState({
                     workflow,
@@ -41,6 +40,9 @@ export default (): Function => {
             }
 
             workflowStart(workflow: Object, name: string, meta: Object = {}): void {
+                if(this.state.workflow) {
+                    return;
+                }
                 this.workflowSet({
                     workflow,
                     name,
