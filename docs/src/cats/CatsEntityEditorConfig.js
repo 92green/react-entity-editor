@@ -5,18 +5,17 @@ const CatsEntityEditorConfig = BaseConfig.merge({
         single: "cat"
     },
     operations: {
-        onCreate: () => ({payload, catModifier}) => {
-            // catModifier methods return a promise, so make sure you return it
-            return catModifier.create(payload);
+        onCreate: ({onCreateCat}) => ({payload}) => {
+            return onCreateCat(payload);
         },
-        onUpdate: () => ({id, payload, catModifier}) => {
-            return catModifier.update(id, payload);
+        onUpdate: ({onUpdateCat}) => ({id, payload}) => {
+            return onUpdateCat(id, payload);
         },
-        onDelete: () => ({id, catModifier}) => {
-            return catModifier.delete(id);
+        onDelete: ({onDeleteCat}) => ({id}) => {
+            return onDeleteCat(id);
         },
-        onGo: () => ({id, name, onGo}) => {
-            onGo({id, name});
+        onGo: ({onGoCat}) => ({id, name}) => {
+            return onGoCat({id, name});
         }
     }
 });

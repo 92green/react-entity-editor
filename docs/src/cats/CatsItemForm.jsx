@@ -1,7 +1,4 @@
 import React, {Component} from 'react';
-import {EntityEditorList} from 'react-entity-editor';
-
-import CatsEntityEditorConfig from './CatsEntityEditorConfig';
 
 class CatsItemForm extends Component {
 
@@ -75,10 +72,7 @@ class CatsItemForm extends Component {
     }
 
     render() {
-        const {
-            onGo,
-            entityEditor
-        } = this.props;
+        const {entityEditor} = this.props;
 
         return <div>
             <div className="InputRow">
@@ -97,7 +91,7 @@ class CatsItemForm extends Component {
                     id="toy"
                 />
             </div>
-            <button className="Button Button-grey" onClick={entityEditor.actions.go.bind(this, {name: "list", onGo})}>Back</button>
+            <button className="Button Button-grey" onClick={entityEditor.actions.go.bind(this, {name: "list"})}>Back</button>
             <button className="Button" onClick={this.save} disabled={entityEditor.pending.save}>Save</button>
             {<button className="Button" onClick={this.delete} disabled={!this.props.cat || entityEditor.pending.delete}>Delete</button>}
             {entityEditor.pending.save && <em>Saving...</em>}
@@ -108,7 +102,4 @@ class CatsItemForm extends Component {
 
 // TODO  props validation
 
-// the CatsItemForm component must be decorated by the EntityEditorList higher order component
-// TODO DONT USE LIST
-const withEntityEditor = EntityEditorList(CatsEntityEditorConfig);
-export default withEntityEditor(CatsItemForm);
+export default CatsItemForm;

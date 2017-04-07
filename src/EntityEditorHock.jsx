@@ -13,16 +13,17 @@ type PropNames = {
 
 type EntityEditorHockOptions = {
     config: EntityEditorConfig,
+    operationProps: Function,
     propNames?: PropNames
 };
 
 export default (options: EntityEditorHockOptions): Function => {
-    const {
-        config: userConfig,
-        propNames = {}
-    } = options;
+    const userConfig: EntityEditorConfig = options.config;
+    const additionalOperationProps: Function = options.operationProps
+        ? options.operationProps
+        : () => {};
 
-    const entityEditorProp = propNames.entityEditor || "entityEditor";
+    const entityEditorProp: string = (options.propNames && options.propNames.entityEditor) || "entityEditor";
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
@@ -80,7 +81,7 @@ export default (options: EntityEditorHockOptions): Function => {
                     const taskType: string = workflowTask.get('type');
                     if(taskType == "operate") {
                         const taskFunction: Function = workflowTask.get('operate');
-                        this.operate(taskFunction, nextProps.workflow);
+                        this.operate(taskFunction, nextProps.workflow, nextProps);
                     }
                 }
             }
@@ -142,15 +143,17 @@ export default (options: EntityEditorHockOptions): Function => {
              * operate
              */
 
-            operate(operateFunction: Function, nextWorkflow: Object) {
+            operate(operateFunction: Function, nextWorkflow: Object, props: Object) {
                 if(typeof operateFunction != "function") {
                     throw new Error(`Entity Editor: task of type "operate" must be a function`);
                 }
 
                 const originalOperations: Map<string, Function> = userConfig.get('operations');
-                const partiallyAppliedOperations: Map<string, Function> = this.partiallyApplyOperations(originalOperations);
+                const partiallyAppliedOperations: Map<string, Function> = this.partiallyApplyOperations(originalOperations, props);
 
                 const {actionProps} = nextWorkflow.meta;
+
+                // TODO ambigious duplocate function call!
                 const partiallyAppliedOperateFunction: Function = operateFunction({
                     operations: partiallyAppliedOperations.toObject(),
                     editorState: this.getEditorState()
@@ -163,7 +166,7 @@ export default (options: EntityEditorHockOptions): Function => {
                     .then(this.onOperationSuccess(actionProps), this.onOperationError(actionProps));
             }
 
-            partiallyApplyOperations(operations: Map<string,Function>): Map<string,Function> {
+            partiallyApplyOperations(operations: Map<string,Function>, props: Object): Map<string,Function> {
                 // create mutable operations object with the aim of passing a reference to it into each partial application
                 var mutableOperations: Object = {};
 
@@ -172,6 +175,7 @@ export default (options: EntityEditorHockOptions): Function => {
                     // create operationsProps object to be passed into the first operation function
                     // it will contain a reference to mutableOperations which will be updated each iteration
                     const operationProps: Object = Map({
+                        ...additionalOperationProps(props),
                         operations: mutableOperations,
                         setEditorState: this.setEditorState() // TODO is this named correctly?
                     })

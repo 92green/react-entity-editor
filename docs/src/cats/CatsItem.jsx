@@ -3,9 +3,7 @@ import {ApiSync} from '../api/Api';
 import CatsItemForm from './CatsItemForm';
 
 function CatsItem(props) {
-    const {cat, onGo, catModifier} = props;
-
-    console.log("CatsItem cat", cat);
+    const {cat, entityEditor} = props;
 
     // todo get name from ee
 
@@ -13,8 +11,7 @@ function CatsItem(props) {
         <h3>{cat ? "Edit" : "New"} cat</h3>
         <CatsItemForm
             cat={cat}
-            onGo={onGo}
-            catModifier={catModifier}
+            entityEditor={entityEditor}
         />
     </div>;
 }
