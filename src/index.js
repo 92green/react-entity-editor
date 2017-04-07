@@ -1,23 +1,20 @@
 import EntityEditorConfig from './config/EntityEditorConfig';
 import BaseConfig from './config/BaseConfig';
-import EntityEditorItem from './EntityEditorItem';
-import EntityEditorList from './EntityEditorList';
-import EntityEditorLoader from './EntityEditorLoader';
-import createEditorRoutes from './router/createEditorRoutes';
-import EntityEditorRoute from './router/EntityEditorRoute';
-import EntityEditorItemRoute from './router/EntityEditorItemRoute';
+import EntityEditorHock from './EntityEditorHock';
+import EntityEditorItem from './EntityEditorItem'; // TODO remove
+import EntityEditorList from './EntityEditorList'; // TODO remove
+
+import ModalHock from './modal/ModalHock';
 import Modal from './modal/Modal';
 import ModalContent from './modal/ModalContent';
 
 export {
   EntityEditorConfig,
   BaseConfig,
+  EntityEditorHock,
   EntityEditorItem,
   EntityEditorList,
-  EntityEditorLoader,
-  EntityEditorRoute,
-  EntityEditorItemRoute,
+  ModalHock,
   Modal,
-  ModalContent,
-  createEditorRoutes
+  ModalContent
 }

@@ -12,9 +12,10 @@ export default (props) => {
             <li className="Content_item">
                 <ul className="Content_section">
                     <li className="Content_item"><Link to="/">react-entity-editor</Link></li>
-                    <li className="Content_item"><Link to="/dogs">standard demo (with dogs)</Link></li>
+                    <li className="Content_item"><Link to="/cats">manual demo (with cats)</Link></li>
+                    {/*<li className="Content_item"><Link to="/dogs">standard demo (with dogs)</Link></li>
                     <li className="Content_item"><Link to="/sloths">loaders (with sloths)</Link></li>
-                    <li className="Content_item"><Link to="/dodos">errors (with dodos)</Link></li>
+                    <li className="Content_item"><Link to="/dodos">errors (with dodos)</Link></li>*/}
                 </ul>
             </li>
 

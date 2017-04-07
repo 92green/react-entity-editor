@@ -61,7 +61,10 @@ class EntityEditorRouteHock extends Component {
             props: {
                 paths
             },
-            config: RouterConfigCreator()
+            config: RouterConfigCreator({
+                router,
+                paths
+            })
         };
     }
 }

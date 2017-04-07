@@ -17,7 +17,8 @@ export default (): Function => {
                 super(props);
                 this.state = {
                     workflow: null,
-                    name: null
+                    name: null,
+                    meta: null
                 };
 
                 this.workflowStart = this.workflowStart.bind(this);
@@ -25,30 +26,50 @@ export default (): Function => {
                 this.workflowEnd = this.workflowEnd.bind(this);
             }
 
+            /*
+             * workflow
+             */
+
             workflowSet(options: Object): void {
-                const {workflow, name} = options;
+                console.log('workflowSet', options);
+                const {workflow, name, meta} = options;
                 this.setState({
                     workflow,
-                    name
+                    name,
+                    meta
                 });
             }
 
-            workflowStart(workflow: Object, name: string): void {
+            workflowStart(workflow: Object, name: string, meta: Object = {}): void {
                 this.workflowSet({
                     workflow,
-                    name
+                    name,
+                    meta
                 });
             }
 
-            workflowNext(nextStep: string): void {
-                if(nextStep == "task") {
-                    throw new Error(`Entity Editor error: "task" is not a valid nextStep.`);
+            workflowNext(nextStep: string, fallback: ?Function): void {
+                const {workflow} = this.state;
+                if(!workflow.next) {
+                    if(fallback) {
+                        fallback(nextStep);
+                        return;
+                    }
+                    throw new Error(`Entity Editor error: cannot go to next step, "${this.state.name}" does not have a "next" object.`);
                 }
-                if(!this.state.workflow.hasOwnProperty(nextStep)) {
-                    throw new Error(`Entity Editor error: "${nextStep}" is not a valid nextStep for the current workflow.`);
+
+                if(!workflow.next.hasOwnProperty(nextStep)) {
+                    if(fallback) {
+                        fallback(nextStep);
+                        return;
+                    }
+                    throw new Error(`Entity Editor error: "${nextStep}" is not a valid nextStep, and no fallback is provided.`);
                 }
+
                 this.workflowSet({
-                    workflow: this.state.workflow[nextStep]
+                    workflow: workflow.next[nextStep],
+                    name: this.state.name,
+                    meta: this.state.meta
                 });
             }
 
@@ -56,8 +77,12 @@ export default (): Function => {
                 this.workflowSet({});
             }
 
+            /*
+             * render
+             */
+
             render(): React.Element<any> {
-                const {workflow, name} = this.state;
+                const {workflow, name, meta} = this.state;
                 const task = workflow ? workflow.task : null;
 
                 var nextSteps = Object.assign({}, workflow);
@@ -67,6 +92,7 @@ export default (): Function => {
                     {...this.props}
                     workflow={{
                         name,
+                        meta: meta || {},
                         task,
                         nextSteps,
                         start: this.workflowStart,

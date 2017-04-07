@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, {Component, PropTypes} from 'react';
-import {fromJS, Map, List} from 'immutable';
+import {Map} from 'immutable';
 import WorkflowHock from './workflow/WorkflowHock';
 import {EntityEditorConfig} from './config/EntityEditorConfig';
 import {returnPromise} from './Utils';
@@ -13,73 +13,85 @@ type PropNames = {
 
 type EntityEditorHockOptions = {
     config: EntityEditorConfig,
-    preloadActionIds?: Function,
     propNames?: PropNames
 };
 
 export default (options: EntityEditorHockOptions): Function => {
     const {
         config: userConfig,
-        preloadActionIds,
         propNames = {}
     } = options;
 
     const entityEditorProp = propNames.entityEditor || "entityEditor";
-    const entityEditorRoutesProp = propNames.entityEditorRoutes || "entityEditorRoutes";
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
         class EntityEditorHock extends Component {
 
             state: Object;
+            onOperationSuccess: Function;
+            onOperationError: Function;
+            promptOnYes: Function;
+            promptOnNo: Function;
+            componentIsMounted: boolean;
 
             constructor(props: Object): void {
                 super(props);
+                this.componentIsMounted = false;
                 this.state = {
                     dirty: false,
-                    /*prompt: null,
-                    promptOpen: false,*/
                     pending: {}
                 };
+                this.onOperationSuccess = this.onOperationSuccess.bind(this);
+                this.onOperationError = this.onOperationError.bind(this);
+                this.promptOnYes = this.promptOnYes.bind(this);
+                this.promptOnNo = this.promptOnNo.bind(this);
             }
 
-            /*componentWillMount() {
-                const {
-                    entityEditorRoutes: {
-                        onLeaveHook
-                    }
-                } = this.context;
+            /*
+             * React lifecycle
+             */
 
-                if(onLeaveHook) {
-                    onLeaveHook((a,b) => {
-                        if(this.allowLeave) {
-                            return true;
-                        }
-                        try a generic "go" action
-                        return false;
-                    });
-                }
-            }*/
+            componentWillMount() {
+                this.componentIsMounted = true;
+            }
 
             componentWillReceiveProps(nextProps: Object): void {
-                const {task, name} = nextProps.workflow;
-                if(nextProps.workflow.task == "operation") {
-                    const taskFunction: Function = this.getWorkflowTask(task, name);
-                    if(typeof taskFunction != "function") {
-                        throw new Error(`Entity Editor: task of type "operation" must be a function`);
+                const {task, name, end} = nextProps.workflow;
+                const workflowTask: ?Map<string, any> = userConfig.getWorkflowTask(task, name);
+
+                // if changing to a new task...
+                if(workflowTask && this.props.workflow.task !== nextProps.workflow.task) {
+
+                    // if skip() exists for this task and returns a string, then go there
+                    const skip: Function = workflowTask.get('skip');
+                    if(skip) {
+                        const skipProps: Object = {
+                            editorState: this.getEditorState()
+                        };
+                        const skipTo: ?string = skip(skipProps);
+                        if(skipTo && typeof skipTo == "string") {
+                            this.props.workflow.next(skipTo, end);
+                            return;
+                        }
                     }
-                    console.log("OPERATION!", taskFunction);
+
+                    // if a task type has something to do onEnter, do it here...
+                    const taskType: string = workflowTask.get('type');
+                    if(taskType == "operate") {
+                        const taskFunction: Function = workflowTask.get('operate');
+                        this.operate(taskFunction, nextProps.workflow);
+                    }
                 }
             }
 
-            componentWillUnmount(): void {
-                //this.closePrompt();
+            componentWillUnmount() {
+                this.componentIsMounted = false;
             }
 
-            /*shouldComponentUpdate(nextProps: Object, nextState: Object): boolean {
-                return fromJS(this.props).equals(fromJS(nextProps))
-                    || fromJS(this.state).equals(fromJS(nextState));
-            }*/
+            /*
+             * editor state
+             */
 
             getEditorState(): Object {
                 return {
@@ -97,6 +109,12 @@ export default (options: EntityEditorHockOptions): Function => {
                 };
             }
 
+            /*
+             * pending
+             */
+
+             // TODO FIX THIS
+
             getPending(id: string, actionName: string): boolean {
                 return !!this.state.pending[`${id}|${actionName}`];
             }
@@ -111,156 +129,6 @@ export default (options: EntityEditorHockOptions): Function => {
                 });
             }
 
-            getConfig(): EntityEditorConfig {
-                return userConfig.merge(this.context.entityEditorRoutes.config);
-            }
-
-            /*openPrompt(prompt: Object): void {
-                this.setState({
-                    prompt,
-                    promptOpen: true
-                });
-            }
-
-            closePrompt() {
-                const{
-                    prompt,
-                    promptOpen
-                } = this.state;
-
-                if(!prompt || !promptOpen) {
-                    return;
-                }
-
-                this.setState({
-                    promptOpen: false
-                });
-            }*/
-
-            getPromptPromise(config: EntityEditorConfig, type: string, actionName: string, payload: Object): Promise<*> {
-                var prompt: ?Object = config.prompt(actionName, type, this.getEditorState());
-                if(!prompt) {
-                    return new Promise(resolve => resolve(payload));
-                }
-
-                return new Promise((resolve, reject) => {
-                    prompt.onYes = () => resolve(payload);
-                    prompt.onNo = () => reject(payload);
-                    prompt.payload = payload;
-                    this.openPrompt(prompt);
-                });
-            }
-
-            wrapActionWithPrompts(config: EntityEditorConfig, action: Function, actionName: string, actionProps: Object): Function {
-
-                // partially apply actions, giving it a subset of config (at this point only operations are provided)
-                const partialAction: Function = action({
-                    operations: config.partiallyApplyOperations({
-                        setEditorState: this.setEditorState()
-                    })
-                });
-
-                if(typeof partialAction != "function") {
-                    throw `Entity Editor: action "${actionName} must be a function that returns an action function, such as (config) => (actionProps) => { /* return null, promise or false */ }"`;
-                }
-
-                const getSuccessAction: Function = (config: EntityEditorConfig, actionName: string): Function => {
-                    return (...args) => {};
-
-                    /*
-                    return (result) => {
-                        var successAction = config.getIn(['successActions', actionName]);
-
-                        // use default successAction if none explicitly provided
-                        // which will call operations.after<ACTIONNAME> if it exists
-                        if(!successAction) {
-                            successAction = ({operations}) => (successActionProps) => {
-                                const after = `after${actionName.charAt(0).toUpperCase()}${actionName.slice(1)}`;
-                                operations[after] && operations[after](successActionProps);
-                                return successActionProps;
-                            };
-                        }
-
-                        const partialSuccessAction = successAction(config);
-                        if(typeof partialSuccessAction != "function") {
-                            throw `Entity Editor: successAction "${actionName} must be a function that returns a successAction function, such as (config) => (successActionProps) => {}"`;
-                        }
-                        return returnPromise(partialSuccessAction(result));
-                    };*/
-                };
-
-                // create promises for onConfirm, onSuccess and onError, and simply pass through where they don't exist
-                const {
-                    onConfirm,
-                    onSuccess,
-                    onError
-                } = actionProps;
-
-                const callOnConfirm: Function = (actionProps) => {
-                    onConfirm && onConfirm(actionProps);
-                    return actionProps;
-                };
-
-                const beginPending: Function = (actionProps) => {
-                    if(!config.getIn(['excludePending', actionName])) {
-                        this.setPending(actionProps.id, actionName, true);
-                    }
-                    return actionProps;
-                }
-
-                const endPendingSuccess: Function = (result) => {
-                    if(!config.getIn(['excludePending', actionName])) {
-                        this.setPending(actionProps.id, actionName, false);
-                    }
-                    return result;
-                };
-
-                const endPendingError: Function = (result) => {
-                    this.setPending(actionProps.id, actionName, false);
-                    throw result;
-                };
-
-                const callOnSuccess: Function = (result) => {
-                    onSuccess && onSuccess(result);
-                    return result;
-                };
-
-                const callOnError: Function = (result) => {
-                    onError && onError(result);
-                    throw result;
-                };
-
-                const doNothing: Function = () => {};
-
-                const doSuccessAction: Function = getSuccessAction(config, actionName);
-
-                const showSuccessPrompt: Function = (result) => {
-                    return this.getPromptPromise(config, 'success', actionName, result)
-                        .then(doSuccessAction, doSuccessAction);
-                };
-
-                const showErrorPrompt: Function = (result) => {
-                    console.error(result);
-                    return this.getPromptPromise(config, 'error', actionName, result)
-                        .then(doNothing, doNothing);
-                };
-
-                // show confirmation prompt (if exists)
-                this.getPromptPromise(config, 'confirm', actionName, actionProps)
-                    .then(callOnConfirm)
-                    .then(beginPending)
-                    .then(
-                        (actionProps) => {
-                            // perform action and continue promise chain
-                            return returnPromise(partialAction(actionProps))
-                                .then(endPendingSuccess, endPendingError)
-                                .then(callOnSuccess, callOnError)
-                                .then(showSuccessPrompt, showErrorPrompt);
-                        },
-                        doNothing
-                    );
-            }
-
             pendingProps(config: EntityEditorConfig): Function {
                 return (id: string) => {
                     return config
@@ -270,117 +138,120 @@ export default (options: EntityEditorHockOptions): Function => {
                 };
             }
 
-            getWorkflowTask(task, name): any {
-                task = task || this.props.workflow.task;
-                name = name || this.props.workflow.name;
-                return this.getConfig().getIn(['actions', name, 'tasks', task]);
+            /*
+             * operate
+             */
+
+            operate(operateFunction: Function, nextWorkflow: Object) {
+                if(typeof operateFunction != "function") {
+                    throw new Error(`Entity Editor: task of type "operate" must be a function`);
+                }
+
+                const originalOperations: Map<string, Function> = userConfig.get('operations');
+                const partiallyAppliedOperations: Map<string, Function> = this.partiallyApplyOperations(originalOperations);
+
+                const {actionProps} = nextWorkflow.meta;
+                const partiallyAppliedOperateFunction: Function = operateFunction({
+                    operations: partiallyAppliedOperations.toObject(),
+                    editorState: this.getEditorState()
+                });
+
+                // TODO - do we force people to use the onSuccess and onError callbacks provided?
+                // or use returnPromise and allow promises and booleans normally?
+
+                returnPromise(partiallyAppliedOperateFunction(actionProps))
+                    .then(this.onOperationSuccess(actionProps), this.onOperationError(actionProps));
             }
 
-            workflowStart(actionName: string, actionConfig: Object): void {
+            partiallyApplyOperations(operations: Map<string,Function>): Map<string,Function> {
+                // create mutable operations object with the aim of passing a reference to it into each partial application
+                var mutableOperations: Object = {};
+
+                operations.forEach((operation: Function, key: string) => {
+
+                    // create operationsProps object to be passed into the first operation function
+                    // it will contain a reference to mutableOperations which will be updated each iteration
+                    const operationProps: Object = Map({
+                        operations: mutableOperations,
+                        setEditorState: this.setEditorState() // TODO is this named correctly?
+                    })
+                        .filter(ii => ii)
+                        .toObject();
+
+                    // partially apply the callbacks so they have knowledge of the full set of callbacks and any other config they're allowed to receive
+                    const partialOperation: Function = operation(operationProps);
+
+                    // if not a function then this callback hasn't been set up correctly, error out
+                    if(typeof partialOperation != "function") {
+                        throw `Entity Editor: callback "${key} must be a function that returns a 'callback' function, such as (config) => (callbackProps) => { /* return null, promise or false */ }"`;
+                    }
+
+                    // wrap partialOperation in a function that forces the callback to always return a promise
+                    mutableOperations[key] =  (...args): Promise<*> => returnPromise(partialOperation(...args));
+                });
+
+                return Map(mutableOperations);
+            }
+
+            onOperationSuccess({onSuccess}): any {
+                return (result) => {
+                    if(!this.componentIsMounted) {
+                        return;
+                    }
+                    onSuccess && onSuccess(result);
+                    return this.props.workflow.next("onSuccess", this.props.workflow.end);
+                }
+            }
+
+            onOperationError({onError}): any {
+                return (result) => {
+                    if(!this.componentIsMounted) {
+                        return;
+                    }
+                    onError && onError(result);
+                    return this.props.workflow.next("onError", this.props.workflow.end);
+                }
+            }
+
+            /*
+             * workflow
+             */
+
+            workflowStart(actionName: string, actionConfig: Object, actionProps: Object = {}): void {
                 const workflow: Object = actionConfig.get('workflow');
                 if(!workflow) {
                     throw new Error(`EntityEditor error: A workflow must be defined on the config object for ${actionName}`);
                 }
-                this.props.workflow.start(workflow.toJS(), actionName);
+                this.props.workflow.start(workflow.toJS(), actionName, {actionProps});
             }
 
-            workflowNext(nextTask: string): void {
-                this.props.workflow.next(nextTask);
-            }
-
-            workflowEnd(): void {
-                this.props.workflow.end();
-            }
-
-            entityEditorProps(): Object {
-                const config = this.getConfig();
-                const preloadedActionId: ?string = preloadActionIds && preloadActionIds(this.props);
-
-                // wrap each of the actions in prompts so they can handle confirmation, success and error
-                // also preload action props with their ids if required (such as with EntityEditorItem)
-
-                const actions: Object = this.getConfig()
-                    .get('actions', Map())
-                    .map((actionConfig: Object, actionName: string) => (actionProps: Object) => {
-                        if(preloadActionIds) {
-                            actionProps.id = preloadedActionId;
-                        }
-
-                        this.workflowStart(actionName, actionConfig);
-                        /*
-
-                        return (...args) => {
-                            console.log(actionName, "!!!", args);
-                        };
-
-                        /*
-                        return this.wrapActionWithPrompts(
-                            config,
-                            action,
-                            actionName,
-                            actionProps
-                        );*/
-                    })
-                    .toJS();
-
-
-
-                // pending actions
-                var props: Object = {
-                    actions,
-                    //state,
-                    pending: this.pendingProps(config)
-                };
-
-                if(preloadActionIds) {
-                    props.pending = props.pending(preloadedActionId);
-                }
-
-                const {
-                    prompt,
-                    promptOpen
-                } = this.state;
-
-                if(promptOpen && prompt && prompt.asProps) {
-                    props.prompt = Object.assign({}, prompt);
-                }
-
-                return props;
-            }
+            /*
+             * prompts
+             */
 
             renderPrompt() {
-                const config = this.getConfig();
-                const {nextSteps} = this.props.workflow;
-
-                const workflowTask: ?Object = this.getWorkflowTask();
-                const promptOpen: boolean = workflowTask && workflowTask.get('type') == "prompt";
-                const prompt: ?Function = promptOpen ? workflowTask.get('prompt') : null;
+                const {task, name} = this.props.workflow;
+                const workflowTask: ?Object = userConfig.getWorkflowTask(task, name);
+                const promptOpen: boolean = !!workflowTask && workflowTask.get('type') == "prompt";
+                const prompt: ?Function = promptOpen && workflowTask ? workflowTask.get('prompt') : null;
                 var promptDetails: ?Object = null;
 
                 if(prompt) {
-                    promptDetails = prompt({item: "???", Item: "???"});
+                    const promptProps: Object = {
+                        editorState: this.getEditorState(),
+                        ...userConfig.itemNames()
+                    };
+                    promptDetails = prompt(promptProps);
                 }
 
-                const Prompt: ReactClass<any> = config.getIn(['components', 'prompt']);
-                const PromptContent: ReactClass<any>  = config.getIn(['components', 'promptContent']);
-
-                console.log('nextSteps', nextSteps);
-
-                const onYes = () => {
-                    this.workflowNext("onYes");
-                };
-
-                const onNo = () => {
-                    this.workflowEnd();
-                };
-
-
+                const Prompt: ReactClass<any> = userConfig.getIn(['components', 'prompt']);
+                const PromptContent: ReactClass<any>  = userConfig.getIn(['components', 'promptContent']);
 
                 return <Prompt
                     {...promptDetails}
                     open={promptOpen}
-                    onYes={onYes}
-                    onNo={onNo}
+                    onYes={this.promptOnYes}
+                    onNo={this.promptOnNo}
                 >
                     {prompt &&
                         <PromptContent {...promptDetails}>
@@ -390,11 +261,54 @@ export default (options: EntityEditorHockOptions): Function => {
                 </Prompt>
             }
 
+            promptOnYes(): void {
+                this.props.workflow.next("onYes", this.props.workflow.end);
+            }
+
+            promptOnNo(): void {
+                this.props.workflow.next("onNo", this.props.workflow.end);
+            }
+
+            /*
+             * prop calculation
+             */
+
+            entityEditorProps(): Object {
+                const config = userConfig;
+
+                // wrap each of the actions in prompts so they can handle confirmation, success and error
+                // also preload action props with their ids if required (such as with EntityEditorItem)
+
+                const actions: Object = userConfig
+                    .get('actions', Map())
+                    .map((actionConfig: Object, actionName: string) => (actionProps: Object) => {
+                        //console.log(actionConfig);
+                        //this.operation();
+                        // THIS SHIT NEEDS TO HAPPEN IN COMPONENT WILL RECEIVE PROPS
+                        this.workflowStart(actionName, actionConfig, actionProps);
+                    })
+                    .toJS();
+
+                const prompt: Object = {};
+
+                // pending actions
+                var props: Object = {
+                    actions,
+                    prompt,
+                    pending: {} // TODOthis.pendingProps(config)
+                };
+
+                return props;
+            }
+
+            /*
+             * render
+             */
+
             render() {
                 const props: Object = {
                     ...this.props,
-                    [entityEditorProp]: this.entityEditorProps(),
-                    [entityEditorRoutesProp]: this.context.entityEditorRoutes.props
+                    [entityEditorProp]: this.entityEditorProps()
                 };
 
                 return <div>
@@ -403,10 +317,6 @@ export default (options: EntityEditorHockOptions): Function => {
                 </div>;
             }
         }
-
-        EntityEditorHock.contextTypes = {
-            entityEditorRoutes: PropTypes.object
-        };
 
         const withWorkflowHock: Function = WorkflowHock();
         return withWorkflowHock(EntityEditorHock);

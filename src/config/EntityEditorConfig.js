@@ -39,6 +39,10 @@ class EntityEditorConfig {
         return this._config.getIn(searchKeyPath, notSetValue);
     }
 
+    getWorkflowTask(task: string, name: string): any {
+        return this._config.getIn(['actions', name, 'tasks', task]);
+    }
+
     merge(nextConfig: Object|EntityEditorConfig): EntityEditorConfig {
         const toMerge: Map<string, any> = EntityEditorConfig.isEntityEditorConfig(nextConfig)
             ? nextConfig._config
@@ -69,32 +73,6 @@ class EntityEditorConfig {
         return this._config;
     }
 
-    partiallyApplyOperations(additionalFunctionsForActions: Object = {}): Object {
-        return this._config
-            .get('operations')
-            .reduce((operations: Object, operation: Function, key: string): Object => {
-
-                // partially apply the operations so they have knowledge of the full set of operations and any other config they're allowed to receive
-                var partiallyAppliedOperation: Function = operation({
-                    operations,
-                    ...additionalFunctionsForActions
-                });
-
-                // if not a function then this operation hasnt been set up correctly, error out
-                if(typeof partiallyAppliedOperation != "function") {
-                    throw `Entity Editor: operation "${key} must be a function that returns a 'operation' function, such as (config) => (operationProps) => { /* return null, promise or false */ }"`;
-                }
-
-                // wrap partiallyAppliedOperation in a function that forces the operation to always return a promise
-                const fn: Function = (...args): Promise<*> => returnPromise(partiallyAppliedOperation(...args));
-
-                // add to the map to return
-                return operations.set(key, fn);
-
-            }, Map())
-            .toObject();
-    }
-
     prompt(action: string, type: string, editorData: Object = {}): ?Object {
         const prompt: ?Map<string, *> = this._config.getIn(['prompts', action, type]);
 
@@ -119,8 +97,8 @@ class EntityEditorConfig {
 
     itemNames(): Object {
         const ucfirst: Function = (str) => str.charAt(0).toUpperCase() + str.slice(1);
-        const item: string = this._config.get('single', 'item');
-        const items: string = this._config.get('plural', `${item}s`);
+        const item: string = this._config.getIn(['item', 'single'], 'item');
+        const items: string = this._config.getIn(['item', 'plural'], `${item}s`);
         return {
             item,
             items,

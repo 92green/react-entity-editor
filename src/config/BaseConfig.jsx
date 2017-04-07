@@ -41,21 +41,24 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         save: {
             description: "If the item already exists this calls the onUpdate operation, or calls onCreate for new items.",
             workflow: {
-                task: "operation",
-                onSuccess: {
-                    task: "success"
-                },
-                onError: {
-                    task: "error"
+                task: "operate",
+                next: {
+                    onSuccess: {
+                        task: "success"
+                    },
+                    onError: {
+                        task: "error"
+                    }
                 }
             },
             tasks: {
-                operation: {
-                    type: "operation",
-                    operation: ({operations}: ActionConfig) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
+                operate: {
+                    type: "operate",
+                    operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
                         if(!actionProps.payload) {
                             throw `EntityEditor: config.actions.save: actionProps.payload is not defined`;
                         }
+                        console.log('actionProps', actionProps)
 
                         if(actionProps.id) {
                             return operations.onUpdate(actionProps);
@@ -86,19 +89,21 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             workflow: {
                 task: "confirm",
                 onYes: {
-                    task: "operation",
-                    onSuccess: {
-                        task: "success"
-                    },
-                    onError: {
-                        task: "error"
+                    task: "operate",
+                    next: {
+                        onSuccess: {
+                            task: "success"
+                        },
+                        onError: {
+                            task: "error"
+                        }
                     }
                 }
             },
             tasks: {
-                operation: {
-                    type: "operation",
-                    operation: ({operations}: ActionConfig) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
+                operate: {
+                    type: "operate",
+                    operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
                         if(!actionProps.payload) {
                             throw `EntityEditor: config.actions.saveNew: actionProps.payload is not defined`;
                         }
@@ -136,20 +141,24 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             description: "Confirms if the user wants to delete, and calls the onDelete operation for an item.",
             workflow: {
                 task: "confirm",
-                onYes: {
-                    task: "operation",
-                    onSuccess: {
-                        task: "success"
-                    },
-                    onError: {
-                        task: "error"
+                next: {
+                    onYes: {
+                        task: "operate",
+                        next: {
+                            onSuccess: {
+                                task: "success"
+                            },
+                            onError: {
+                                task: "error"
+                            }
+                        }
                     }
                 }
             },
             tasks: {
-                operation: {
-                    task: "operation",
-                    operation: ({operations}: ActionConfig) => (actionProps: {id: string}): Promiseable => {
+                operate: {
+                    type: "operate",
+                    operate: ({operations}) => (actionProps: {id: string}): Promiseable => {
                         if(!actionProps.id) {
                             throw `EntityEditor: config.actions.delete: actionProps.id is not defined`;
                         }
@@ -183,15 +192,44 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 }
             }
         },
-        dirty: {
-            description: "Sets the 'dirty' state of the editor. The editor is dirty when there are unsaved changes.",
+        go: {
+            description: "Navigates to another page",
             workflow: {
-                task: "operation"
+                task: "confirm",
+                next: {
+                    onYes: {
+                        task: "operate"
+                    }
+                }
             },
             tasks: {
-                operation: {
-                    task: "operation",
-                    operation: ({operations}: ActionConfig) => (actionProps: {dirty: Boolean}): Promiseable => {
+                operate: {
+                    type: "operate",
+                    operate: ({operations}) => (actionProps: Object) => {
+                        return operations.onGo(actionProps);
+                    }
+                },
+                confirm: {
+                    type: "prompt",
+                    skip: ({editorState}) => editorState.dirty ? null : "onYes",
+                    prompt: () => ({
+                        title: "Unsaved changes",
+                        message: <span>You have unsaved changes. What would you like to do?</span>,
+                        yes: "Discard changes",
+                        no: "Keep editing"
+                    })
+                }
+            }
+        },
+        dirty: { // WATCH OUT FOR RERENDERS CAUSED BY THIS!!!
+            description: "Sets the 'dirty' state of the editor. The editor is dirty when there are unsaved changes.",
+            workflow: {
+                task: "operate"
+            },
+            tasks: {
+                operate: {
+                    type: "operate",
+                    operate: ({operations}) => (actionProps: {dirty: Boolean}): Promiseable => {
                         return operations.onDirty({dirty: actionProps.dirty});
                     }
                 }
@@ -199,14 +237,8 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         }
     },
     operations: {
-        onDirty: ({setEditorState}: OperationConfig) => (operationProps: {dirty: boolean}): Promiseable => {
-            setEditorState.dirty(operationProps.dirty);
-        },
-        onCreateSuccess: ({operations}: OperationConfig) => (): Promiseable => {
-            return operations.onGoList();
-        },
-        onDeleteSuccess: ({operations}: OperationConfig) => (): Promiseable => {
-            return operations.onGoList();
+        onDirty: ({setEditorState}) => (actionProps: {dirty: boolean}): Promiseable => {
+            setEditorState.dirty(actionProps.dirty);
         }
     },
     components: {

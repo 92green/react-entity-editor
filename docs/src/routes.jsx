@@ -5,15 +5,17 @@ import AppHandler from 'components/AppHandler';
 import ErrorHandler from 'components/ErrorHandler';
 import HomePage from 'pages/HomePage';
 
-import DogsRoutes from 'dogs/DogsRoutes';
-import SlothsRoutes from 'sloths/SlothsRoutes';
-import DodosRoutes from 'dodos/DodosRoutes';
+import CatsRoutes from 'cats/CatsRoutes';
+//import DogsRoutes from 'dogs/DogsRoutes';
+//import SlothsRoutes from 'sloths/SlothsRoutes';
+//import DodosRoutes from 'dodos/DodosRoutes';
 
 const routes = <Route component={AppHandler} path="/">
     <IndexRoute component={HomePage} />
-    {DogsRoutes}
+    {CatsRoutes}
+    {/*DogsRoutes}
     {SlothsRoutes}
-    {DodosRoutes}
+    {DodosRoutes*/}
     <Route path="*" component={ErrorHandler}/>
 </Route>;
 
