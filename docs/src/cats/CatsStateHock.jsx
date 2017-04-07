@@ -41,8 +41,6 @@ export default (): Function => {
                 this.onUpdate = this.onUpdate.bind(this);
                 this.onDelete = this.onDelete.bind(this);
                 // this.onCreateAsync = this.onCreateAsync.bind(this);
-                // this.onUpdateAsync = this.onUpdateAsync.bind(this);
-                // this.onDeleteAsync = this.onDeleteAsync.bind(this);
             }
 
             // onGet(id) {
@@ -61,7 +59,7 @@ export default (): Function => {
             }
 
             onCreate(payload) {
-                console.log('catModifier: create cat', payload);
+                console.log('cat state: create cat', payload);
                 const {cats} = this.state;
                 const newId = String(Number(cats.slice(-1).pop().id) + 1);
 
@@ -76,7 +74,7 @@ export default (): Function => {
             }
 
             onUpdate(id, payload) {
-                console.log('catModifier: update cat', id, payload);
+                console.log('cat state: update cat', id, payload);
                 const {cats} = this.state;
                 const catIndex = cats
                     .map(cat => cat.id)
@@ -98,37 +96,17 @@ export default (): Function => {
             }
 
             onDelete(id) {
-                console.log('catModifier: delete cat', id);
+                console.log('cat state: delete cat', id, this);
                 const {cats} = this.state;
                 this.setState({
                     cats: cats.splice(id, 1)
                 });
             }
 
-            // onGetAsync(id) {
-            //     return this.fakeAsync(this.onGet, {id});
-            // }
-
-            // onListAsync() {
-            //     return this.fakeAsync(this.onList);
-            // }
-
             // onCreateAsync(payload) {
-            //     return this.fakeAsync(this.onCreate, {payload});
-            // }
-
-            // onUpdateAsync(id, payload) {
-            //     return this.fakeAsync(this.onUpdate, {id, payload});
-            // }
-
-            // onDeleteAsync(id) {
-            //     return this.fakeAsync(this.onDelete, {id});
-            // }
-
-            // fakeAsync(callback, args = {}) {
             //     return new Promise((resolve) => {
             //         setTimeout(() => {
-            //             callback(...args);
+
             //             resolve();
             //         }, 500);
             //     });
