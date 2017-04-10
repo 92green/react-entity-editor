@@ -2,7 +2,7 @@
 
 import React, {Component, PropTypes} from 'react';
 
-class ModalContainer extends Component {
+class PromptContainer extends Component {
 
     promptOnYes: Function;
     promptOnNo: Function;
@@ -33,7 +33,7 @@ class ModalContainer extends Component {
         const workflowTask: ?Object =  userConfig.getIn(['tasks', task]);
         const promptOpen: boolean = !!workflowTask
             && workflowTask.get('status')
-            && workflowTask.get('statusStyle') == "modal";
+            && workflowTask.get('statusStyle') == "prompt";
 
         var promptDetails: ?Object = null;
 
@@ -59,10 +59,10 @@ class ModalContainer extends Component {
     }
 }
 
-ModalContainer.propTypes = {
+PromptContainer.propTypes = {
     workflow: PropTypes.object,
     userConfig: PropTypes.object.isRequired,
     promptProps: PropTypes.object.isRequired
 };
 
-export default ModalContainer;
+export default PromptContainer;

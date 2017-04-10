@@ -63,7 +63,9 @@ export default (): Function => {
             onCreate(payload) {
                 console.log('cat state: create cat', payload);
                 const {cats} = this.state;
-                const newId = String(Number(cats.slice(-1).pop().id) + 1);
+                const newId = cats.length
+                    ? String(Number(cats.slice(-1).pop().id) + 1)
+                    : "1";
 
                 const newCat = {
                     ...payload,

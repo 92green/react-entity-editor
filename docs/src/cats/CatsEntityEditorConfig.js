@@ -4,16 +4,13 @@ const CatsEntityEditorConfig = BaseConfig.merge({
     item: {
         single: "cat"
     },
-    actions: {
-        save: {
-            tasks: {
-                success: {
-                    style: "props"/*,
-                    timeout: 1000
-                    TODO
-                    */
-                }
-            }
+    tasks: {
+        saveOperate: {
+            statusStyle: "props"
+        },
+        saveSuccess: {
+            statusStyle: "props",
+            timeout: 2000
         }
     },
     operations: {

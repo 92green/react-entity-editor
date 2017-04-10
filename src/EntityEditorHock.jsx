@@ -3,7 +3,7 @@
 import React, {Component, PropTypes} from 'react';
 import {Map} from 'immutable';
 import WorkflowHock from './workflow/WorkflowHock';
-import ModalContainer from './modal/ModalContainer';
+import PromptContainer from './prompt/PromptContainer';
 import {EntityEditorConfig} from './config/EntityEditorConfig';
 import {returnPromise} from './Utils';
 
@@ -289,7 +289,7 @@ export default (options: EntityEditorHockOptions): Function => {
                     <ComposedComponent
                         {...props}
                     />
-                    <ModalContainer
+                    <PromptContainer
                         workflow={workflow}
                         userConfig={userConfig}
                         promptProps={promptProps}

@@ -123,12 +123,11 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                     .onCreate(actionProps)
                     .then(() => operations.onDirty({dirty: false}));
             },
-            status: ({Item}) => ({
+            status: ({item}) => ({
                 title: "Saving",
-                message: <span>Saving {item}...</span>,
-                yes: "Remove this button"
+                message: <span>Saving {item}...</span>
             }),
-            statusStyle: "modal"
+            statusStyle: "prompt"
         },
         saveSuccess: {
             status: ({Item}) => ({
@@ -136,7 +135,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>{Item} saved.</span>,
                 yes: "Okay"
             }),
-            statusStyle: "modal"
+            statusStyle: "prompt"
         },
         saveError: {
             status: ({item}) => ({
@@ -144,7 +143,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>An error has occurred, this {item} could not be saved right now.</span>,
                 yes: "Okay"
             }),
-            statusStyle: "modal"
+            statusStyle: "prompt"
         },
         saveNewConfirm: {
             status: ({item}) => ({
@@ -153,7 +152,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 yes: `Save as new`,
                 no: `Cancel`
             }),
-            statusStyle: "modal"
+            statusStyle: "prompt"
         },
         saveNewOperate: {
             onEnter: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
@@ -163,7 +162,12 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 return operations
                     .onCreate(actionProps)
                     .then(() => operations.onDirty({dirty: false}));
-            }
+            },
+            status: ({item}) => ({
+                title: "Saving",
+                message: <span>Saving {item}...</span>
+            }),
+            statusStyle: "prompt"
         },
         saveNewSuccess: {
             status: ({item}) => ({
@@ -171,7 +175,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>New {item} saved.</span>,
                 yes: "Okay"
             }),
-            statusStyle: "modal"
+            statusStyle: "prompt"
         },
         deleteConfirm: {
             status: ({item}) => ({
@@ -180,7 +184,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 yes: `Delete`,
                 no: `Cancel`
             }),
-            statusStyle: "modal"
+            statusStyle: "prompt"
         },
         deleteOperate: {
             onEnter: ({operations}) => (actionProps: {id: string}): Promiseable => {
@@ -190,7 +194,12 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 return operations
                     .onDelete(actionProps)
                     .then(() => operations.onDirty({dirty: false}));
-            }
+            },
+            status: ({item}) => ({
+                title: "Deleting",
+                message: <span>Deleting {item}...</span>
+            }),
+            statusStyle: "prompt"
         },
         deleteSuccess: {
             status: ({Item}) => ({
@@ -198,7 +207,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>{Item} deleted.</span>,
                 yes: "Okay"
             }),
-            statusStyle: "modal"
+            statusStyle: "prompt"
         },
         deleteError: {
             status: ({item}) => ({
@@ -206,7 +215,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>An error has occurred, this {item} could not be deleted right now.</span>,
                 yes: "Okay"
             }),
-            statusStyle: "modal"
+            statusStyle: "prompt"
         },
         goConfirm: {
             skip: ({editorState}) => editorState.dirty ? null : "onYes",
@@ -216,7 +225,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 yes: "Discard changes",
                 no: "Keep editing"
             }),
-            statusStyle: "modal"
+            statusStyle: "prompt"
         },
         goOperate: {
             onEnter: ({operations}) => (actionProps: Object) => {

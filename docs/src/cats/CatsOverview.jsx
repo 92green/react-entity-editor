@@ -47,9 +47,9 @@ const withEntityEditor = EntityEditorHock({
     config: CatsEntityEditorConfig,
     operationProps: (props) => {
         return {
-            onCreateCat: props.onCreate,
-            onUpdateCat: props.onUpdate,
-            onDeleteCat: props.onDelete,
+            onCreateCat: props.onCreateAsync,
+            onUpdateCat: props.onUpdateAsync,
+            onDeleteCat: props.onDeleteAsync,
             onGoCat: props.onGo,
             onGoList: () => props.onGo({id: null, name: "list"}),
             onGoItem: (id) => props.onGo({id, name: "item"})
