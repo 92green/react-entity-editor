@@ -25,21 +25,20 @@ class ModalContainer extends Component {
         const {
             userConfig,
             workflow: {
-                task,
-                name
+                task
             },
             promptProps
         } = this.props;
 
-        const workflowTask: ?Object = userConfig.getWorkflowTask(task, name);
+        const workflowTask: ?Object =  userConfig.getIn(['tasks', task]);
         const promptOpen: boolean = !!workflowTask
-            && workflowTask.get('type') == "prompt"
-            && workflowTask.get('style') == "modal";
+            && workflowTask.get('status')
+            && workflowTask.get('statusStyle') == "modal";
 
         var promptDetails: ?Object = null;
 
         if(promptOpen && workflowTask) {
-            promptDetails = workflowTask.get('prompt')(promptProps);
+            promptDetails = workflowTask.get('status')(promptProps);
         }
 
         const Prompt: ReactClass<any> = userConfig.getIn(['components', 'prompt']);

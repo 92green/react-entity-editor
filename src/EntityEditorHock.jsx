@@ -55,8 +55,8 @@ export default (options: EntityEditorHockOptions): Function => {
             }
 
             componentWillReceiveProps(nextProps: Object): void {
-                const {task, name, end} = nextProps.workflow;
-                const workflowTask: ?Map<string, any> = userConfig.getWorkflowTask(task, name);
+                const {task, end} = nextProps.workflow;
+                const workflowTask: ?Map<string, any> = userConfig.getIn(['tasks', task]);
 
                 // if changing to a new task...
                 if(workflowTask && this.props.workflow.task !== nextProps.workflow.task) {
@@ -74,10 +74,9 @@ export default (options: EntityEditorHockOptions): Function => {
                         }
                     }
 
-                    // if a task type has something to do onEnter, do it here...
-                    const taskType: string = workflowTask.get('type');
-                    if(taskType == "operate") {
-                        const taskFunction: Function = workflowTask.get('operate');
+                    // if a task has something to do onEnter, do it here...
+                    const taskFunction: Function = workflowTask.get('onEnter'); // TODO remove references to "operate" in favour of "onEnter"
+                    if(taskFunction) {
                         this.operate(taskFunction, nextProps.workflow, nextProps);
                     }
                 }
@@ -238,8 +237,7 @@ export default (options: EntityEditorHockOptions): Function => {
             entityEditorProps(promptProps: Object): Object {
                 const {
                     workflow: {
-                        task,
-                        name
+                        task
                     }
                 } = this.props;
 
@@ -250,16 +248,16 @@ export default (options: EntityEditorHockOptions): Function => {
                     })
                     .toJS();
 
-                const workflowTask: ?Object = userConfig.getWorkflowTask(task, name);
+                const workflowTask: ?Object = userConfig.getIn(['tasks', task]);
                 const promptAsProps: boolean = !!workflowTask
-                    && workflowTask.get('type') == "prompt"
-                    && workflowTask.get('style') == "props";
+                    && workflowTask.get('status')
+                    && workflowTask.get('statusStyle') == "props";
 
                 const prompt: ?Object = promptAsProps && workflowTask
-                    ? workflowTask.get('prompt')(promptProps)
+                    ? workflowTask.get('status')(promptProps)
                     : null;
 
-                const pending: Object = {}; // TODOthis.pendingProps(config)
+                const pending: Object = {}; // TODOthis.pendingProps(config) REMOVE THIS
 
                 // pending actions
                 var props: Object = {

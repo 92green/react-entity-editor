@@ -39,10 +39,6 @@ class EntityEditorConfig {
         return this._config.getIn(searchKeyPath, notSetValue);
     }
 
-    getWorkflowTask(task: string, name: string): any {
-        return this._config.getIn(['actions', name, 'tasks', task]);
-    }
-
     merge(nextConfig: Object|EntityEditorConfig): EntityEditorConfig {
         const toMerge: Map<string, any> = EntityEditorConfig.isEntityEditorConfig(nextConfig)
             ? nextConfig._config
