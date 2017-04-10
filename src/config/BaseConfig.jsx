@@ -127,7 +127,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 title: "Saving",
                 message: <span>Saving {item}...</span>
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         saveSuccess: {
             status: ({Item}) => ({
@@ -135,7 +135,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>{Item} saved.</span>,
                 yes: "Okay"
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         saveError: {
             status: ({item}) => ({
@@ -143,7 +143,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>An error has occurred, this {item} could not be saved right now.</span>,
                 yes: "Okay"
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         saveNewConfirm: {
             status: ({item}) => ({
@@ -152,7 +152,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 yes: `Save as new`,
                 no: `Cancel`
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         saveNewOperate: {
             operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
@@ -167,7 +167,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 title: "Saving",
                 message: <span>Saving {item}...</span>
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         saveNewSuccess: {
             status: ({item}) => ({
@@ -175,7 +175,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>New {item} saved.</span>,
                 yes: "Okay"
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         deleteConfirm: {
             status: ({item}) => ({
@@ -184,7 +184,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 yes: `Delete`,
                 no: `Cancel`
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         deleteOperate: {
             operate: ({operations}) => (actionProps: {id: string}): Promiseable => {
@@ -199,7 +199,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 title: "Deleting",
                 message: <span>Deleting {item}...</span>
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         deleteSuccess: {
             status: ({Item}) => ({
@@ -207,7 +207,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>{Item} deleted.</span>,
                 yes: "Okay"
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         deleteError: {
             status: ({item}) => ({
@@ -215,7 +215,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>An error has occurred, this {item} could not be deleted right now.</span>,
                 yes: "Okay"
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         goConfirm: {
             skip: ({editorState}) => editorState.dirty ? null : "onYes",
@@ -225,7 +225,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 yes: "Discard changes",
                 no: "Keep editing"
             }),
-            statusStyle: "prompt"
+            statusOutput: "prompt"
         },
         goOperate: {
             operate: ({operations}) => (actionProps: Object) => {
@@ -247,13 +247,6 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
     },
     // add different statuses in here with components inside
     components: {
-        loader: (props) => <p>Loading...</p>,
-        /*error: ({title, Message, item}) => {
-            return <div>
-                <p><strong>{title}</strong></p>
-                <Message {...item} />
-            </div>;
-        },*/
         prompt: (props) => <Modal {...props} />,
         promptContent: (props) => <ModalContent {...props} />
     }

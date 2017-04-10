@@ -141,8 +141,7 @@ export default (): Function => {
             fakeAsync(callback, args) {
                 return new Promise((resolve) => {
                     setTimeout(() => {
-                        callback(...args);
-                        resolve();
+                        resolve(callback(...args));
                     }, 500);
                 });
             }

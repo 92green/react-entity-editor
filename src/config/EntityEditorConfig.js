@@ -23,14 +23,6 @@ class EntityEditorConfig {
         }
     }
 
-    static superableKeys(): Array<string> {
-        return [
-            'actions',
-            'operations',
-            'successActions'
-        ];
-    }
-
     get(key: string, notSetValue: any): any {
         return this._config.get(key, notSetValue);
     }
@@ -44,22 +36,9 @@ class EntityEditorConfig {
             ? nextConfig._config
             : fromJS(nextConfig);
 
-        const superableKeys: List<string> = List(EntityEditorConfig.superableKeys());
-        //var _super: Map<string, any> = Map();
-
         // merge configs together
         const merged: Object = this._config
-            .mergeWith((prev, next, key) => {
-                //if(!superableKeys.includes(key)) {
-                    return prev.mergeDeep(next);
-                //}
-                //return prev.mergeWith((prev, next, subKey) => {
-                    // keep overridden versions of operations and actions so they can each call super
-                //    _super = _super.updateIn([key, subKey], List(), ii => ii.push(prev));
-                //     return next;
-                //}, next);
-            }, toMerge)
-            //.set('_super', _super)
+            .mergeDeep(toMerge)
             .toJS();
 
         return new EntityEditorConfig(merged);
@@ -67,28 +46,6 @@ class EntityEditorConfig {
 
     data(): Map<string, any> {
         return this._config;
-    }
-
-    prompt(action: string, type: string, editorData: Object = {}): ?Object {
-        const prompt: ?Map<string, *> = this._config.getIn(['prompts', action, type]);
-
-        if(!prompt || (prompt.has('showWhen') && !prompt.get('showWhen')(editorData))) {
-            return null;
-        }
-
-        if(!this._config.has('promptDefaults')) {
-            return prompt;
-        }
-
-        const base: Map<string, *> = this._config
-            .get('promptDefaults')
-            .map(ii => ii.get ? ii.get(type) : ii);
-
-        return base
-            .merge(prompt)
-            .set('item', this.itemNames())
-            .set('type', type)
-            .toJS();
     }
 
     itemNames(): Object {
@@ -114,7 +71,6 @@ function EntityEditorConfigFactory(config: Object|EntityEditorConfig): EntityEdi
 // add static methods to factory
 EntityEditorConfigFactory.isEntityEditorConfig = EntityEditorConfig.isEntityEditorConfig;
 EntityEditorConfigFactory.validate = EntityEditorConfig.validate;
-EntityEditorConfigFactory.superableKeys = EntityEditorConfig.superableKeys;
 
 export default EntityEditorConfigFactory;
 

@@ -9,7 +9,7 @@ class CatsItemForm extends Component {
         const fields = ['name', 'toy'];
         var form = {};
         fields.forEach(field => {
-            form[field] = (props.cat && props.cat[field]) || "";
+            form[field] = props.cat ? props.cat[field]) : "";
         });
         this.state = {form};
 
@@ -26,39 +26,38 @@ class CatsItemForm extends Component {
             form[field] = event.target.value;
             this.setState({form});
 
-            // tell entity editor that the form is now dirty
+            // tell entity editor that the form is now dirty,
+            // so that it knows when to warn the user about unsaved changes.
             // note that you must pass in an object with a boolean property of 'dirty'
-            this.props.entityEditor.actions.dirty({dirty: true});
+            const actionProps = {
+                dirty: true
+            };
+            this.props.entityEditor.actions.dirty(actionProps);
         };
     }
 
     save() {
-        // TODO destructre shit
+        // the save action expects a payload and an optional id
+        // keep in mind that this.props.cat wont exist yet if you're making a new cat
+        const actionProps = {
+            payload: this.state.form,
+            id: this.props.cat ? this.props.cat.id : null
+        };
 
         // the save action is supplied via the entityEditor prop
-        const save = this.props.entityEditor.actions.save;
-        // the id is provided by the cat
-        // keep in mind that when making a new cat this.props.cat wont exist yet
-        const id = this.props.cat ? this.props.cat.id : null;
-        // when saving, the data to save should be on a property called payload
-        const payload = this.state.form;
-
-        // call the entity editor action, passing in:
-        // + the id (which wont exist for new items)
-        // + the payload containing the updated dog
-        save({id, payload});
+        this.props.entityEditor.actions.save(actionProps);
     }
 
     delete() {
-        const del = this.props.entityEditor.actions.delete;
-        const id = this.props.cat.id;
-        del({id});
+        // the delete action expects an id
+        const actionProps = {
+            id: this.props.cat.id
+        };
+        this.props.entityEditor.actions.delete(actionProps);
     }
 
     render() {
         const {entityEditor} = this.props;
-        console.log(entityEditor);
-
         return <div>
             <div className="InputRow">
                 <label htmlFor="name">Name</label>
@@ -78,8 +77,12 @@ class CatsItemForm extends Component {
             </div>
             <button className="Button Button-grey" onClick={entityEditor.actions.go.bind(this, {name: "list"})}>Back</button>
             <button className="Button" onClick={this.save}>Save</button>
-            {<button className="Button" onClick={this.delete} disabled={!this.props.cat}>Delete</button>}
-            {entityEditor.prompt && entityEditor.prompt.title}
+            {this.props.cat && // only show delete button when we have an item
+                <button className="Button" onClick={this.delete}>Delete</button>
+            }
+            {entityEditor.status && // if a status comes down as props, render it
+                <em>{entityEditor.status.title}</em>
+            }
         </div>;
     }
 }

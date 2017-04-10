@@ -33,7 +33,7 @@ class PromptContainer extends Component {
         const workflowTask: ?Object =  userConfig.getIn(['tasks', task]);
         const promptOpen: boolean = !!workflowTask
             && workflowTask.get('status')
-            && workflowTask.get('statusStyle') == "prompt";
+            && workflowTask.get('statusOutput') == "prompt";
 
         var promptDetails: ?Object = null;
 

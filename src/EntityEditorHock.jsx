@@ -54,14 +54,14 @@ export default (options: EntityEditorHockOptions): Function => {
             }
 
             componentWillReceiveProps(nextProps: Object): void {
-                const {task, end} = nextProps.workflow;
-                const workflowTask: ?Map<string, any> = userConfig.getIn(['tasks', task]);
+                const currentTask: ?Map<string, any> = this.getCurrentTask(nextProps);
+                const {end} = nextProps.workflow;
 
                 // if changing to a new task...
-                if(workflowTask && this.props.workflow.task !== nextProps.workflow.task) {
+                if(currentTask && this.props.workflow.task !== nextProps.workflow.task) {
 
                     // if skip() exists for this task and returns a string, then go there
-                    const skip: Function = workflowTask.get('skip');
+                    const skip: Function = currentTask.get('skip');
                     if(skip) {
                         const skipProps: Object = {
                             editorState: this.getEditorState()
@@ -74,7 +74,7 @@ export default (options: EntityEditorHockOptions): Function => {
                     }
 
                     // if a task has something to do when new task is entered do it here...
-                    const taskFunction: Function = workflowTask.get('operate');
+                    const taskFunction: Function = currentTask.get('operate');
                     if(taskFunction) {
                         this.operate(taskFunction, nextProps);
                     }
@@ -111,7 +111,7 @@ export default (options: EntityEditorHockOptions): Function => {
 
             operate(operateFunction: Function, props: Object) {
                 if(typeof operateFunction != "function") {
-                    throw new Error(`Entity Editor: task of type "operate" must be a function`);
+                    throw new Error(`Entity Editor: "task.operate" must be a function`);
                 }
 
                 const originalOperations: Map<string, Function> = userConfig.get('operations');
@@ -120,13 +120,20 @@ export default (options: EntityEditorHockOptions): Function => {
                 const nextWorkflow = props.workflow;
                 const {actionProps} = nextWorkflow.meta;
 
-                // TODO ambigious duplicate function call!
-                const partiallyAppliedOperateFunction: Function = operateFunction({
-                    operations: partiallyAppliedOperations.toObject(),
-                    editorState: this.getEditorState()
-                });
+                // create operateProps object to be passed into operate() on a task
+                const operateProps: Object = Map({
+                    operations: partiallyAppliedOperations.toObject()
+                })
+                    .filter(ii => ii)
+                    .toObject();
 
-                returnPromise(partiallyAppliedOperateFunction(actionProps))
+                const partiallyAppliedOperateFunction: Function = operateFunction(operateProps);
+                if(typeof partiallyAppliedOperateFunction != "function") {
+                    throw new Error(`Entity Editor: "task.operate" must return a function`);
+                }
+
+                const result: Promiseable = partiallyAppliedOperateFunction(actionProps);
+                returnPromise(result)
                     .then(this.onOperationSuccess(actionProps), this.onOperationError(actionProps));
             }
 
@@ -198,33 +205,41 @@ export default (options: EntityEditorHockOptions): Function => {
                 this.props.workflow.start(workflow.toJS(), actionName, {actionProps});
             }
 
+            getCurrentTask(props: ?Object = this.props): ?Object {
+                return userConfig.getIn(['tasks', props.workflow.task]);
+            }
+
+            isCurrentTaskBlocking(props: ?Object = this.props): boolean {
+                const currentTask: ?Object = this.getCurrentTask(props);
+                return !!currentTask && !!currentTask.get('operate');
+            }
+
             /*
              * prop calculation
              */
 
-            entityEditorProps(promptProps: Object): Object {
-                const {workflow} = this.props;
-
+            entityEditorProps(statusProps: Object): Object {
                 const actions: Object = userConfig
                     .get('actions', Map())
                     .map((actionConfig: Object, actionName: string) => (actionProps: Object) => {
-                        // TODO get workflow as of right now!
-                        this.workflowStart(actionName, actionConfig, actionProps);
+                        if(!this.isCurrentTaskBlocking()) {
+                            this.workflowStart(actionName, actionConfig, actionProps);
+                        }
                     })
                     .toJS();
 
-                const workflowTask: ?Object = userConfig.getIn(['tasks', workflow.task]);
-                const promptAsProps: boolean = !!workflowTask
-                    && workflowTask.get('status')
-                    && workflowTask.get('statusStyle') == "props";
+                const currentWorkflow: ?Object = this.getCurrentTask();
+                const statusAsProps: boolean = !!currentWorkflow
+                    && currentWorkflow.get('status')
+                    && currentWorkflow.get('statusOutput') == "props";
 
-                const prompt: ?Object = promptAsProps && workflowTask
-                    ? workflowTask.get('status')(promptProps)
+                const status: ?Object = statusAsProps && currentWorkflow
+                    ? currentWorkflow.get('status')(statusProps)
                     : null;
 
                 var props: Object = {
                     actions,
-                    prompt
+                    status
                 };
 
                 return props;
@@ -236,14 +251,14 @@ export default (options: EntityEditorHockOptions): Function => {
 
             render() {
                 const {workflow} = this.props;
-                const promptProps: Object = {
+                const statusProps: Object = {
                     editorState: this.getEditorState(),
                     ...userConfig.itemNames()
                 };
 
                 const props: Object = {
                     ...this.props,
-                    [entityEditorProp]: this.entityEditorProps(promptProps)
+                    [entityEditorProp]: this.entityEditorProps(statusProps)
                 };
 
                 return <div>
@@ -253,7 +268,7 @@ export default (options: EntityEditorHockOptions): Function => {
                     <PromptContainer
                         workflow={workflow}
                         userConfig={userConfig}
-                        promptProps={promptProps}
+                        statusProps={statusProps}
                     />
                 </div>;
             }
