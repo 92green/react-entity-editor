@@ -39,8 +39,7 @@ export default (options: EntityEditorHockOptions): Function => {
                 super(props);
                 this.componentIsMounted = false;
                 this.state = {
-                    dirty: false,
-                    pending: {}
+                    dirty: false
                 };
                 this.onOperationSuccess = this.onOperationSuccess.bind(this);
                 this.onOperationError = this.onOperationError.bind(this);
@@ -74,10 +73,10 @@ export default (options: EntityEditorHockOptions): Function => {
                         }
                     }
 
-                    // if a task has something to do onEnter, do it here...
-                    const taskFunction: Function = workflowTask.get('onEnter'); // TODO remove references to "operate" in favour of "onEnter"
+                    // if a task has something to do when new task is entered do it here...
+                    const taskFunction: Function = workflowTask.get('operate');
                     if(taskFunction) {
-                        this.operate(taskFunction, nextProps.workflow, nextProps);
+                        this.operate(taskFunction, nextProps);
                     }
                 }
             }
@@ -107,39 +106,10 @@ export default (options: EntityEditorHockOptions): Function => {
             }
 
             /*
-             * pending
-             */
-
-             // TODO FIX THIS
-
-            getPending(id: string, actionName: string): boolean {
-                return !!this.state.pending[`${id}|${actionName}`];
-            }
-
-            setPending(id: string, actionName: string, pending: boolean): void {
-                this.setState({
-                    pending: Object.assign(
-                        {},
-                        this.state.pending,
-                        {[`${id}|${actionName}`]: pending
-                    })
-                });
-            }
-
-            pendingProps(config: EntityEditorConfig): Function {
-                return (id: string) => {
-                    return config
-                        .get('actions')
-                        .map((action, actionName) => this.getPending(id, actionName))
-                        .toObject();
-                };
-            }
-
-            /*
              * operate
              */
 
-            operate(operateFunction: Function, nextWorkflow: Object, props: Object) {
+            operate(operateFunction: Function, props: Object) {
                 if(typeof operateFunction != "function") {
                     throw new Error(`Entity Editor: task of type "operate" must be a function`);
                 }
@@ -147,16 +117,14 @@ export default (options: EntityEditorHockOptions): Function => {
                 const originalOperations: Map<string, Function> = userConfig.get('operations');
                 const partiallyAppliedOperations: Map<string, Function> = this.partiallyApplyOperations(originalOperations, props);
 
+                const nextWorkflow = props.workflow;
                 const {actionProps} = nextWorkflow.meta;
 
-                // TODO ambigious duplocate function call!
+                // TODO ambigious duplicate function call!
                 const partiallyAppliedOperateFunction: Function = operateFunction({
                     operations: partiallyAppliedOperations.toObject(),
                     editorState: this.getEditorState()
                 });
-
-                // TODO - do we force people to use the onSuccess and onError callbacks provided?
-                // or use returnPromise and allow promises and booleans normally?
 
                 returnPromise(partiallyAppliedOperateFunction(actionProps))
                     .then(this.onOperationSuccess(actionProps), this.onOperationError(actionProps));
@@ -235,20 +203,17 @@ export default (options: EntityEditorHockOptions): Function => {
              */
 
             entityEditorProps(promptProps: Object): Object {
-                const {
-                    workflow: {
-                        task
-                    }
-                } = this.props;
+                const {workflow} = this.props;
 
                 const actions: Object = userConfig
                     .get('actions', Map())
                     .map((actionConfig: Object, actionName: string) => (actionProps: Object) => {
+                        // TODO get workflow as of right now!
                         this.workflowStart(actionName, actionConfig, actionProps);
                     })
                     .toJS();
 
-                const workflowTask: ?Object = userConfig.getIn(['tasks', task]);
+                const workflowTask: ?Object = userConfig.getIn(['tasks', workflow.task]);
                 const promptAsProps: boolean = !!workflowTask
                     && workflowTask.get('status')
                     && workflowTask.get('statusStyle') == "props";
@@ -257,13 +222,9 @@ export default (options: EntityEditorHockOptions): Function => {
                     ? workflowTask.get('status')(promptProps)
                     : null;
 
-                const pending: Object = {}; // TODOthis.pendingProps(config) REMOVE THIS
-
-                // pending actions
                 var props: Object = {
                     actions,
-                    prompt,
-                    pending
+                    prompt
                 };
 
                 return props;

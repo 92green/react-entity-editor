@@ -40,9 +40,6 @@ export default (): Function => {
             }
 
             workflowStart(workflow: Object, name: string, meta: Object = {}): void {
-                if(this.state.workflow) {
-                    return;
-                }
                 this.workflowSet({
                     workflow,
                     name,
@@ -86,9 +83,7 @@ export default (): Function => {
             render(): React.Element<any> {
                 const {workflow, name, meta} = this.state;
                 const task = workflow ? workflow.task : null;
-
-                var nextSteps = Object.assign({}, workflow);
-                delete nextSteps.task;
+                const next = workflow ? workflow.next : null;
 
                 return <ComposedComponent
                     {...this.props}
@@ -96,7 +91,7 @@ export default (): Function => {
                         name,
                         meta: meta || {},
                         task,
-                        nextSteps,
+                        nextSteps: next,
                         start: this.workflowStart,
                         next: this.workflowNext,
                         end: this.workflowEnd

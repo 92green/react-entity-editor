@@ -110,7 +110,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
     },
     tasks: {
         saveOperate: {
-            onEnter: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
+            operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
                 if(!actionProps.payload) {
                     throw `EntityEditor: config.actions.save: actionProps.payload is not defined`;
                 }
@@ -155,7 +155,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             statusStyle: "prompt"
         },
         saveNewOperate: {
-            onEnter: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
+            operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
                 if(!actionProps.payload) {
                     throw `EntityEditor: config.actions.saveNew: actionProps.payload is not defined`;
                 }
@@ -187,7 +187,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             statusStyle: "prompt"
         },
         deleteOperate: {
-            onEnter: ({operations}) => (actionProps: {id: string}): Promiseable => {
+            operate: ({operations}) => (actionProps: {id: string}): Promiseable => {
                 if(!actionProps.id) {
                     throw `EntityEditor: config.actions.delete: actionProps.id is not defined`;
                 }
@@ -228,14 +228,14 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             statusStyle: "prompt"
         },
         goOperate: {
-            onEnter: ({operations}) => (actionProps: Object) => {
+            operate: ({operations}) => (actionProps: Object) => {
                 return operations
                     .onGo(actionProps)
                     .then(() => operations.onDirty({dirty: false}));
             }
         },
         dirtyOperate: {
-            onEnter: ({operations}) => (actionProps: {dirty: Boolean}): Promiseable => {
+            operate: ({operations}) => (actionProps: {dirty: Boolean}): Promiseable => {
                 return operations.onDirty({dirty: actionProps.dirty});
             }
         }
