@@ -20,7 +20,7 @@ const DogsEntityEditorConfig = BaseConfig.merge({
          * Wer'e basing this config off of BaseConfig, so you need to provide onCreate, onUpdate, onDelete for editing items
          * and onGo for navigating between views
          *
-         * The first function signature provides an operationProps object.
+         * In each operation the first function signature provides an operationProps object.
          * This contains all the data modifing functions returned from operationProps
          * (and also all operation functions in this editor, which isn't used in this example)
          *

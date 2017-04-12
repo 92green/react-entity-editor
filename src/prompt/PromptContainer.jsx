@@ -11,6 +11,7 @@ class PromptContainer extends Component {
         super(props);
         this.promptOnYes = this.promptOnYes.bind(this);
         this.promptOnNo = this.promptOnNo.bind(this);
+       // this.promptTaskFallback = this.promptTaskFallback.bind(this);
     }
 
     promptOnYes(): void {
@@ -29,6 +30,7 @@ class PromptContainer extends Component {
             },
             promptProps
         } = this.props;
+
 
         const workflowTask: ?Object =  config.getIn(['tasks', task]);
         const promptOpen: boolean = !!workflowTask
@@ -62,7 +64,8 @@ class PromptContainer extends Component {
 PromptContainer.propTypes = {
     workflow: PropTypes.object,
     config: PropTypes.object.isRequired,
-    promptProps: PropTypes.object.isRequired
+    promptProps: PropTypes.object.isRequired,
+    blocking: PropTypes.bool
 };
 
 export default PromptContainer;

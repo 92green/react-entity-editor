@@ -19,25 +19,41 @@ export default (config): Function => {
 
             constructor(props) {
                 super(props);
-                this.state = config.initialState;
+                this.state = {
+                    animal: null,
+                    animals: null,
+                    ...config.initialState
+                };
 
-                // this.onGet = this.onGet.bind(this);
-                // this.onList = this.onList.bind(this);
-                this.onGo = this.onGo.bind(this);
+                // sync
+                this.onGet = this.onGet.bind(this);
+                this.onList = this.onList.bind(this);
                 this.onCreate = this.onCreate.bind(this);
                 this.onUpdate = this.onUpdate.bind(this);
                 this.onDelete = this.onDelete.bind(this);
+                this.onGo = this.onGo.bind(this);
+
+                // async
+                this.onGetAsync = this.onGetAsync.bind(this);
+                this.onListAsync = this.onListAsync.bind(this);
                 this.onCreateAsync = this.onCreateAsync.bind(this);
                 this.onUpdateAsync = this.onUpdateAsync.bind(this);
                 this.onDeleteAsync = this.onDeleteAsync.bind(this);
             }
 
             onGet(id) {
-                return this.state.animals.find(animal => animal.id == id);
+                console.log(`getting ${config.animalName}`, id);
+                const animal = config.asyncAnimalList.find(animal => animal.id == id); // TODO replace with animal state and just dont pass it down as props until ready
+                this.setState({
+                    animal
+                });
             }
 
             onList() {
-                return this.state.animals;
+                console.log(`listing ${config.animalNamePlural}`);
+                this.setState({
+                    animals: config.asyncAnimalList
+                });
             }
 
             onGo(viewState) {
@@ -114,10 +130,16 @@ export default (config): Function => {
             }
 
             onGetAsync(id) {
+                this.setState({
+                    animal: null
+                });
                 return this.fakeAsync(this.onGet, [id]);
             }
 
             onListAsync() {
+                this.setState({
+                    animals: null
+                });
                 return this.fakeAsync(this.onList, []);
             }
 
@@ -146,7 +168,8 @@ export default (config): Function => {
             }
 
             render(): React.Element<any> {
-                const animalProps = {
+                var animalProps = {
+                    [config.animalName]: this.state.animal,
                     [config.animalNamePlural]: this.state.animals
                 };
 

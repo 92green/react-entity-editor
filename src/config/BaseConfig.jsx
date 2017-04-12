@@ -14,32 +14,28 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         single: "item"
     },
     actions: {
-        /*get: {
+        get: {
             description: "Gets a single item based on an id. Data about items is received via props, so this object exists just so we can provide an error message.",
-            tasks: {
-                error: {
-                    type: "prompt",
-                    style: "modal",
-                    status: ({item}) => ({
-                        title: "Error",
-                        message: <span>An error has occurred, this {item} could not be loaded right now.</span>
-                    })
+            workflow: {
+                task: "getOperate",
+                next: {
+                    onError: {
+                        task: "getError"
+                    }
                 }
             }
         },
         list: {
             description: "Lists all items. Data about lists of items is received via props, so this object exists just so we can provide an error message.",
-            tasks: {
-                error: {
-                    type: "prompt",
-                    style: "modal",
-                    status: ({item}) => ({
-                        title: "Error",
-                        message: ({items}) => <span>An error has occurred, these {items} could not be loaded right now.</span>
-                    })
+            workflow: {
+                task: "listOperate",
+                next: {
+                    onError: {
+                        task: "listError"
+                    }
                 }
             }
-        },*/
+        },
         save: {
             description: "If the item already exists this calls the onUpdate operation, or calls onCreate for new items.",
             workflow: {
@@ -109,6 +105,47 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         }
     },
     tasks: {
+        getOperate: {
+            operate: ({operations}) => (actionProps: {id: string}): Promiseable => {
+                if(!actionProps.id) {
+                    throw `EntityEditor: config.actions.get: actionProps.id is not defined`;
+                }
+                return operations
+                    .onGet(actionProps);
+            },
+            status: ({item}) => ({
+                title: "Loading",
+                message: <span>Loading {item}...</span>
+            }),
+            statusOutput: "prompt"
+        },
+        getError: {
+            status: ({item}) => ({
+                title: "Error",
+                message: <span>An error has occurred, this {item} could not be loaded right now.</span>,
+                yes: "Okay"
+            }),
+            statusOutput: "prompt"
+        },
+        listOperate: {
+            operate: ({operations}) => (actionProps): Promiseable => {
+                return operations
+                    .onList(actionProps);
+            },
+            status: ({items}) => ({
+                title: "Loading",
+                message: <span>Loading {items}...</span>
+            }),
+            statusOutput: "prompt"
+        },
+        listError: {
+            status: ({items}) => ({
+                title: "Error",
+                message: <span>An error has occurred, these {items} could not be loaded right now.</span>,
+                yes: "Okay"
+            }),
+            statusOutput: "prompt"
+        },
         saveOperate: {
             operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
                 if(!actionProps.payload) {
@@ -232,7 +269,8 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 return operations
                     .onGo(actionProps)
                     .then(() => operations.onDirty({dirty: false}));
-            }
+            },
+            blocking: false
         },
         dirtyOperate: {
             operate: ({operations}) => (actionProps: {dirty: Boolean}): Promiseable => {

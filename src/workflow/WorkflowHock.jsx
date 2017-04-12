@@ -49,7 +49,7 @@ export default (): Function => {
 
             workflowNext(nextStep: string, fallback: ?Function): void {
                 const {workflow} = this.state;
-                if(!workflow.next) {
+                if(!workflow || !workflow.next) {
                     if(fallback) {
                         fallback(nextStep);
                         return;
