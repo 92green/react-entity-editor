@@ -1,43 +1,75 @@
-import React from 'react';
-import {connect} from 'react-redux';
-import {EntityEditorList} from 'react-entity-editor';
+import React, {Component, PropTypes} from 'react';
+import {EntityEditorPropType} from 'react-entity-editor';
 
-import DogsEntityEditorConfig from './DogsEntityEditorConfig';
+class DogsList extends Component {
 
-function DogsList(props) {
-    const {
-        dogs_list,
-        entityEditor,
-        dispatch
-    } = props;
+    new() {
+        // the go action in the dogs example expects a view and an optional id
+        const actionProps = {
+            view: "item",
+            id: null // null id on an "item" view indidoges that the item is new
+        };
+        this.props.entityEditor.actions.go(actionProps);
+    }
 
-    return <div>
-        <button className="Button" onClick={entityEditor.actions.goNew}>New dog</button>
-        <table className="Table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Toy</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {dogs_list.map((dog, key) => {
-                    const {id} = dog;
-                    return <tr key={key}>
-                        <td>{dog.name}</td>
-                        <td>{dog.toy}</td>
-                        <td>
-                            <button className="Button Button-small" onClick={entityEditor.actions.goItem.bind(this, {id})}>edit</button>
-                            <button className="Button Button-small" onClick={entityEditor.actions.delete.bind(this, {id, dispatch})}>delete</button>
-                        </td>
-                    </tr>;
-                })}
-            </tbody>
-        </table>
-    </div>
+    edit(id) {
+        // the go action in the dogs example expects a view and an optional id
+        const actionProps = {
+            view: "item",
+            id
+        };
+        this.props.entityEditor.actions.go(actionProps);
+    }
+
+    delete(id) {
+        // the delete action in the dogs example expects an id
+        const actionProps = {
+            id
+        };
+        this.props.entityEditor.actions.delete(actionProps);
+    }
+
+    render() {
+        const {dogs, entityEditor} = this.props;
+        const {abilities} = entityEditor;
+
+        return <div>
+            <button className="Button" onClick={this.new.bind(this)} disabled={!abilities.go}>New dog</button>
+            <table className="Table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Toy</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {dogs.map((dog) => {
+                        const {id} = dog;
+                        return <tr key={id}>
+                            <td>{dog.name}</td>
+                            <td>{dog.toy}</td>
+                            <td>
+                                <button className="Button Button-small" onClick={this.edit.bind(this, id)} disabled={!abilities.go}>edit</button>
+                                <button className="Button Button-small" onClick={this.delete.bind(this, id)} disabled={!abilities.delete}>delete</button>
+                            </td>
+                        </tr>;
+                    })}
+                </tbody>
+            </table>
+        </div>;
+    }
 }
 
-const withEntityEditor = EntityEditorList(DogsEntityEditorConfig);
-const withRedux = connect();
-export default withEntityEditor(withRedux(DogsList));
+DogsList.propTypes = {
+    dogs: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.string,
+            name: PropTypes.string,
+            toy: PropTypes.string
+        })
+    ).isRequired,
+    entityEditor: EntityEditorPropType.isRequired
+};
+
+export default DogsList;

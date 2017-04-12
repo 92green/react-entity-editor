@@ -26,6 +26,14 @@ input {
     &.Button-grey {
         background-color: #9fc2db;
     }
+
+    &[disabled] {
+        background-color: #c6dbea;
+        cursor: default;
+        &:hover {
+            opacity: 1;
+        }
+    }
 }
 
 .InputRow {

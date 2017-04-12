@@ -23,14 +23,14 @@ class PromptContainer extends Component {
 
     render(): React.Element<any> {
         const {
-            userConfig,
+            config,
             workflow: {
                 task
             },
             promptProps
         } = this.props;
 
-        const workflowTask: ?Object =  userConfig.getIn(['tasks', task]);
+        const workflowTask: ?Object =  config.getIn(['tasks', task]);
         const promptOpen: boolean = !!workflowTask
             && workflowTask.get('status')
             && workflowTask.get('statusOutput') == "prompt";
@@ -41,8 +41,8 @@ class PromptContainer extends Component {
             promptDetails = workflowTask.get('status')(promptProps);
         }
 
-        const Prompt: ReactClass<any> = userConfig.getIn(['components', 'prompt']);
-        const PromptContent: ReactClass<any> = userConfig.getIn(['components', 'promptContent']);
+        const Prompt: ReactClass<any> = config.getIn(['components', 'prompt']);
+        const PromptContent: ReactClass<any> = config.getIn(['components', 'promptContent']);
 
         return <Prompt
             {...promptDetails}
@@ -61,7 +61,7 @@ class PromptContainer extends Component {
 
 PromptContainer.propTypes = {
     workflow: PropTypes.object,
-    userConfig: PropTypes.object.isRequired,
+    config: PropTypes.object.isRequired,
     promptProps: PropTypes.object.isRequired
 };
 

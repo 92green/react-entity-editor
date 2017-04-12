@@ -5,26 +5,10 @@ import {Map} from 'immutable';
 import WorkflowHock from './workflow/WorkflowHock';
 import PromptContainer from './prompt/PromptContainer';
 import {EntityEditorConfig} from './config/EntityEditorConfig';
-import {returnPromise} from './Utils';
+import {returnPromise} from './utils/Utils';
 
-type PropNames = {
-    entityEditor?: string,
-    entityEditorRoutes?: string
-};
-
-type EntityEditorHockOptions = {
-    config: EntityEditorConfig,
-    operationProps: Function,
-    propNames?: PropNames
-};
-
-export default (options: EntityEditorHockOptions): Function => {
-    const userConfig: EntityEditorConfig = options.config;
-    const additionalOperationProps: Function = options.operationProps
-        ? options.operationProps
-        : () => {};
-
-    const entityEditorProp: string = (options.propNames && options.propNames.entityEditor) || "entityEditor";
+export default (config: EntityEditorConfig): Function => {
+    const additionalOperationProps: Function = config.get('operationProps', () => {});
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
@@ -114,7 +98,7 @@ export default (options: EntityEditorHockOptions): Function => {
                     throw new Error(`Entity Editor: "task.operate" must be a function`);
                 }
 
-                const originalOperations: Map<string, Function> = userConfig.get('operations');
+                const originalOperations: Map<string, Function> = config.get('operations');
                 const partiallyAppliedOperations: Map<string, Function> = this.partiallyApplyOperations(originalOperations, props);
 
                 const nextWorkflow = props.workflow;
@@ -206,7 +190,7 @@ export default (options: EntityEditorHockOptions): Function => {
             }
 
             getCurrentTask(props: ?Object = this.props): ?Object {
-                return userConfig.getIn(['tasks', props.workflow.task]);
+                return config.getIn(['tasks', props.workflow.task]);
             }
 
             isCurrentTaskBlocking(props: ?Object = this.props): boolean {
@@ -219,14 +203,29 @@ export default (options: EntityEditorHockOptions): Function => {
              */
 
             entityEditorProps(statusProps: Object): Object {
-                const actions: Object = userConfig
+
+                // actions
+
+                const actions: Object<Function> = config
                     .get('actions', Map())
                     .map((actionConfig: Object, actionName: string) => (actionProps: Object) => {
                         if(!this.isCurrentTaskBlocking()) {
                             this.workflowStart(actionName, actionConfig, actionProps);
                         }
                     })
-                    .toJS();
+                    .toObject();
+
+                // abilities
+
+                // for now this returns the same result for all action names
+                // and is structured like this to prevent changing the API if more granular abilities are added
+
+                const abilities: Object = config
+                    .get('actions', Map())
+                    .map((actionConfig: Object, actionName: string) => !this.isCurrentTaskBlocking())
+                    .toObject();
+
+                // status
 
                 const currentWorkflow: ?Object = this.getCurrentTask();
                 const statusAsProps: boolean = !!currentWorkflow
@@ -237,12 +236,11 @@ export default (options: EntityEditorHockOptions): Function => {
                     ? currentWorkflow.get('status')(statusProps)
                     : null;
 
-                var props: Object = {
+                return {
                     actions,
+                    abilities,
                     status
                 };
-
-                return props;
             }
 
             /*
@@ -253,22 +251,18 @@ export default (options: EntityEditorHockOptions): Function => {
                 const {workflow} = this.props;
                 const statusProps: Object = {
                     editorState: this.getEditorState(),
-                    ...userConfig.itemNames()
-                };
-
-                const props: Object = {
-                    ...this.props,
-                    [entityEditorProp]: this.entityEditorProps(statusProps)
+                    ...config.itemNames()
                 };
 
                 return <div>
                     <ComposedComponent
-                        {...props}
+                        {...this.props}
+                        entityEditor={this.entityEditorProps(statusProps)}
                     />
                     <PromptContainer
                         workflow={workflow}
-                        userConfig={userConfig}
-                        statusProps={statusProps}
+                        config={config}
+                        promptProps={statusProps}
                     />
                 </div>;
             }

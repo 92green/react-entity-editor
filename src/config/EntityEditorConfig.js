@@ -3,7 +3,7 @@
 /* eslint-disable no-console */
 
 import {fromJS, List, Map} from 'immutable';
-import {returnPromise} from '../Utils';
+import {returnPromise} from '../utils/Utils';
 
 class EntityEditorConfig {
 

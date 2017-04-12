@@ -1,20 +1,22 @@
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
+import {EntityEditorPropType} from 'react-entity-editor';
 
-class CatsItemForm extends Component {
+class DogsItem extends Component {
 
     constructor(props) {
         super(props);
 
-        // set up initial form state with any values from cat
+        // set up form
         const fields = ['name', 'toy'];
         var form = {};
         fields.forEach(field => {
-            form[field] = props.cat ? props.cat[field]) : "";
+            form[field] = props.dog ? props.dog[field] : "";
         });
         this.state = {form};
 
         // bind methods to this class
         this.onChangeField = this.onChangeField.bind(this);
+        this.back = this.back.bind(this);
         this.save = this.save.bind(this);
         this.delete = this.delete.bind(this);
     }
@@ -36,12 +38,21 @@ class CatsItemForm extends Component {
         };
     }
 
+    back() {
+        // the go action in the dogs example expects a view and an optional id
+        const actionProps = {
+            view: "list",
+            id: null
+        };
+        this.props.entityEditor.actions.go(actionProps);
+    }
+
     save() {
-        // the save action expects a payload and an optional id
-        // keep in mind that this.props.cat wont exist yet if you're making a new cat
+        // the save action in the dogs example expects a payload and an optional id
+        // keep in mind that this.props.dog wont exist yet if you're making a new dog
         const actionProps = {
             payload: this.state.form,
-            id: this.props.cat ? this.props.cat.id : null
+            id: this.props.dog ? this.props.dog.id : null
         };
 
         // the save action is supplied via the entityEditor prop
@@ -49,16 +60,19 @@ class CatsItemForm extends Component {
     }
 
     delete() {
-        // the delete action expects an id
+        // the delete action in the dogs example expects an id
         const actionProps = {
-            id: this.props.cat.id
+            id: this.props.dog.id
         };
         this.props.entityEditor.actions.delete(actionProps);
     }
 
     render() {
-        const {entityEditor} = this.props;
+        const {dog, entityEditor} = this.props;
+        const {status, abilities} = entityEditor;
+
         return <div>
+            <h3>{dog ? "Edit" : "New"} dog</h3>
             <div className="InputRow">
                 <label htmlFor="name">Name</label>
                 <input
@@ -75,18 +89,22 @@ class CatsItemForm extends Component {
                     id="toy"
                 />
             </div>
-            <button className="Button Button-grey" onClick={entityEditor.actions.go.bind(this, {name: "list"})}>Back</button>
-            <button className="Button" onClick={this.save}>Save</button>
-            {this.props.cat && // only show delete button when we have an item
-                <button className="Button" onClick={this.delete}>Delete</button>
-            }
-            {entityEditor.status && // if a status comes down as props, render it
-                <em>{entityEditor.status.title}</em>
+            <button className="Button Button-grey" onClick={this.back} disabled={!abilities.go}>Back</button>
+            <button className="Button" onClick={this.save} disabled={!abilities.save}>Save</button>
+            {this.props.dog && // only show delete button when we have an item
+                <button className="Button" onClick={this.delete} disabled={!abilities.delete}>Delete</button>
             }
         </div>;
     }
 }
 
-// TODO  props validation
+DogsItem.propTypes = {
+    dog: PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        toy: PropTypes.string
+    }),
+    entityEditor: EntityEditorPropType.isRequired
+};
 
-export default CatsItemForm;
+export default DogsItem;

@@ -1,38 +1,25 @@
-//
-// This file provides props for the cats example
-// + cats data as props
-// + methods to modify cat data
-// + state regarding the views (including which item is being edited)
-// + methods to modify which view is being viewed
-//
+/*
+ * AnimalStore
+ *
+ * This is a stub data store used to make examples work. Its exact implementation doesn't matter for the examples.
+ * It passes data down as props, and also passes down CRUD functions to modify the data.
+ * You can imagine this would be replaced with a combination of XHR requests and redux if it were in an actual app.
+ *
+ * Additionally it holds state about the current viewState (including which item is being edited)
+ * and a function to change the viewState.
+ * In an actual app React Router v4 could possibly be used instead.
+ */
 
 import React, {Component} from 'react';
 
-export default (): Function => {
+export default (config): Function => {
     return (ComposedComponent): ReactClass<any> => {
 
-        class CatsStateHockDecorator extends Component {
+        class AnimalStoreDecorator extends Component {
 
             constructor(props) {
                 super(props);
-                this.state = {
-                    view: {
-                        id: null,
-                        name: "list"
-                    },
-                    cats: [
-                        {
-                            id: "1",
-                            name: "Fred",
-                            toy: "Fuzz ball"
-                        },
-                        {
-                            id: "2",
-                            name: "Scruffy",
-                            toy: "Cork"
-                        }
-                    ]
-                };
+                this.state = config.initialState;
 
                 // this.onGet = this.onGet.bind(this);
                 // this.onList = this.onList.bind(this);
@@ -45,26 +32,26 @@ export default (): Function => {
                 this.onDeleteAsync = this.onDeleteAsync.bind(this);
             }
 
-            // onGet(id) {
-            //     return this.state.cats.find(cat => cat.id == id);
-            // }
+            onGet(id) {
+                return this.state.animals.find(animal => animal.id == id);
+            }
 
-            // onList() {
-            //     return this.state.cats;
-            // }
+            onList() {
+                return this.state.animals;
+            }
 
-            onGo(view) {
-                console.log('navigating to another view:', view);
+            onGo(viewState) {
+                console.log(`going to another view:`, viewState);
                 this.setState({
-                    view
+                    viewState
                 });
             }
 
             onCreate(payload) {
-                console.log('cat state: create cat', payload);
-                const {cats} = this.state;
-                const newId = cats.length
-                    ? String(Number(cats.slice(-1).pop().id) + 1)
+                console.log(`creating ${config.animalName}`, payload);
+                const {animals} = this.state;
+                const newId = animals.length
+                    ? String(Number(animals.slice(-1).pop().id) + 1)
                     : "1";
 
                 const newCat = {
@@ -73,16 +60,16 @@ export default (): Function => {
                 };
 
                 this.setState({
-                    cats: [...cats, newCat]
+                    animals: [...animals, newCat]
                 });
 
                 return newCat;
             }
 
             onUpdate(id, payload) {
-                console.log('cat state: update cat', id, payload);
-                const {cats} = this.state;
-                const catIndex = cats
+                console.log(`updating ${config.animalName}`, id, payload);
+                const {animals} = this.state;
+                const catIndex = animals
                     .map(cat => cat.id)
                     .indexOf(id);
 
@@ -95,20 +82,20 @@ export default (): Function => {
                     id
                 };
 
-                var newCats = cats.slice();
+                var newCats = animals.slice();
                 newCats[catIndex] = newCat;
 
                 this.setState({
-                    cats: newCats
+                    animals: newCats
                 });
 
                 return newCat;
             }
 
             onDelete(id) {
-                console.log('cat state: delete cat', id);
-                const {cats} = this.state;
-                const catIndex = cats
+                console.log(`deleting ${config.animalName}`, id);
+                const {animals} = this.state;
+                const catIndex = animals
                     .map(cat => cat.id)
                     .indexOf(id);
 
@@ -116,14 +103,26 @@ export default (): Function => {
                     return;
                 }
 
-                var newCats = cats.slice();
+                var newCats = animals.slice();
                 newCats.splice(catIndex, 1);
 
                 this.setState({
-                    cats: newCats
+                    animals: newCats
                 });
 
                 return {id};
+            }
+
+            onGetAsync(id) {
+                return this.fakeAsync(this.onGet, [id]);
+            }
+
+            onListAsync() {
+                return this.fakeAsync(this.onList, []);
+            }
+
+            onCreateAsync(payload) {
+                return this.fakeAsync(this.onCreate, [payload]);
             }
 
             onCreateAsync(payload) {
@@ -142,19 +141,27 @@ export default (): Function => {
                 return new Promise((resolve) => {
                     setTimeout(() => {
                         resolve(callback(...args));
-                    }, 500);
+                    }, config.asyncDelay);
                 });
             }
 
             render(): React.Element<any> {
+                const animalProps = {
+                    [config.animalNamePlural]: this.state.animals
+                };
+
                 return <ComposedComponent
                     {...this.props}
-                    cats={this.state.cats}
-                    view={this.state.view}
+                    {...animalProps}
+                    viewState={this.state.viewState}
                     onGo={this.onGo}
+                    onGet={this.onGet}
+                    onList={this.onList}
                     onCreate={this.onCreate}
                     onUpdate={this.onUpdate}
                     onDelete={this.onDelete}
+                    onGetAsync={this.onGetAsync}
+                    onListAsync={this.onListAsync}
                     onCreateAsync={this.onCreateAsync}
                     onUpdateAsync={this.onUpdateAsync}
                     onDeleteAsync={this.onDeleteAsync}
@@ -162,6 +169,6 @@ export default (): Function => {
             }
         }
 
-        return CatsStateHockDecorator;
+        return AnimalStoreDecorator;
     }
 };
