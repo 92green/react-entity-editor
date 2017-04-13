@@ -5,20 +5,38 @@ class BatsItem extends Component {
 
     constructor(props) {
         super(props);
-
-        // set up form
-        const fields = ['name', 'diet'];
-        var form = {};
-        fields.forEach(field => {
-            form[field] = props.bat ? props.bat[field] : "";
-        });
-        this.state = {form};
+        this.state = {
+            form: {}
+        };
 
         // bind methods to this class
         this.onChangeField = this.onChangeField.bind(this);
         this.back = this.back.bind(this);
         this.save = this.save.bind(this);
         this.delete = this.delete.bind(this);
+    }
+
+    componentWillMount() {
+        this.setupForm(this.props.bat);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(this.props.bat !== nextProps.bat) {
+            this.setupForm(nextProps.bat);
+        }
+    }
+
+    setupForm(bat) {
+        // set up form
+        const fields = ['name', 'diet'];
+        var form = {};
+        fields.forEach(field => {
+            form[field] = bat ? bat[field] : "";
+        });
+
+        this.state = {
+            form
+        };
     }
 
     onChangeField(field) {

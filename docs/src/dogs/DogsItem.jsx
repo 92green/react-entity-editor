@@ -5,20 +5,38 @@ class DogsItem extends Component {
 
     constructor(props) {
         super(props);
-
-        // set up form
-        const fields = ['name', 'toy'];
-        var form = {};
-        fields.forEach(field => {
-            form[field] = props.dog ? props.dog[field] : "";
-        });
-        this.state = {form};
+        this.state = {
+            form: {}
+        };
 
         // bind methods to this class
         this.onChangeField = this.onChangeField.bind(this);
         this.back = this.back.bind(this);
         this.save = this.save.bind(this);
         this.delete = this.delete.bind(this);
+    }
+
+    componentWillMount() {
+        this.setupForm(this.props.dog);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(this.props.dog !== nextProps.dog) {
+            this.setupForm(nextProps.dog);
+        }
+    }
+
+    setupForm(dog) {
+        // set up form
+        const fields = ['name', 'toy'];
+        var form = {};
+        fields.forEach(field => {
+            form[field] = dog ? dog[field] : "";
+        });
+
+        this.state = {
+            form
+        };
     }
 
     onChangeField(field) {
@@ -69,7 +87,7 @@ class DogsItem extends Component {
 
     render() {
         const {dog, entityEditor} = this.props;
-        const {status, abilities} = entityEditor;
+        const {abilities} = entityEditor;
 
         return <div>
             <h3>{dog ? "Edit" : "New"} dog</h3>

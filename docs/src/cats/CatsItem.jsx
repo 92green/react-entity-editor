@@ -5,20 +5,38 @@ class CatsItem extends Component {
 
     constructor(props) {
         super(props);
-
-        // set up form
-        const fields = ['name', 'toy'];
-        var form = {};
-        fields.forEach(field => {
-            form[field] = props.cat ? props.cat[field] : "";
-        });
-        this.state = {form};
+        this.state = {
+            form: {}
+        };
 
         // bind methods to this class
         this.onChangeField = this.onChangeField.bind(this);
         this.back = this.back.bind(this);
         this.save = this.save.bind(this);
         this.delete = this.delete.bind(this);
+    }
+
+    componentWillMount() {
+        this.setupForm(this.props.cat);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(this.props.cat !== nextProps.cat) {
+            this.setupForm(nextProps.cat);
+        }
+    }
+
+    setupForm(cat) {
+        // set up form
+        const fields = ['name', 'toy'];
+        var form = {};
+        fields.forEach(field => {
+            form[field] = cat ? cat[field] : "";
+        });
+
+        this.state = {
+            form
+        };
     }
 
     onChangeField(field) {

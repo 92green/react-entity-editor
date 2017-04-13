@@ -45,16 +45,22 @@ const CatsEntityEditorConfig = BaseConfig.merge({
          * If not, then returning nothing or true will be interpreted as a success,
          * or returning false will be interpreted as an error.
          */
-        onCreate: ({catCreate, catGoItem}) => ({payload}) => {
+        onCreate: ({catCreate, catGo}) => ({payload}) => {
             return catCreate(payload)
-                .then((result) => catGoItem(result.id)); // once created, navigate to the edit page for the new item
+                .then((result) => catGo({ // once created, navigate to the edit page for the new item
+                    id: result.id,
+                    view: "item"
+                }));
         },
         onUpdate: ({catUpdate}) => ({id, payload}) => {
             return catUpdate(id, payload);
         },
-        onDelete: ({catDelete, catGoList}) => ({id}) => {
+        onDelete: ({catDelete, catGo}) => ({id}) => {
             return catDelete(id)
-                .then(() => catGoList()); // once deleted, navigate to the list page
+                .then(() => catGo({ // once deleted, navigate to the list page
+                    id: null,
+                    view: "list"
+                }));
         },
         onGo: ({catGo}) => ({id, view}) => {
             return catGo({id, view});
@@ -75,12 +81,7 @@ const CatsEntityEditorConfig = BaseConfig.merge({
             catCreate: props.onCreateAsync,
             catUpdate: props.onUpdateAsync,
             catDelete: props.onDeleteAsync,
-            catGo: props.onGo,
-
-            // you can also define new functions with specific behaviour
-            catGoList: () => props.onGo({id: null, view: "list"}),
-            catGoNew: () => props.onGo({id: null, view: "item"}),
-            catGoItem: (id) => props.onGo({id, view: "item"})
+            catGo: props.onGo
         }
     }
 });

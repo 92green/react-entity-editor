@@ -167,15 +167,18 @@ export default (config): Function => {
             }
 
             render(): React.Element<any> {
-                var animalProps = {
+                var extraProps = {
                     [config.animalName]: this.state.animalLoaded ? this.state.animal : null,
                     [config.animalNamePlural]: this.state.animalsLoaded ? this.state.animals : null
                 };
 
+                if(this.state.viewState) {
+                    extraProps.viewState = this.state.viewState;
+                }
+
                 return <ComposedComponent
                     {...this.props}
-                    {...animalProps}
-                    viewState={this.state.viewState}
+                    {...extraProps}
                     onGo={this.onGo}
                     onGet={this.onGet}
                     onList={this.onList}

@@ -33,16 +33,22 @@ const DogsEntityEditorConfig = BaseConfig.merge({
          * If not, then returning nothing or true will be interpreted as a success,
          * or returning false will be interpreted as an error.
          */
-        onCreate: ({dogCreate, dogGoItem}) => ({payload}) => {
+        onCreate: ({dogCreate, dogGo}) => ({payload}) => {
             return dogCreate(payload)
-                .then((result) => dogGoItem(result.id)); // once created, navigate to the edit page for the new item
+                .then((result) => dogGo({ // once created, navigate to the edit page for the new item
+                    id: result.id,
+                    view: "item"
+                }));
         },
         onUpdate: ({dogUpdate}) => ({id, payload}) => {
             return dogUpdate(id, payload);
         },
-        onDelete: ({dogDelete, dogGoList}) => ({id}) => {
+        onDelete: ({dogDelete, dogGo}) => ({id}) => {
             return dogDelete(id)
-                .then(() => dogGoList()); // once deleted, navigate to the list page
+                .then(() => dogGo({ // once deleted, navigate to the list page
+                    id: null,
+                    view: "list"
+                }));
         },
         onGo: ({dogGo}) => ({id, view}) => {
             return dogGo({id, view});
@@ -58,12 +64,7 @@ const DogsEntityEditorConfig = BaseConfig.merge({
             dogCreate: props.onCreate,
             dogUpdate: props.onUpdate,
             dogDelete: props.onDelete,
-            dogGo: props.onGo,
-
-            // you can also define new functions with specific behaviour
-            dogGoList: () => props.onGo({id: null, view: "list"}),
-            dogGoNew: () => props.onGo({id: null, view: "item"}),
-            dogGoItem: (id) => props.onGo({id, view: "item"})
+            dogGo: props.onGo
         }
     }
 });
