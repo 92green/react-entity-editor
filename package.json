@@ -32,7 +32,8 @@
     "lint-fix": "eslint src/**/*.jsx src/**/*.js --fix",
     "prepublish": "npm run build",
     "test": "nyc --report-dir=./coverage ava && yarn run check-coverage",
-    "test-all": "yarn run lint && yarn run flow && yarn run test"
+    "test-all": "yarn run lint && yarn run flow && yarn run test",
+    "watch": "babel src -d lib --watch"
   },
   "devDependencies": {
     "app-module-path": "^2.0.0",
