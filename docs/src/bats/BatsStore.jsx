@@ -8,23 +8,25 @@ const BatsStore = () => AnimalStore({
     animalNamePlural: "bats",
     asyncDelay: 1000,
     initialState: {
+        animalLoaded: false,
+        animalsLoaded: false,
+        animals: [
+            {
+                id: "1",
+                name: "Vlad",
+                diet: "Berries"
+            },
+            {
+                id: "2",
+                name: "Sven",
+                diet: "Blood"
+            }
+        ],
         viewState: {
             id: null,
             view: "list"
         }
-    },
-    asyncAnimalList: [
-        {
-            id: "1",
-            name: "Vlad",
-            diet: "Berries"
-        },
-        {
-            id: "2",
-            name: "Sven",
-            diet: "Blood"
-        }
-    ]
+    }
 });
 
 export default BatsStore;

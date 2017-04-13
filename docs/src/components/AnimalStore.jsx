@@ -21,7 +21,9 @@ export default (config): Function => {
                 super(props);
                 this.state = {
                     animal: null,
+                    animalLoaded: true,
                     animals: null,
+                    animalsLoaded: true,
                     ...config.initialState
                 };
 
@@ -43,16 +45,17 @@ export default (config): Function => {
 
             onGet(id) {
                 console.log(`getting ${config.animalName}`, id);
-                const animal = config.asyncAnimalList.find(animal => animal.id == id); // TODO replace with animal state and just dont pass it down as props until ready
+                const animal = this.state.animals.find(animal => animal.id == id);
                 this.setState({
-                    animal
+                    animal,
+                    animalLoaded: true
                 });
             }
 
             onList() {
                 console.log(`listing ${config.animalNamePlural}`);
                 this.setState({
-                    animals: config.asyncAnimalList
+                    animalsLoaded: true
                 });
             }
 
@@ -131,20 +134,16 @@ export default (config): Function => {
 
             onGetAsync(id) {
                 this.setState({
-                    animal: null
+                    animalLoaded: false
                 });
                 return this.fakeAsync(this.onGet, [id]);
             }
 
             onListAsync() {
                 this.setState({
-                    animals: null
+                    animalsLoaded: false
                 });
                 return this.fakeAsync(this.onList, []);
-            }
-
-            onCreateAsync(payload) {
-                return this.fakeAsync(this.onCreate, [payload]);
             }
 
             onCreateAsync(payload) {
@@ -169,8 +168,8 @@ export default (config): Function => {
 
             render(): React.Element<any> {
                 var animalProps = {
-                    [config.animalName]: this.state.animal,
-                    [config.animalNamePlural]: this.state.animals
+                    [config.animalName]: this.state.animalLoaded ? this.state.animal : null,
+                    [config.animalNamePlural]: this.state.animalsLoaded ? this.state.animals : null
                 };
 
                 return <ComposedComponent

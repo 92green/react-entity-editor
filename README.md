@@ -1,8 +1,10 @@
 # react-entity-editor
 
+*Almost ready!™*
+
 ### Early stages of development, please prepare for large amounts of changes until version 1.0.0.
 
-- [Examples and documentation](https://dxinteractive.github.io/react-entity-editor/)
+- [Examples](https://dxinteractive.github.io/react-entity-editor/)
 
 React Entity Editor is a small set of React components that make it easier and cleaner to set up editor UIs, by abstracting away several patterns that commonly occur in editors.
 
@@ -34,7 +36,7 @@ Most of entity editor's functionality is applied to your editor component via th
 ```js
 import React, {Component} from 'react';
 import {EntityEditor} from 'react-entity-editor';
-import ExampleEntityEditorConfig from './ExampleEntityEditorConfig';
+import Config from './ExampleEntityEditorConfig';
 
 class ExampleEditor extends Component {
     render() {
@@ -42,7 +44,7 @@ class ExampleEditor extends Component {
     }
 }
 
-const withEntityEditor = EntityEditor(ExampleEntityEditorConfig);
+const withEntityEditor = EntityEditor(Config);
 export default withEntityEditor(ExampleEditor);
 
 ```
@@ -65,10 +67,10 @@ The EntityEditor higher order component must be given an `EntityEditorConfig`. T
 
 The `EntityEditor` higher order component passes down a single `entityEditor` prop. It is an object that contains the following:
 
-  - **entityEditor.actions** *:Object<ActionTriggerFunction>* An object containing editor actions to be called in response to user interactions. ActionTriggerFunctions accept a single argument, an object of data to pass to the action.
-  - **entityEditor.abilities** *Object<boolean>* An object with action names for keys and booleans for values. Each boolean indicates if the action is able to be started, which is useful for conditionally disabling buttons.
-  - **entityEditor.status** *Object<any>|null* If a task is in progress this will be an object containing renderable info about the current task. The exact contents of this object come from the config being used, e.g. *config.actions.<currentAction>.tasks.<currentTask>.status*
+  - **entityEditor.actions** `:Object<ActionTriggerFunction>` An object containing editor actions to be called in response to user interactions. ActionTriggerFunctions accept a single argument, an object of data to pass to the action.
+  - **entityEditor.abilities** `Object<boolean>` An object with action names for keys and booleans for values. Each boolean indicates if the action is able to be started, which is useful for conditionally disabling buttons.
+  - **entityEditor.status** `Object<any>|null` If a task is in progress this will be an object containing renderable info about the current task. The exact contents of this object come from the config being used, e.g. `config.tasks.<currentTask>.status`
 
 ## Entity Editor Config
 
-
+TODO

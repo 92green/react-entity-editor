@@ -4,27 +4,27 @@ import BatsItem from './BatsItem';
 
 class BatsItemLoader extends Component {
 
-    componentWillMount() {
-        // when this component mounts, if there is an id then request this bat by its id
-        if(this.props.id) {
-            this.get(this.props.id);
-        }
-    }
+    // componentWillMount() {
+    //     // when this component mounts, if there is an id then request this bat by its id
+    //     if(this.props.id) {
+    //         this.get(this.props.id);
+    //     }
+    // }
 
-    componentWillReceiveProps(nextProps) {
-        // when this component is about to receive props, if the id has changed then request this bat by its id
-        if(nextProps.id && this.props.id !== nextProps.id) {
-            this.get(nextProps.id);
-        }
-    }
+    // componentWillReceiveProps(nextProps) {
+    //     // when this component is about to receive props, if the id has changed then request this bat by its id
+    //     if(nextProps.id && this.props.id !== nextProps.id) {
+    //         this.get(nextProps.id);
+    //     }
+    // }
 
-    get(id) {
-        // get the bat with the provided id
-        const actionProps = {
-            id
-        };
-        this.props.entityEditor.actions.get(actionProps);
-    }
+    // get(id) {
+    //     // get the bat with the provided id
+    //     const actionProps = {
+    //         id
+    //     };
+    //     this.props.entityEditor.actions.get(actionProps);
+    // }
 
     render() {
         const {id, bat, entityEditor} = this.props;

@@ -269,8 +269,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 return operations
                     .onGo(actionProps)
                     .then(() => operations.onDirty({dirty: false}));
-            },
-            blocking: false
+            }
         },
         dirtyOperate: {
             operate: ({operations}) => (actionProps: {dirty: Boolean}): Promiseable => {

@@ -3,11 +3,11 @@ import {EntityEditorPropType} from 'react-entity-editor';
 
 class BatsList extends Component {
 
-    componentWillMount() {
-        // when this component mounts, request the list of bats
-        // this doesn't require any action props
-        this.props.entityEditor.actions.list();
-    }
+    // componentWillMount() {
+    //     // when this component mounts, request the list of bats
+    //     // this doesn't require any action props
+    //     this.props.entityEditor.actions.list();
+    // }
 
     new() {
         // the go action in the bats example expects a view and an optional id
