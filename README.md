@@ -59,7 +59,7 @@ The EntityEditor higher order component must be given an `EntityEditorConfig`. T
 
  - **action**
 
-    Action are functions that the user can trigger with the UI, such as `save` or `delete`. Each action contains a `workflow`, and calling an action will start its workflow.
+    Action are functions that the user can trigger with the UI, such as `save` or `delete`. Each action contains a `workflow`, and calling an action will start its workflow. Only one action can be in progress at a time.
 
  - **workflow**
 
