@@ -1,19 +1,25 @@
 import React, {Component, PropTypes} from 'react';
 import {EntityEditorPropType} from 'react-entity-editor';
 
-class DogsList extends Component {
+class BatsList extends Component {
+
+    // componentWillMount() {
+    //     // when this component mounts, request the list of bats
+    //     // this doesn't require any action props
+    //     this.props.entityEditor.actions.list();
+    // }
 
     new() {
-        // the go action in the dogs example expects a view and an optional id
+        // the go action in the bats example expects a view and an optional id
         const actionProps = {
             view: "item",
-            id: null // null id on an "item" view indidoges that the item is new
+            id: null // null id on an "item" view indibates that the item is new
         };
         this.props.entityEditor.actions.go(actionProps);
     }
 
     edit(id) {
-        // the go action in the dogs example expects a view and an optional id
+        // the go action in the bats example expects a view and an optional id
         const actionProps = {
             view: "item",
             id
@@ -22,7 +28,7 @@ class DogsList extends Component {
     }
 
     delete(id) {
-        // the delete action in the dogs example expects an id
+        // the delete action in the bats example expects an id
         const actionProps = {
             id
         };
@@ -30,11 +36,21 @@ class DogsList extends Component {
     }
 
     render() {
-        const {dogs, entityEditor} = this.props;
-        const {abilities} = entityEditor;
+        const {bats, entityEditor} = this.props;
+        const {abilities, status} = entityEditor;
+
+        // if we don't have the list information yet...
+        if(!bats) {
+            // ...but if something is loading, show it
+            if(status) {
+                return <p><em>{status.title}</em></p>;
+            }
+            // or else, we have nothing to show at all
+            return null;
+        }
 
         return <div>
-            <button className="Button" onClick={this.new.bind(this)} disabled={!abilities.go}>New dog</button>
+            <button className="Button" onClick={this.new.bind(this)} disabled={!abilities.go}>New bat</button>
             <table className="Table">
                 <thead>
                     <tr>
@@ -44,11 +60,11 @@ class DogsList extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {dogs.map((dog) => {
-                        const {id} = dog;
+                    {bats.map((bat) => {
+                        const {id} = bat;
                         return <tr key={id}>
-                            <td>{dog.name}</td>
-                            <td>{dog.toy}</td>
+                            <td>{bat.name}</td>
+                            <td>{bat.diet}</td>
                             <td>
                                 <button className="Button Button-small" onClick={this.edit.bind(this, id)} disabled={!abilities.go}>edit</button>
                                 <button className="Button Button-small" onClick={this.delete.bind(this, id)} disabled={!abilities.delete}>delete</button>
@@ -61,15 +77,15 @@ class DogsList extends Component {
     }
 }
 
-DogsList.propTypes = {
-    dogs: PropTypes.arrayOf(
+BatsList.propTypes = {
+    bats: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.string,
             name: PropTypes.string,
-            toy: PropTypes.string
+            diet: PropTypes.string
         })
-    ).isRequired,
+    ),
     entityEditor: EntityEditorPropType.isRequired
 };
 
-export default DogsList;
+export default BatsList;

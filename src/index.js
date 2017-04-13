@@ -1,21 +1,16 @@
-import EntityEditorItem from './EntityEditorItem';
-import EntityEditorList from './EntityEditorList';
-import EntityEditorLoader from './EntityEditorLoader';
-import createEditorRoutes from './router/createEditorRoutes';
-import EntityEditorRoute from './router/EntityEditorRoute';
-import EntityEditorItemRoute from './router/EntityEditorItemRoute';
+import EntityEditorConfig from './config/EntityEditorConfig';
+import BaseConfig from './config/BaseConfig';
+import EntityEditor from './EntityEditorHock';
+import EntityEditorPropType from './EntityEditorPropType';
+
 import Modal from './modal/Modal';
 import ModalContent from './modal/ModalContent';
-import {mergeConfig} from './Config';
 
 export {
-  EntityEditorItem,
-  EntityEditorList,
-  EntityEditorLoader,
-  EntityEditorRoute,
-  EntityEditorItemRoute,
+  EntityEditor,
+  EntityEditorPropType,
+  EntityEditorConfig,
+  BaseConfig,
   Modal,
-  ModalContent,
-  createEditorRoutes,
-  mergeConfig
+  ModalContent
 }

@@ -1,19 +1,19 @@
 import React, {Component, PropTypes} from 'react';
 import {EntityEditorPropType} from 'react-entity-editor';
 
-class DogsList extends Component {
+class CatsList extends Component {
 
     new() {
-        // the go action in the dogs example expects a view and an optional id
+        // the go action in the cats example expects a view and an optional id
         const actionProps = {
             view: "item",
-            id: null // null id on an "item" view indidoges that the item is new
+            id: null // null id on an "item" view indicates that the item is new
         };
         this.props.entityEditor.actions.go(actionProps);
     }
 
     edit(id) {
-        // the go action in the dogs example expects a view and an optional id
+        // the go action in the cats example expects a view and an optional id
         const actionProps = {
             view: "item",
             id
@@ -22,7 +22,7 @@ class DogsList extends Component {
     }
 
     delete(id) {
-        // the delete action in the dogs example expects an id
+        // the delete action in the cats example expects an id
         const actionProps = {
             id
         };
@@ -30,11 +30,11 @@ class DogsList extends Component {
     }
 
     render() {
-        const {dogs, entityEditor} = this.props;
+        const {cats, entityEditor} = this.props;
         const {abilities} = entityEditor;
 
         return <div>
-            <button className="Button" onClick={this.new.bind(this)} disabled={!abilities.go}>New dog</button>
+            <button className="Button" onClick={this.new.bind(this)} disabled={!abilities.go}>New cat</button>
             <table className="Table">
                 <thead>
                     <tr>
@@ -44,11 +44,11 @@ class DogsList extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    {dogs.map((dog) => {
-                        const {id} = dog;
+                    {cats.map((cat) => {
+                        const {id} = cat;
                         return <tr key={id}>
-                            <td>{dog.name}</td>
-                            <td>{dog.toy}</td>
+                            <td>{cat.name}</td>
+                            <td>{cat.toy}</td>
                             <td>
                                 <button className="Button Button-small" onClick={this.edit.bind(this, id)} disabled={!abilities.go}>edit</button>
                                 <button className="Button Button-small" onClick={this.delete.bind(this, id)} disabled={!abilities.delete}>delete</button>
@@ -61,8 +61,8 @@ class DogsList extends Component {
     }
 }
 
-DogsList.propTypes = {
-    dogs: PropTypes.arrayOf(
+CatsList.propTypes = {
+    cats: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.string,
             name: PropTypes.string,
@@ -72,4 +72,4 @@ DogsList.propTypes = {
     entityEditor: EntityEditorPropType.isRequired
 };
 
-export default DogsList;
+export default CatsList;

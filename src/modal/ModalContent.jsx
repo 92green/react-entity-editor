@@ -1,29 +1,30 @@
 /* @flow */
 
-import React, { Component, PropTypes } from 'react';
-import ReactModal from 'react-modal';
+import React, {Component, PropTypes} from 'react';
 
-function ModalContent(props): React.Element<any> {
-    const {
-        title,
-        children,
-        yes,
-        no,
-        onYes,
-        onNo,
-        classNames
-    } = props;
+class ModalContent extends Component {
+    render(): React.Element<any> {
+        const {
+            title,
+            children,
+            yes,
+            no,
+            onYes,
+            onNo,
+            classNames
+        } = this.props;
 
-    return <div>
-        {title && <div className={classNames.modalTitle}>{title}</div>}
-        <div className={classNames.modalBody}>
-            {children}
-            <div className={classNames.modalButtonContainer}>
-                {yes ? <button className={classNames.modalButton} onClick={onYes.bind(this)}>{yes}</button> : null}
-                {no ? <button className={classNames.modalButtonSecondary} onClick={onNo.bind(this)}>{no}</button> : null}
+        return <div>
+            {title && <div className={classNames.modalTitle}>{title}</div>}
+            <div className={classNames.modalBody}>
+                {children}
+                <div className={classNames.modalButtonContainer}>
+                    {yes ? <button className={classNames.modalButton} onClick={onYes}>{yes}</button> : null}
+                    {no ? <button className={classNames.modalButtonSecondary} onClick={onNo}>{no}</button> : null}
+                </div>
             </div>
-        </div>
-    </div>;
+        </div>;
+    }
 }
 
 ModalContent.propTypes = {

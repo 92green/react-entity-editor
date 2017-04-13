@@ -4,16 +4,15 @@ import {Route, IndexRoute} from 'react-router';
 import AppHandler from 'components/AppHandler';
 import ErrorHandler from 'components/ErrorHandler';
 import HomePage from 'pages/HomePage';
-
-import DogsRoutes from 'dogs/DogsRoutes';
-import SlothsRoutes from 'sloths/SlothsRoutes';
-import DodosRoutes from 'dodos/DodosRoutes';
+import DogsEditor from 'dogs/DogsEditor';
+import CatsEditor from 'cats/CatsEditor';
+import BatsEditor from 'bats/BatsEditor';
 
 const routes = <Route component={AppHandler} path="/">
     <IndexRoute component={HomePage} />
-    {DogsRoutes}
-    {SlothsRoutes}
-    {DodosRoutes}
+    <Route path="dogs" component={DogsEditor} />
+    <Route path="cats" component={CatsEditor} />
+    <Route path="bats" component={BatsEditor} />
     <Route path="*" component={ErrorHandler}/>
 </Route>;
 
