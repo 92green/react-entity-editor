@@ -1,0 +1,15 @@
+{
+  "generator-bigdatr-startr": {
+    "promptValues": {
+      "name": "react-entity-editor",
+      "description": "React Entity Editor is a small set of React components that make it easier and cleaner to set up editor UIs, by abstracting away several patterns that commonly occur in editors.",
+      "version": "0.5.0",
+      "license": "MIT",
+      "private": false,
+      "author": "Damien Clarke",
+      "username": "dxinteractive",
+      "nameConstant": "REACT_ENTITY_EDITOR",
+      "example": true
+    }
+  }
+}

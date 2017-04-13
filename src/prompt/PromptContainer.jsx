@@ -7,18 +7,18 @@ class PromptContainer extends Component {
     promptOnYes: Function;
     promptOnNo: Function;
 
-    constructor(props: Object): void {
+    constructor(props: Object) {
         super(props);
         this.promptOnYes = this.promptOnYes.bind(this);
         this.promptOnNo = this.promptOnNo.bind(this);
        // this.promptTaskFallback = this.promptTaskFallback.bind(this);
     }
 
-    promptOnYes(): void {
+    promptOnYes() {
         this.props.workflow.next("onYes", this.props.workflow.end);
     }
 
-    promptOnNo(): void {
+    promptOnNo() {
         this.props.workflow.next("onNo", this.props.workflow.end);
     }
 

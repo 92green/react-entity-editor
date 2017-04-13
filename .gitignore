@@ -1,9 +1,13 @@
-node_modules
-*.log
-.idea
+# Config Files
+**/.idea/tasks.xml
+**/.idea/workspace.xml
 .DS_Store
-npm-debug.log
+.env
 .nyc_output
+
+# Folders
 coverage
-yarn-error.log
-*.orig
+dist
+docs
+lib
+node_modules

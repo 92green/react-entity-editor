@@ -3,7 +3,7 @@
 import React, {Component} from 'react';
 
 export default (): Function => {
-    return (ComposedComponent): ReactClass<any> => {
+    return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
         class WorkflowDecorator extends Component {
 
@@ -13,7 +13,7 @@ export default (): Function => {
             workflowNext: Function;
             workflowEnd: Function;
 
-            constructor(props) {
+            constructor(props: Object) {
                 super(props);
                 this.state = {
                     workflow: null,
@@ -30,7 +30,7 @@ export default (): Function => {
              * workflow
              */
 
-            workflowSet(options: Object): void {
+            workflowSet(options: Object) {
                 const {workflow, name, meta} = options;
                 this.setState({
                     workflow,
@@ -39,7 +39,7 @@ export default (): Function => {
                 });
             }
 
-            workflowStart(workflow: Object, name: string, meta: Object = {}): void {
+            workflowStart(workflow: Object, name: string, meta: Object = {}) {
                 this.workflowSet({
                     workflow,
                     name,
@@ -47,7 +47,7 @@ export default (): Function => {
                 });
             }
 
-            workflowNext(nextStep: string, fallback: ?Function): void {
+            workflowNext(nextStep: string, fallback: ?Function) {
                 const {workflow} = this.state;
                 if(!workflow || !workflow.next) {
                     if(fallback) {
@@ -72,7 +72,7 @@ export default (): Function => {
                 });
             }
 
-            workflowEnd(): void {
+            workflowEnd() {
                 this.workflowSet({});
             }
 
@@ -101,5 +101,5 @@ export default (): Function => {
         }
 
         return WorkflowDecorator;
-    }
+    };
 };

@@ -6,11 +6,12 @@
 // if passed anything else, this returns a reject promise if false, or a resolved promise otherwise
 
 export function returnPromise(item: Promiseable): Promise<*> {
-    return typeof item == "object" && typeof item.then != "undefined"
-    	? item
-    	: item === false
-            ? new Promise((resolve, reject) => reject(item))
-            : new Promise((resolve) => resolve(item));
+    if(item && typeof item == "object" && typeof item.then != "undefined") {
+        return item;
+    }
+    return item === false
+        ? new Promise((resolve, reject) => reject(item))
+        : new Promise((resolve) => resolve(item));
 }
 
 // returnBoolean
@@ -18,9 +19,10 @@ export function returnPromise(item: Promiseable): Promise<*> {
 // if passed a function, this calls the function and returns its result cast to a boolean
 // if passed anything else, this return the item cast to a boolean
 
-export function returnBoolean(item: *, ...args): boolean {
-    return typeof item == "function"
-    	? !!item(...args)
-    	: !!item;
+export function returnBoolean(item: *, ...args: any): boolean {
+    if(item && typeof item == "function") {
+        return !!item(...args);
+    }
+    return !!item;
 }
 

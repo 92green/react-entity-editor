@@ -7,8 +7,6 @@ try {
   require('os').networkInterfaces = () => ({});
 }
 
-require('dotenv').config();
-
 const webpack = require('webpack');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const autoprefixer = require('autoprefixer');
@@ -36,9 +34,9 @@ const development = {
     devtool: 'source-map',
     entry: './src/index.js',
     output: {
-        path: './lib',
+        path: './dist',
         filename: 'bundle.js',
-        publicPath: '/lib/'
+        publicPath: '/dist/'
     },
     resolve: {
         extensions: ['', '.jsx', '.js'],
@@ -46,7 +44,8 @@ const development = {
         root: [path.resolve(__dirname, './src'), path.resolve(__dirname, './node_modules')],
         alias: {
             'react-entity-editor': path.resolve(__dirname, "../")
-        }
+        },
+        fallback: path.resolve(__dirname, '../node_modules')
     },
     plugins: [
         new webpack.DefinePlugin({
@@ -71,7 +70,7 @@ const development = {
     },
     devServer : {
         host: '0.0.0.0',
-        publicPath : '/lib/',
+        publicPath : '/dist/',
         port: process.env.PORT || 3000,
         historyApiFallback: true
     }

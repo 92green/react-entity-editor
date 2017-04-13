@@ -1,84 +1,69 @@
 {
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
   "name": "react-entity-editor",
-  "private": false,
   "version": "0.5.0",
-  "description": "A modular set of React components that makes it easy to set up pages that allow you to create, edit and delete items, providing features such as confirmation messages and route creation with react-router.",
-  "homepage": "https://github.com/dxinteractive/react-entity-editor",
+  "description": "React Entity Editor is a small set of React components that make it easier and cleaner to set up editor UIs, by abstracting away several patterns that commonly occur in editors.",
+  "license": "MIT",
+  "author": "Damien Clarke",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dxinteractive/react-entity-editor.git"
+    "url": "git@github.com:dxinteractive/react-entity-editor.git"
   },
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/dxinteractive/react-entity-editor/issues"
   },
-  "keywords": [
-    "react",
-    "ui",
-    "editor",
-    "crud"
-  ],
-  "author": [
-    "Damien Clarke"
-  ],
+  "private": false,
   "scripts": {
-    "ava": "ava",
     "build": "rm -rf lib && babel src --out-dir lib",
     "build-examples": "cd example && yarn install && yarn run build && cd -",
-    "check-coverage": "nyc check-coverage --branches 0.0  --functions 0.0 --lines 0",
-    "dev": "babel src -d lib --watch",
+    "deploy-to-gh-pages": "yarn run build && yarn run build-examples && yarn run docs && node scripts/publish.js",
+    "prepublish": "yarn run build",
+    "watch": "yarn run build -- -w",
+    "ava": "NODE_ENV=test ava",
+    "check-coverage": "NODE_ENV=test nyc check-coverage --branches 100.0  --functions 100.0 --lines 100.0",
+    "docs": "jsdoc -c jsdoc.json",
     "flow": "flow check",
-    "lint": "eslint src/**/*.jsx src/**/*.js",
-    "lint-fix": "eslint src/**/*.jsx src/**/*.js --fix",
-    "prepublish": "npm run build",
-    "test": "nyc --report-dir=./coverage ava && yarn run check-coverage",
-    "test-all": "yarn run lint && yarn run flow && yarn run test",
-    "watch": "babel src -d lib --watch"
+    "lint": "eslint src --ext js,jsx",
+    "lint-fix": "eslint src --ext js,jsx --fix",
+    "test": "NODE_ENV=test nyc --report-dir=./coverage ava && yarn run check-coverage",
+    "test-all": "NODE_ENV=test yarn run lint && yarn run flow && yarn run test"
   },
   "devDependencies": {
-    "app-module-path": "^2.0.0",
-    "autoprefixer": "^6.5.2",
-    "ava": "^0.16.0",
-    "babel-cli": "^6.5.0",
-    "babel-core": "^6.5.0",
-    "babel-eslint": "^6.0.2",
-    "babel-plugin-transform-class-properties": "^6.18.0",
-    "babel-polyfill": "^6.5.0",
-    "babel-preset-blueflag": "^0.0.1",
-    "babel-register": "^6.18.0",
-    "babel-runtime": "^6.5.0",
-    "enzyme": "^2.5.1",
-    "eslint": "^2.7.0",
-    "eslint-config-blueflag": "^0.2.0",
-    "flow-bin": "^0.33.0",
+    "ava": "0.19.1",
+    "babel-cli": "^6.23.0",
+    "babel-core": "^6.23.0",
+    "babel-plugin-istanbul": "4.1.1",
+    "babel-preset-blueflag": "^0.3.0",
+    "babel-register": "^6.23.0",
+    "dotenv": "4.0.0",
+    "eslint": "^3.9.1",
+    "eslint-config-blueflag": "^0.4.0",
     "gh-pages": "^0.11.0",
     "git-url-parse": "^6.0.1",
-    "node-sass": "^3.11.2",
-    "nyc": "^6.6.1",
-    "react": "^15.3.2",
-    "react-addons-test-utils": "^15.0.0",
-    "react-dom": "^15.3.2",
-    "react-router": "v2.6.1",
-    "sinon": "^1.17.6"
-  },
-  "peerDependencies": {
-    "react": "^15.3.2"
-  },
-  "dependencies": {
-    "babel-runtime": "^6.5.0",
-    "immutable": "^3.8.1",
-    "react-modal": "^1.4.0"
-  },
-  "main": "lib/index.js",
-  "engines": {
-    "npm": "^3.0.0"
+    "jsdoc": "^3.4.3",
+    "jsdoc-babel": "^0.3.0",
+    "jsdoc-react-proptypes": "^1.0.1",
+    "jsdonk": "0.4.18",
+    "nyc": "^10.0.0",
+    "proxyquire": "^1.7.10",
+    "sinon": "^2.1.0"
   },
   "ava": {
-    "require": "babel-register",
+    "require": [
+      "./pretest",
+      "babel-register"
+    ],
     "babel": {
       "presets": [
         "blueflag"
-      ]
+      ],
+      "plugins": [
+        "istanbul"
+      ],
+      "sourceMaps": "inline"
     },
     "files": [
       "src/**/*-test.js"
@@ -86,15 +71,18 @@
   },
   "nyc": {
     "all": true,
+    "sourceMap": false,
+    "instrument": false,
     "include": [
       "src/**"
     ],
     "exclude": [
-      "src/**/*-test.js"
+      "src/**/*-test.js",
+      "dist"
     ],
     "reporter": [
       "lcov",
-      "text-summary"
+      "text"
     ],
     "extension": [
       ".js",
@@ -103,5 +91,8 @@
     "require": [
       "babel-register"
     ]
+  },
+  "dependencies": {
+    "react-modal": "^1.7.3"
   }
 }

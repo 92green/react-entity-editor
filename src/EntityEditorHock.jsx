@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 import {Map} from 'immutable';
 import WorkflowHock from './workflow/WorkflowHock';
 import PromptContainer from './prompt/PromptContainer';
@@ -19,7 +19,7 @@ export default (config: EntityEditorConfig): Function => {
             onOperationError: Function;
             componentIsMounted: boolean;
 
-            constructor(props: Object): void {
+            constructor(props: Object) {
                 super(props);
                 this.componentIsMounted = false;
                 this.state = {
@@ -37,7 +37,7 @@ export default (config: EntityEditorConfig): Function => {
                 this.componentIsMounted = true;
             }
 
-            componentWillReceiveProps(nextProps: Object): void {
+            componentWillReceiveProps(nextProps: Object) {
                 const currentTask: ?Map<string, any> = this.getCurrentTask(nextProps);
                 const {end} = nextProps.workflow;
 
@@ -81,7 +81,7 @@ export default (config: EntityEditorConfig): Function => {
 
             setEditorState(): Object {
                 return {
-                    dirty: (dirty) => {
+                    dirty: (dirty: boolean) => {
                         if(this.state.dirty != dirty) {
                             this.setState({dirty});
                         }
@@ -157,31 +157,31 @@ export default (config: EntityEditorConfig): Function => {
                 return Map(mutableOperations);
             }
 
-            onOperationSuccess({onSuccess}, nextWorkflow): any {
-                return (result) => {
+            onOperationSuccess({onSuccess}: ActionProps, nextWorkflow: Object): any {
+                return (result: any) => {
                     if(!this.componentIsMounted || this.props.workflow.name != nextWorkflow.name) {
                         return;
                     }
                     onSuccess && onSuccess(result);
-                    return this.props.workflow.next("onSuccess", this.props.workflow.end);
-                }
+                    this.props.workflow.next("onSuccess", this.props.workflow.end);
+                };
             }
 
-            onOperationError({onError}, nextWorkflow): any {
-                return (result) => {
+            onOperationError({onError}: ActionProps, nextWorkflow: Object): any {
+                return (result: any) => {
                     if(!this.componentIsMounted || this.props.workflow.name != nextWorkflow.name) {
                         return;
                     }
                     onError && onError(result);
-                    return this.props.workflow.next("onError", this.props.workflow.end);
-                }
+                    this.props.workflow.next("onError", this.props.workflow.end);
+                };
             }
 
             /*
              * workflow
              */
 
-            workflowStart(actionName: string, actionConfig: Object, actionProps: Object = {}): void {
+            workflowStart(actionName: string, actionConfig: Object, actionProps: Object = {}) {
                 const workflow: Object = actionConfig.get('workflow');
                 if(!workflow) {
                     throw new Error(`Entity Editor: A workflow must be defined on the config object for ${actionName}`);
@@ -189,11 +189,17 @@ export default (config: EntityEditorConfig): Function => {
                 this.props.workflow.start(workflow.toJS(), actionName, {actionProps});
             }
 
-            getCurrentTask(props: ?Object = this.props): ?Object {
+            getCurrentTask(props: ?Object): ?Object {
+                if(!props) {
+                    props = this.props;
+                }
                 return config.getIn(['tasks', props.workflow.task]);
             }
 
-            isCurrentTaskBlocking(props: ?Object = this.props): boolean {
+            isCurrentTaskBlocking(props: ?Object): boolean {
+                if(!props) {
+                    props = this.props;
+                }
                 const currentTask: ?Object = this.getCurrentTask(props);
                 if(!currentTask) {
                     return false;
@@ -209,16 +215,16 @@ export default (config: EntityEditorConfig): Function => {
 
                 // actions
 
-                const actions: Object<Function> = config
+                const actions: Object = config
                     .get('actions', Map())
                     .map((actionConfig: Object, actionName: string) => (actionProps: Object) => {
                         //setTimeout(() => {
-                            if(!this.isCurrentTaskBlocking()) {
-                                this.workflowStart(actionName, actionConfig, actionProps);
-                            } else {
-                                const {name, task} = this.props.workflow;
-                                console.warn(`Entity Editor: cannot start new "${actionName}" action while "${name}" action is blocking with task "${task}".`);
-                            }
+                        if(!this.isCurrentTaskBlocking()) {
+                            this.workflowStart(actionName, actionConfig, actionProps);
+                        } else {
+                            const {name, task} = this.props.workflow;
+                            console.warn(`Entity Editor: cannot start new "${actionName}" action while "${name}" action is blocking with task "${task}".`);
+                        }
                         //}, 10);
                     })
                     .toObject();
@@ -230,7 +236,7 @@ export default (config: EntityEditorConfig): Function => {
 
                 const abilities: Object = config
                     .get('actions', Map())
-                    .map((actionConfig: Object, actionName: string) => !this.isCurrentTaskBlocking())
+                    .map(() => !this.isCurrentTaskBlocking())
                     .toObject();
 
                 // status
@@ -258,7 +264,7 @@ export default (config: EntityEditorConfig): Function => {
              * render
              */
 
-            render() {
+            render(): React.Element<any> {
                 const {workflow} = this.props;
                 const statusProps: Object = {
                     editorState: this.getEditorState(),
@@ -282,5 +288,5 @@ export default (config: EntityEditorConfig): Function => {
 
         const withWorkflowHock: Function = WorkflowHock();
         return withWorkflowHock(EntityEditorHock);
-    }
+    };
 };

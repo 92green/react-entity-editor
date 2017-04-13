@@ -1,3 +1,5 @@
+/* @flow */
+
 import EntityEditorConfig from './config/EntityEditorConfig';
 import BaseConfig from './config/BaseConfig';
 import EntityEditor from './EntityEditorHock';
@@ -13,4 +15,4 @@ export {
   BaseConfig,
   Modal,
   ModalContent
-}
+};
