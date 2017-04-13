@@ -13,16 +13,16 @@ It doesn't give you any UI components like forms. Instead it sits above your use
 ## What does it help with?
 
 - ### User actions and UI flow
-  You'll usually want to ensure that the user is warned before deleting an item, or that they receive visual feedback after an item has been successfully saved. React Entity Editor provides an easy, declarative way of configuring the confirmations and status notifications involved with each type of user action, and comes with a default configuration that should suit most editors. Read more about actions, workflows and tasks TODO.
+  You'll usually want to ensure that the user is warned before deleting an item, or that they receive visual feedback after an item has been successfully saved. React Entity Editor provides an easy, declarative way of configuring the series of confirmations and status notifications involved with each type of user action, and comes with a default configuration that should suit most editors. Read more about actions, workflows and tasks TODO.
 
 - ### Declarative configuration
   Each editor is configured almost entirely in a single config file, including the definition of all operations that may take place in your editor (e.g. requests to create, update or delete items), and any parts of the configuration can be added to or overridden as needed. Read more about EntityEditorConfig TODO.
 
 - ### Keeping track of requests
-  React Entity Editor stores state about each async operation, whether they are pending, successful or have errored, and makes this available to you via props. And regardless of whether an operation is synchronous or asynchronous, the code you write for React Entity Editor doesn't have to change.
+  React Entity Editor keeps knowledge of the state of each async operation, whether they are pending, successful or have errored, and makes this available to you via props. And regardless of whether an operation is synchronous or asynchronous, the code you write for React Entity Editor doesn't have to change.
 
 - ### Prompts and modals
-  React Entity Editor comes with a modal (using react-modal TODO) that already works with the UI flow setup, just add CSS for it. Or if you need more control you can provide your own or choose to work with its props directly.
+  React Entity Editor comes with a modal (using react-modal TODO) that already works with the UI flow setup, just add CSS for it. Or if you need more control you can provide your own, or choose to work with its props directly.
 
 
 ## Installation
@@ -57,19 +57,41 @@ The EntityEditor higher order component must be given an `EntityEditorConfig`. T
 
 ## Defining our terms
 
-  - **actions** are functions that the user can trigger with the UI, such as `save` or `delete`. Each action contains a `workflow`, and calling an action will start its workflow.
-  - **workflows** are a series of `tasks` that conditionally follow one another. The workflow progresses to subsequent tasks either by user choices or by data changes.
-  - **tasks** are possible states in a workflow, such as `confirm`ing with the user if an operation should be performed, or `operate`-ing when a data operation is in progress. Tasks may include an `operation`, and / or may include a `status` and `statusOutput`.
-  - **operations** are functions that "do things" within your editor, usually firing off requests, changing data or modify the state of the UI. For example, when items are `create`d or `update`d, or when the user `go`es to another view in the editor.
-  - **statuses** are functions that "show things" within your editor - they make the `task` renderable by returning an object of strings and JSX elements (although they can return whatever you like). For example, they are used to ask for user input, or notify the user about the status of requests. By default they appear in a customizeable modal, but can be configured to be passed down as props for more specific rendering.
+ - **action**
+
+    Action are functions that the user can trigger with the UI, such as `save` or `delete`. Each action contains a `workflow`, and calling an action will start its workflow.
+
+ - **workflow**
+
+    Workflows are a series of `tasks` that conditionally follow one another. The workflow progresses to subsequent tasks either by user choices or by data changes.
+ 
+ - **task**
+
+    Tasks are possible states in a workflow, such as `confirm`ing with the user if an operation should be performed, or `operate`-ing when a data operation is in progress. Tasks may include an `operation`, and / or may include a `status`.
+
+ - **operation**
+ 
+    Operations are functions that "do things" within your editor, usually firing off requests, changing data or modify the state of the UI. For example, when items are `create`d or `update`d, or when the user `go`es to another view in the editor.
+
+ - **status**
+ 
+    Statuses are functions that "show things" within your editor - they make the `task` renderable by returning an object of strings and JSX elements (although they can return whatever you like). For example, they are used to ask for user input, or notify the user about the status of requests. By default they appear in a customizeable modal, but can be configured to be passed down as props for more specific rendering.
 
 ## Entity Editor props
 
 The `EntityEditor` higher order component passes down a single `entityEditor` prop. It is an object that contains the following:
 
-  - **entityEditor.actions** `:Object<ActionTriggerFunction>` An object containing editor actions to be called in response to user interactions. ActionTriggerFunctions accept a single argument, an object of data to pass to the action.
-  - **entityEditor.abilities** `Object<boolean>` An object with action names for keys and booleans for values. Each boolean indicates if the action is able to be started, which is useful for conditionally disabling buttons.
-  - **entityEditor.status** `Object<any>|null` If a task is in progress this will be an object containing renderable info about the current task. The exact contents of this object come from the config being used, e.g. `config.tasks.<currentTask>.status`
+  - **entityEditor.actions** `:Object<ActionTriggerFunction>`
+
+    An object containing editor actions to be called in response to user interactions. ActionTriggerFunctions accept a single argument, an object of data to pass to the action.
+  
+  - **entityEditor.abilities** `Object<boolean>`
+
+    An object with action names for keys and booleans for values. Each boolean indicates if the action is able to be started, which is useful for conditionally disabling buttons.
+  
+  - **entityEditor.status** `Object<any>|null`
+
+    If a task is in progress this will be an object containing renderable info about the current task. The exact contents of this object come from the config being used, e.g. `config.tasks.<currentTask>.status`
 
 ## Entity Editor Config
 
