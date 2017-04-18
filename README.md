@@ -51,6 +51,8 @@ export default withEntityEditor(ExampleEditor);
 
 All functions that you want to be able to call from Entity Editor's `operation`s must be passed to this component via props, which will probably include methods to fetch and modify data, and methods to change routes.
 
+*This means that EntityEditor will typically be above your editors routes!* This ensures it will be able to control transitions between routes while continuing a workflow. TODO see ants example.
+
 The EntityEditor higher order component will pass down an extra `entityEditor` prop to your component, which contains action functions to call and renderable info you can use in your editor. More info [here](#thing) TODO.
 
 The EntityEditor higher order component must be given an `EntityEditorConfig`. This config is where you provide your app-specific behaviour. In particular this is where you provide the implementation of your `operation`s.
