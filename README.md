@@ -87,13 +87,26 @@ The `EntityEditor` higher order component passes down a single `entityEditor` pr
 
     An object containing editor actions to be called in response to user interactions. ActionTriggerFunctions accept a single argument, an object of data to pass to the action.
   
-  - **entityEditor.abilities** `Object<boolean>`
+  - **entityEditor.abilities** `:Object<boolean>`
 
     An object with action names for keys and booleans for values. Each boolean indicates if the action is able to be started, which is useful for conditionally disabling buttons.
   
-  - **entityEditor.status** `Object<any>|null`
+  - **entityEditor.status** `:Object<any>|null`
 
     If a task is in progress this will be an object containing renderable info about the current task. The exact contents of this object come from the config being used, e.g. `config.tasks.<currentTask>.status`
+
+  - **entityEditor.names** `:Object<string>`
+
+    Names is an object that contains strings representing the names of the entity, It contains singular, plural, caplitalized singular and capitalized plural in the following object shape using `"cat"` as an example:
+    ```
+    names = {
+      item: "cat",
+      items: "cats",
+      Item: "Cat",
+      Items: "Cats"
+    };
+    ```
+
 
 ## Entity Editor Config
 
