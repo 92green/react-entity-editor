@@ -253,10 +253,15 @@ export default (config: EntityEditorConfig): Function => {
                     status.task = this.props.workflow.task;
                 }
 
+                // names
+
+                const names: Object = config.itemNames();
+
                 return {
                     actions,
                     abilities,
-                    status
+                    status,
+                    names
                 };
             }
 
