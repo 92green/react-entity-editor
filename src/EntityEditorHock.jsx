@@ -182,6 +182,12 @@ export default (config: EntityEditorConfig): Function => {
              */
 
             workflowStart(actionName: string, actionConfig: Object, actionProps: Object = {}) {
+                if(this.isCurrentTaskBlocking()) {
+                    const {name, task} = this.props.workflow;
+                    console.warn(`Entity Editor: cannot start new "${actionName}" action while "${name}" action is blocking with task "${task}".`);
+                    return;
+                }
+
                 const workflow: Object = actionConfig.get('workflow');
                 if(!workflow) {
                     throw new Error(`Entity Editor: A workflow must be defined on the config object for ${actionName}`);
@@ -218,14 +224,7 @@ export default (config: EntityEditorConfig): Function => {
                 const actions: Object = config
                     .get('actions', Map())
                     .map((actionConfig: Object, actionName: string) => (actionProps: Object) => {
-                        //setTimeout(() => {
-                        if(!this.isCurrentTaskBlocking()) {
-                            this.workflowStart(actionName, actionConfig, actionProps);
-                        } else {
-                            const {name, task} = this.props.workflow;
-                            console.warn(`Entity Editor: cannot start new "${actionName}" action while "${name}" action is blocking with task "${task}".`);
-                        }
-                        //}, 10);
+                        this.workflowStart(actionName, actionConfig, actionProps);
                     })
                     .toObject();
 
