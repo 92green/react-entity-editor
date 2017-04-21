@@ -15,7 +15,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
     },
     actions: {
         save: {
-            description: "If the item already exists this calls the onUpdate operation, or calls onCreate for new items.",
+            description: "If the item already exists this calls the update operation, or calls create for new items.",
             workflow: {
                 task: "saveOperate",
                 next: {
@@ -29,7 +29,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             }
         },
         saveNew: {
-            description: "Always calls onCreate to make a new item, regardless of whether the data was loaded from an existing item.",
+            description: "Always calls create to make a new item, regardless of whether the data was loaded from an existing item.",
             workflow: {
                 task: "saveNewConfirm",
                 onYes: {
@@ -46,7 +46,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             }
         },
         delete: {
-            description: "Confirms if the user wants to delete, and calls the onDelete operation for an item.",
+            description: "Confirms if the user wants to delete, and calls the delete operation for an item.",
             workflow: {
                 task: "deleteConfirm",
                 next: {
@@ -90,12 +90,12 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 }
                 if(actionProps.id) {
                     return operations
-                        .onUpdate(actionProps)
-                        .then(() => operations.onDirty({dirty: false}));
+                        .update(actionProps)
+                        .then(() => operations.dirty({dirty: false}));
                 }
                 return operations
-                    .onCreate(actionProps)
-                    .then(() => operations.onDirty({dirty: false}));
+                    .create(actionProps)
+                    .then(() => operations.dirty({dirty: false}));
             },
             status: ({item}) => ({
                 title: "Saving",
@@ -134,8 +134,8 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                     throw `EntityEditor: config.actions.saveNew: actionProps.payload is not defined`;
                 }
                 return operations
-                    .onCreate(actionProps)
-                    .then(() => operations.onDirty({dirty: false}));
+                    .create(actionProps)
+                    .then(() => operations.dirty({dirty: false}));
             },
             status: ({item}) => ({
                 title: "Saving",
@@ -166,8 +166,8 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                     throw `EntityEditor: config.actions.delete: actionProps.id is not defined`;
                 }
                 return operations
-                    .onDelete(actionProps)
-                    .then(() => operations.onDirty({dirty: false}));
+                    .delete(actionProps)
+                    .then(() => operations.dirty({dirty: false}));
             },
             status: ({item}) => ({
                 title: "Deleting",
@@ -204,20 +204,22 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         goOperate: {
             operate: ({operations}) => (actionProps: Object): Promiseable => {
                 return operations
-                    .onGo(actionProps)
-                    .then(() => operations.onDirty({dirty: false}));
+                    .go(actionProps);
             }
         },
         dirtyOperate: {
             operate: ({operations}) => (actionProps: {dirty: boolean}): Promiseable => {
-                return operations.onDirty({dirty: actionProps.dirty});
+                return operations.dirty({dirty: actionProps.dirty});
             }
         }
     },
     operations: {
-        onDirty: ({setEditorState}) => (actionProps: {dirty: boolean}): Promiseable => {
-            setEditorState.dirty(actionProps.dirty);
+        dirty: ({setEditorState}) => ({dirty}: {dirty: boolean}): Promiseable => {
+            setEditorState({dirty});
         }
+    },
+    initialEditorState: {
+        dirty: false
     },
     // add different statuses in here with components inside
     components: {

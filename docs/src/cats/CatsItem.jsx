@@ -1,5 +1,8 @@
 import React, {Component, PropTypes} from 'react';
 import {EntityEditorPropType} from 'react-entity-editor';
+import ButtonDelete from '../buttons/ButtonDelete';
+import ButtonGoList from '../buttons/ButtonGoList';
+import ButtonSave from '../buttons/ButtonSave';
 
 class CatsItem extends Component {
 
@@ -11,9 +14,6 @@ class CatsItem extends Component {
 
         // bind methods to this class
         this.onChangeField = this.onChangeField.bind(this);
-        this.back = this.back.bind(this);
-        this.save = this.save.bind(this);
-        this.delete = this.delete.bind(this);
     }
 
     componentWillMount() {
@@ -24,6 +24,11 @@ class CatsItem extends Component {
         if(this.props.cat !== nextProps.cat) {
             this.setupForm(nextProps.cat);
         }
+    }
+
+    componentWillUnmount() {
+        // tell entity editor that it is clean once leaving this component
+        this.props.entityEditor.operations.dirty({dirty: false});
     }
 
     setupForm(cat) {
@@ -37,6 +42,9 @@ class CatsItem extends Component {
         this.state = {
             form
         };
+
+        // tell entity editor that the form is clean
+        this.props.entityEditor.operations.dirty({dirty: false});
     }
 
     onChangeField(field) {
@@ -48,49 +56,24 @@ class CatsItem extends Component {
 
             // tell entity editor that the form is now dirty,
             // so that it knows when to warn the user about unsaved changes.
-            // note that you must pass in an object with a boolean property of 'dirty'
-            const actionProps = {
-                dirty: true
-            };
-            this.props.entityEditor.actions.dirty(actionProps);
+            // we use the dirty operation for this, which you must pass in an object with a boolean property of 'dirty'
+            this.props.entityEditor.operations.dirty({dirty: true});
         };
-    }
-
-    back() {
-        // the go action in the cats example expects a view and an optional id
-        const actionProps = {
-            view: "list",
-            id: null
-        };
-        this.props.entityEditor.actions.go(actionProps);
-    }
-
-    save() {
-        // the save action in the cats example expects a payload and an optional id
-        // keep in mind that this.props.cat wont exist yet if you're making a new cat
-        const actionProps = {
-            payload: this.state.form,
-            id: this.props.cat ? this.props.cat.id : null
-        };
-
-        // the save action is supplied via the entityEditor prop
-        this.props.entityEditor.actions.save(actionProps);
-    }
-
-    delete() {
-        // the delete action in the cats example expects an id
-        const actionProps = {
-            id: this.props.cat.id
-        };
-        this.props.entityEditor.actions.delete(actionProps);
     }
 
     render() {
         const {cat, entityEditor} = this.props;
-        const {status, abilities} = entityEditor;
+        const {item} = entityEditor.names;
+        const {status} = entityEditor;
+
+        // keep in mind that this.props.dog wont exist yet if you're making a new dog
+        const payload = this.state.form;
+        const id = cat ? cat.id : null;
+
+        const heading = `${cat ? "Edit" : "New"} ${item}`;
 
         return <div>
-            <h3>{cat ? "Edit" : "New"} cat</h3>
+            <h3>{heading}</h3>
             <div className="InputRow">
                 <label htmlFor="name">Name</label>
                 <input
@@ -107,10 +90,23 @@ class CatsItem extends Component {
                     id="toy"
                 />
             </div>
-            <button className="Button Button-grey" onClick={this.back} disabled={!abilities.go}>Back</button>
-            <button className="Button" onClick={this.save} disabled={!abilities.save}>Save</button>
-            {this.props.cat && // only show delete button when we have an item
-                <button className="Button" onClick={this.delete} disabled={!abilities.delete}>Delete</button>
+            <ButtonGoList
+                children="Back"
+                className="Button-grey"
+                entityEditor={entityEditor}
+            />
+            <ButtonSave
+                children="Save"
+                id={id}
+                payload={payload}
+                entityEditor={entityEditor}
+            />
+            {cat && // only show delete button when we have an item
+                <ButtonDelete
+                    children="Delete"
+                    id={id}
+                    entityEditor={entityEditor}
+                />
             }
             {status && // if a status comes down as props, render it
                 <em>{status.title}</em>

@@ -31,7 +31,11 @@ class EntityEditorConfig {
         return this._config.getIn(searchKeyPath, notSetValue);
     }
 
-    merge(nextConfig: Object|EntityEditorConfig): EntityEditorConfig {
+    merge(nextConfig: Object|EntityEditorConfig|Function): EntityEditorConfig {
+        if(typeof nextConfig == "function") {
+            nextConfig = nextConfig(this);
+        }
+
         const toMerge: Map<string, any> = EntityEditorConfig.isEntityEditorConfig(nextConfig)
             ? nextConfig._config
             : fromJS(nextConfig);

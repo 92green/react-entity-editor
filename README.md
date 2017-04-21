@@ -87,9 +87,13 @@ The `EntityEditor` higher order component passes down a single `entityEditor` pr
 
     An object containing editor actions to be called in response to user interactions. ActionTriggerFunctions accept a single argument, an object of data to pass to the action.
   
-  - **entityEditor.abilities** `:Object<boolean>`
+  - **entityEditor.operations** `:Object<OperationTriggerFunction>`
 
-    An object with action names for keys and booleans for values. Each boolean indicates if the action is able to be started, which is useful for conditionally disabling buttons.
+    An object containing editor operations to be called. While normally you would call the action, calling operations is useful if you need to perform an operation outside of a workflow, and can therefore be executed even when an action is currently in progress.
+
+  - **entityEditor.actionable** `:boolean`
+
+    A boolean indicating if a new action is able to be started, which is useful for conditionally disabling buttons.
   
   - **entityEditor.status** `:Object<any>|null`
 

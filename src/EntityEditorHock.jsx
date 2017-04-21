@@ -17,16 +17,16 @@ export default (config: EntityEditorConfig): Function => {
             state: Object;
             onOperationSuccess: Function;
             onOperationError: Function;
+            setEditorState: Function;
             componentIsMounted: boolean;
 
             constructor(props: Object) {
                 super(props);
                 this.componentIsMounted = false;
-                this.state = {
-                    dirty: false
-                };
+                this.state = config.get('initialEditorState').toObject();
                 this.onOperationSuccess = this.onOperationSuccess.bind(this);
                 this.onOperationError = this.onOperationError.bind(this);
+                this.setEditorState = this.setEditorState.bind(this);
             }
 
             /*
@@ -74,19 +74,11 @@ export default (config: EntityEditorConfig): Function => {
              */
 
             getEditorState(): Object {
-                return {
-                    dirty: this.state.dirty
-                };
+                return this.state;
             }
 
-            setEditorState(): Object {
-                return {
-                    dirty: (dirty: boolean) => {
-                        if(this.state.dirty != dirty) {
-                            this.setState({dirty});
-                        }
-                    }
-                };
+            setEditorState(newState: Object) {
+                this.setState(newState);
             }
 
             /*
@@ -98,15 +90,12 @@ export default (config: EntityEditorConfig): Function => {
                     throw new Error(`Entity Editor: "task.operate" must be a function`);
                 }
 
-                const originalOperations: Map<string, Function> = config.get('operations');
-                const partiallyAppliedOperations: Map<string, Function> = this.partiallyApplyOperations(originalOperations, props);
-
                 const nextWorkflow = props.workflow;
                 const {actionProps} = nextWorkflow.meta;
 
                 // create operateProps object to be passed into operate() on a task
                 const operateProps: Object = Map({
-                    operations: partiallyAppliedOperations.toObject()
+                    operations: this.partiallyApplyOperations(config.get('operations'), props)
                 })
                     .filter(ii => ii)
                     .toObject();
@@ -121,7 +110,9 @@ export default (config: EntityEditorConfig): Function => {
                     .then(this.onOperationSuccess(actionProps, nextWorkflow), this.onOperationError(actionProps, nextWorkflow));
             }
 
-            partiallyApplyOperations(operations: Map<string,Function>, props: Object): Map<string,Function> {
+            partiallyApplyOperations(operations: Map<string,Function>, props: Object): Object {
+                // TOD MEMOIZE THIS ON PROP CHANGE
+
                 // create mutable operations object with the aim of passing a reference to it into each partial application
                 var mutableOperations: Object = {};
 
@@ -137,7 +128,7 @@ export default (config: EntityEditorConfig): Function => {
                     const operationProps: Object = Map({
                         ...additional,
                         operations: mutableOperations,
-                        setEditorState: this.setEditorState()
+                        setEditorState: this.setEditorState
                     })
                         .filter(ii => ii)
                         .toObject();
@@ -154,7 +145,7 @@ export default (config: EntityEditorConfig): Function => {
                     mutableOperations[key] =  (...args): Promise<*> => returnPromise(partialOperation(...args));
                 });
 
-                return Map(mutableOperations);
+                return mutableOperations;
             }
 
             onOperationSuccess({onSuccess}: ActionProps, nextWorkflow: Object): any {
@@ -228,15 +219,13 @@ export default (config: EntityEditorConfig): Function => {
                     })
                     .toObject();
 
-                // abilities
+                // operations
 
-                // for now this returns the same result for all action names
-                // and is structured like this to prevent changing the API if more granular abilities are added
+                const operations: Object = this.partiallyApplyOperations(config.get('operations'), this.props);
 
-                const abilities: Object = config
-                    .get('actions', Map())
-                    .map(() => !this.isCurrentTaskBlocking())
-                    .toObject();
+                // actionable
+
+                const actionable: boolean = !this.isCurrentTaskBlocking();
 
                 // status
 
@@ -256,11 +245,17 @@ export default (config: EntityEditorConfig): Function => {
 
                 const names: Object = config.itemNames();
 
+                // editor state
+
+                const state: Object = statusProps.editorState;
+
                 return {
                     actions,
-                    abilities,
+                    operations,
+                    actionable,
                     status,
-                    names
+                    names,
+                    state
                 };
             }
 

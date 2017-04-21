@@ -29,8 +29,8 @@ const CatsEntityEditorConfig = BaseConfig.merge({
     operations: {
         /*
          * "Operations" is where you define what happens for each operations
-         * Wer'e basing this config off of BaseConfig, so you need to provide onCreate, onUpdate, onDelete for editing items
-         * and onGo for navigating between views
+         * Wer'e basing this config off of BaseConfig, so you need to provide create, update, delete for editing items
+         * and go for navigating between views
          *
          * In each operation the first function signature provides an operationProps object.
          * This contains all the data modifing functions returned from operationProps
@@ -45,25 +45,25 @@ const CatsEntityEditorConfig = BaseConfig.merge({
          * If not, then returning nothing or true will be interpreted as a success,
          * or returning false will be interpreted as an error.
          */
-        onCreate: ({catCreate, catGo}) => ({payload}) => {
-            return catCreate(payload)
-                .then((result) => catGo({ // once created, navigate to the edit page for the new item
+        create: ({onCreate, onGo}) => ({payload}) => {
+            return onCreate(payload)
+                .then((result) => onGo({ // once created, navigate to the edit page for the new item
                     id: result.id,
                     view: "item"
                 }));
         },
-        onUpdate: ({catUpdate}) => ({id, payload}) => {
-            return catUpdate(id, payload);
+        update: ({onUpdate}) => ({id, payload}) => {
+            return onUpdate(id, payload);
         },
-        onDelete: ({catDelete, catGo}) => ({id}) => {
-            return catDelete(id)
-                .then(() => catGo({ // once deleted, navigate to the list page
+        delete: ({onDelete, onGo}) => ({id}) => {
+            return onDelete(id)
+                .then(() => onGo({ // once deleted, navigate to the list page
                     id: null,
                     view: "list"
                 }));
         },
-        onGo: ({catGo}) => ({id, view}) => {
-            return catGo({id, view});
+        go: ({onGo}) => ({id, view}) => {
+            return onGo({id, view});
         }
     },
     operationProps: (props) => {
@@ -78,10 +78,10 @@ const CatsEntityEditorConfig = BaseConfig.merge({
          * No other code needs to change to accommodate these async functions.
          */
         return {
-            catCreate: props.onCreateAsync,
-            catUpdate: props.onUpdateAsync,
-            catDelete: props.onDeleteAsync,
-            catGo: props.onGo
+            onCreate: props.onCreateAsync,
+            onUpdate: props.onUpdateAsync,
+            onDelete: props.onDeleteAsync,
+            onGo: props.onGo
         }
     }
 });

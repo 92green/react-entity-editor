@@ -1,5 +1,8 @@
 import React, {Component, PropTypes} from 'react';
 import {EntityEditorPropType} from 'react-entity-editor';
+import ButtonDelete from '../buttons/ButtonDelete';
+import ButtonGoList from '../buttons/ButtonGoList';
+import ButtonSave from '../buttons/ButtonSave';
 
 class AntsItem extends Component {
 
@@ -26,6 +29,11 @@ class AntsItem extends Component {
         }
     }
 
+    componentWillUnmount() {
+        // tell entity editor that it is clean once leaving this component
+        this.props.entityEditor.operations.dirty({dirty: false});
+    }
+
     setupForm(ant) {
         // set up form
         const fields = ['name', 'legs'];
@@ -37,6 +45,9 @@ class AntsItem extends Component {
         this.state = {
             form
         };
+
+        // tell entity editor that the form is clean
+        this.props.entityEditor.operations.dirty({dirty: false});
     }
 
     onChangeField(field) {
@@ -48,11 +59,8 @@ class AntsItem extends Component {
 
             // tell entity editor that the form is now dirty,
             // so that it knows when to warn the user about unsaved changes.
-            // note that you must pass in an object with a boolean property of 'dirty'
-            const actionProps = {
-                dirty: true
-            };
-            this.props.entityEditor.actions.dirty(actionProps);
+            // we use the dirty operation for this, which you must pass in an object with a boolean property of 'dirty'
+            this.props.entityEditor.operations.dirty({dirty: true});
         };
     }
 
@@ -86,15 +94,21 @@ class AntsItem extends Component {
     }
 
     render() {
-        const {ant, isNew, entityEditor} = this.props;
-        const {abilities} = entityEditor;
+        const {ant, entityEditor, isNew} = this.props;
+        const {item} = entityEditor.names;
+
+        // keep in mind that this.props.ant wont exist yet if you're making a new ant
+        const payload = this.state.form;
+        const id = ant ? ant.id : null;
+
+        const heading = `${ant ? "Edit" : "New"} ${item}`;
 
         if(!isNew && !ant) {
             return <div>No ant with this id</div>;
         }
 
         return <div>
-            <h3>{ant ? "Edit" : "New"} ant</h3>
+            <h3>{heading}</h3>
             <div className="InputRow">
                 <label htmlFor="name">Name</label>
                 <input
@@ -111,10 +125,23 @@ class AntsItem extends Component {
                     id="legs"
                 />
             </div>
-            <button className="Button Button-grey" onClick={this.back} disabled={!abilities.go}>Back</button>
-            <button className="Button" onClick={this.save} disabled={!abilities.save}>Save</button>
-            {this.props.ant && // only show delete button when we have an item
-                <button className="Button" onClick={this.delete} disabled={!abilities.delete}>Delete</button>
+            <ButtonGoList
+                children="Back"
+                className="Button-grey"
+                entityEditor={entityEditor}
+            />
+            <ButtonSave
+                children="Save"
+                id={id}
+                payload={payload}
+                entityEditor={entityEditor}
+            />
+            {ant && // only show delete button when we have an item
+                <ButtonDelete
+                    children="Delete"
+                    id={id}
+                    entityEditor={entityEditor}
+                />
             }
         </div>;
     }

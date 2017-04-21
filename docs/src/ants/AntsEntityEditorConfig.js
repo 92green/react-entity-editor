@@ -13,8 +13,8 @@ const AntsEntityEditorConfig = BaseConfig.merge({
     operations: {
         /*
          * "Operations" is where you define what happens for each operations
-         * Wer'e basing this config off of BaseConfig, so you need to provide onCreate, onUpdate, onDelete for editing items
-         * and onGo for navigating between views
+         * Wer'e basing this config off of BaseConfig, so you need to provide create, update, delete for editing items
+         * and go for navigating between views
          *
          * In each operation the first function signature provides an operationProps object.
          * This contains all the data modifing functions returned from operationProps
@@ -29,25 +29,25 @@ const AntsEntityEditorConfig = BaseConfig.merge({
          * If not, then returning nothing or true will be interpreted as a success,
          * or returning false will be interpreted as an error.
          */
-        onCreate: ({antCreate, antGo}) => ({payload}) => {
-            return antCreate(payload)
-                .then((result) => antGo({ // once created, navigate to the edit page for the new item
+        create: ({onCreate, onGo}) => ({payload}) => {
+            return onCreate(payload)
+                .then((result) => onGo({ // once created, navigate to the edit page for the new item
                     id: result.id,
                     view: "item"
                 }));
         },
-        onUpdate: ({antUpdate}) => ({id, payload}) => {
-            return antUpdate(id, payload);
+        update: ({onUpdate}) => ({id, payload}) => {
+            return onUpdate(id, payload);
         },
-        onDelete: ({antDelete, antGo}) => ({id}) => {
-            return antDelete(id)
-                .then(() => antGo({ // once deleted, navigate to the list page
+        delete: ({onDelete, onGo}) => ({id}) => {
+            return onDelete(id)
+                .then(() => onGo({ // once deleted, navigate to the list page
                     id: null,
                     view: "list"
                 }));
         },
-        onGo: ({antGo}) => ({id, view}) => {
-            return antGo({id, view});
+        go: ({onGo}) => ({id, view}) => {
+            return onGo({id, view});
         }
     },
     operationProps: (props) => {
@@ -58,16 +58,16 @@ const AntsEntityEditorConfig = BaseConfig.merge({
          */
 
         return {
-            antCreate: props.onCreate,
-            antUpdate: props.onUpdate,
-            antDelete: props.onDelete,
+            onCreate: props.onCreate,
+            onUpdate: props.onUpdate,
+            onDelete: props.onDelete,
 
             /*
-             * This example uses a router instead of the props.onGo used by other examples
+             * This example uses a router instead of the props.go used by other examples
              * so we map our "go" actionProps to the routers methods
              */
 
-            antGo: ({view, id}) => {
+            onGo: ({view, id}) => {
                 if(view == "item" && id) {
                     return props.history.push(`/ants/item/${id}`);
                 }
