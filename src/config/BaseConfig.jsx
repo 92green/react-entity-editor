@@ -74,12 +74,6 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                     }
                 }
             }
-        },
-        dirty: {
-            description: "Sets the 'dirty' state of the editor. The editor is dirty when there are unsaved changes.",
-            workflow: {
-                task: "dirtyOperate"
-            }
         }
     },
     tasks: {
@@ -205,11 +199,6 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             operate: ({operations}) => (actionProps: Object): Promiseable => {
                 return operations
                     .go(actionProps);
-            }
-        },
-        dirtyOperate: {
-            operate: ({operations}) => (actionProps: {dirty: boolean}): Promiseable => {
-                return operations.dirty({dirty: actionProps.dirty});
             }
         }
     },
