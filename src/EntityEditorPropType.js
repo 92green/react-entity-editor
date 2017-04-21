@@ -6,8 +6,16 @@ export default PropTypes.shape({
     actions: PropTypes.objectOf(
         PropTypes.func
     ).isRequired,
-    abilities: PropTypes.objectOf(
-        PropTypes.bool
+    operations: PropTypes.objectOf(
+        PropTypes.func
     ).isRequired,
-    status: PropTypes.object
+    actionable: PropTypes.bool,
+    status: PropTypes.object,
+    names: PropTypes.shape({
+        item: PropTypes.string,
+        items: PropTypes.string,
+        Item: PropTypes.string,
+        Items: PropTypes.string
+    }),
+    state: PropTypes.object
 });

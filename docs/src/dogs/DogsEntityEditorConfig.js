@@ -1,9 +1,5 @@
 import {BaseConfig} from 'react-entity-editor';
 
-/*
- *
- */
-
 const DogsEntityEditorConfig = BaseConfig.merge({
     item: {
         /*
@@ -17,8 +13,8 @@ const DogsEntityEditorConfig = BaseConfig.merge({
     operations: {
         /*
          * "Operations" is where you define what happens for each operations
-         * Wer'e basing this config off of BaseConfig, so you need to provide onCreate, onUpdate, onDelete for editing items
-         * and onGo for navigating between views
+         * Wer'e basing this config off of BaseConfig, so you need to provide create, update, delete for editing items
+         * and go for navigating between views
          *
          * In each operation the first function signature provides an operationProps object.
          * This contains all the data modifing functions returned from operationProps
@@ -33,25 +29,25 @@ const DogsEntityEditorConfig = BaseConfig.merge({
          * If not, then returning nothing or true will be interpreted as a success,
          * or returning false will be interpreted as an error.
          */
-        onCreate: ({dogCreate, dogGo}) => ({payload}) => {
-            return dogCreate(payload)
-                .then((result) => dogGo({ // once created, navigate to the edit page for the new item
+        create: ({onCreate, onGo}) => ({payload}) => {
+            return onCreate(payload)
+                .then((result) => onGo({ // once created, navigate to the edit page for the new item
                     id: result.id,
                     view: "item"
                 }));
         },
-        onUpdate: ({dogUpdate}) => ({id, payload}) => {
-            return dogUpdate(id, payload);
+        update: ({onUpdate}) => ({id, payload}) => {
+            return onUpdate(id, payload);
         },
-        onDelete: ({dogDelete, dogGo}) => ({id}) => {
-            return dogDelete(id)
-                .then(() => dogGo({ // once deleted, navigate to the list page
+        delete: ({onDelete, onGo}) => ({id}) => {
+            return onDelete(id)
+                .then(() => onGo({ // once deleted, navigate to the list page
                     id: null,
                     view: "list"
                 }));
         },
-        onGo: ({dogGo}) => ({id, view}) => {
-            return dogGo({id, view});
+        go: ({onGo}) => ({id, view}) => {
+            return onGo({id, view});
         }
     },
     operationProps: (props) => {
@@ -61,10 +57,10 @@ const DogsEntityEditorConfig = BaseConfig.merge({
          * Here we have all write functions and navigation functions given by the DogsStore.
          */
         return {
-            dogCreate: props.onCreate,
-            dogUpdate: props.onUpdate,
-            dogDelete: props.onDelete,
-            dogGo: props.onGo
+            onCreate: props.onCreate,
+            onUpdate: props.onUpdate,
+            onDelete: props.onDelete,
+            onGo: props.onGo
         }
     }
 });

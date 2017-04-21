@@ -1,40 +1,19 @@
 import React, {Component, PropTypes} from 'react';
 import {EntityEditorPropType} from 'react-entity-editor';
+import ButtonDelete from '../buttons/ButtonDelete';
+import ButtonGoEdit from '../buttons/ButtonGoEdit';
+import ButtonGoNew from '../buttons/ButtonGoNew';
 
 class CatsList extends Component {
-
-    new() {
-        // the go action in the cats example expects a view and an optional id
-        const actionProps = {
-            view: "item",
-            id: null // null id on an "item" view indicates that the item is new
-        };
-        this.props.entityEditor.actions.go(actionProps);
-    }
-
-    edit(id) {
-        // the go action in the cats example expects a view and an optional id
-        const actionProps = {
-            view: "item",
-            id
-        };
-        this.props.entityEditor.actions.go(actionProps);
-    }
-
-    delete(id) {
-        // the delete action in the cats example expects an id
-        const actionProps = {
-            id
-        };
-        this.props.entityEditor.actions.delete(actionProps);
-    }
-
     render() {
         const {cats, entityEditor} = this.props;
-        const {abilities} = entityEditor;
+        const {item} = entityEditor.names;
 
         return <div>
-            <button className="Button" onClick={this.new.bind(this)} disabled={!abilities.go}>New cat</button>
+            <ButtonGoNew
+                children={`New ${item}`}
+                entityEditor={entityEditor}
+            />
             <table className="Table">
                 <thead>
                     <tr>
@@ -50,8 +29,18 @@ class CatsList extends Component {
                             <td>{cat.name}</td>
                             <td>{cat.toy}</td>
                             <td>
-                                <button className="Button Button-small" onClick={this.edit.bind(this, id)} disabled={!abilities.go}>edit</button>
-                                <button className="Button Button-small" onClick={this.delete.bind(this, id)} disabled={!abilities.delete}>delete</button>
+                                <ButtonGoEdit
+                                    children="edit"
+                                    className="Button-small"
+                                    id={id}
+                                    entityEditor={entityEditor}
+                                />
+                                <ButtonDelete
+                                    children="delete"
+                                    className="Button-small"
+                                    id={id}
+                                    entityEditor={entityEditor}
+                                />
                             </td>
                         </tr>;
                     })}

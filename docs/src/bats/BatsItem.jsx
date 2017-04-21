@@ -48,11 +48,8 @@ class BatsItem extends Component {
 
             // tell entity editor that the form is now dirty,
             // so that it knows when to warn the user about unsaved changes.
-            // note that you must pass in an object with a boolean property of 'dirty'
-            const actionProps = {
-                dirty: true
-            };
-            this.props.entityEditor.actions.dirty(actionProps);
+            // we use the dirty operation for this, which you must pass in an object with a boolean property of 'dirty'
+            this.props.entityEditor.operations.dirty({dirty: true});
         };
     }
 

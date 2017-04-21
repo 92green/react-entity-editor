@@ -29,9 +29,9 @@ const BatsEntityEditorConfig = BaseConfig.merge({
     operations: {
         /*
          * "Operations" is where you define what happens for each operations
-         * Wer'e basing this config off of BaseConfig, so you need to provide onList and onGet for fetching data,
-         * onCreate, onUpdate, onDelete for editing items
-         * and onGo for navigating between views
+         * Wer'e basing this config off of BaseConfig, so you need to provide list and get for fetching data,
+         * create, update, delete for editing items
+         * and go for navigating between views
          *
          * In each operation the first function signature provides an operationProps object.
          * This contains all the data modifing functions returned from operationProps
@@ -46,25 +46,25 @@ const BatsEntityEditorConfig = BaseConfig.merge({
          * If not, then returning nothing or true will be interpreted as a success,
          * or returning false will be interpreted as an error.
          */
-        onGet: ({batGet}) => ({id}) => {
-            return batGet(id);
+        get: ({onGet}) => ({id}) => {
+            return onGet(id);
         },
-        onList: ({batList}) => () => {
-            return batList();
+        list: ({onList}) => () => {
+            return onList();
         },
-        onCreate: ({batCreate, batGoItem}) => ({payload}) => {
-            return batCreate(payload)
-                .then((result) => batGoItem(result.id)); // once created, navigate to the edit page for the new item
+        create: ({onCreate, onGoItem}) => ({payload}) => {
+            return onCreate(payload)
+                .then((result) => onGoItem(result.id)); // once created, navigate to the edit page for the new item
         },
-        onUpdate: ({batUpdate}) => ({id, payload}) => {
-            return batUpdate(id, payload);
+        update: ({onUpdate}) => ({id, payload}) => {
+            return onUpdate(id, payload);
         },
-        onDelete: ({batDelete, batGoList}) => ({id}) => {
-            return batDelete(id)
-                .then(() => batGoList()); // once deleted, navigate to the list page
+        delete: ({onDelete, onGoList}) => ({id}) => {
+            return onDelete(id)
+                .then(() => onGoList()); // once deleted, navigate to the list page
         },
-        onGo: ({batGo}) => ({id, view}) => {
-            return batGo({id, view});
+        go: ({onGo}) => ({id, view}) => {
+            return onGo({id, view});
         }
     },
     operationProps: (props) => {
@@ -74,17 +74,18 @@ const BatsEntityEditorConfig = BaseConfig.merge({
          * Here we have all write functions and navigation functions given by the BatsStore.
          */
         return {
-            batGet: props.onGetAsync,
-            batList: props.onListAsync,
-            batCreate: props.onCreateAsync,
-            batUpdate: props.onUpdateAsync,
-            batDelete: props.onDeleteAsync,
-            batGo: props.onGo,
+            onGet: props.onGetAsync,
+            onList: props.onListAsync,
+            onCreate: props.onCreateAsync,
+            onUpdate: props.onUpdateAsync,
+            onDelete: props.onDeleteAsync,
+            onGo: props.onGo,
 
             // you can also define new functions with specific behaviour
-            batGoList: () => props.onGo({id: null, view: "list"}),
-            batGoNew: () => props.onGo({id: null, view: "item"}),
-            batGoItem: (id) => props.onGo({id, view: "item"})
+            // TODO REMOVE THESE
+            onGoList: () => props.onGo({id: null, view: "list"}),
+            onGoNew: () => props.onGo({id: null, view: "item"}),
+            onGoItem: (id) => props.onGo({id, view: "item"})
         }
     }
 });
