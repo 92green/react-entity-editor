@@ -1,6 +1,7 @@
 /* @flow */
 
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 
 class ModalContent extends Component {
     render(): React.Element<any> {
@@ -19,8 +20,8 @@ class ModalContent extends Component {
             <div className={classNames.modalBody}>
                 {children}
                 <div className={classNames.modalButtonContainer}>
-                    {yes ? <button className={classNames.modalButton} onClick={onYes}>{yes}</button> : null}
                     {no ? <button className={classNames.modalButtonSecondary} onClick={onNo}>{no}</button> : null}
+                    {yes ? <button className={classNames.modalButton} onClick={onYes}>{yes}</button> : null}
                 </div>
             </div>
         </div>;

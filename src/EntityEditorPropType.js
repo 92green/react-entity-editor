@@ -1,6 +1,6 @@
 /* @flow */
 
-import {PropTypes} from 'react';
+import PropTypes from 'prop-types';
 
 export default PropTypes.shape({
     actions: PropTypes.objectOf(

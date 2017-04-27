@@ -93,6 +93,7 @@
     ]
   },
   "dependencies": {
+    "prop-types": "^15.5.8",
     "react-modal": "^1.7.3"
   }
 }
