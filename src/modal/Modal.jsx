@@ -54,8 +54,8 @@ Modal.defaultProps = {
         modalTitle: "Modal_title",
         modalBody: "Modal_body",
         modalButtonContainer: "Modal_buttonContainer",
-        modalButton: "Button",
-        modalButtonSecondary: "Button Button-grey"
+        modalButton: "Button Button-primary",
+        modalButtonSecondary: "Button Button-secondary"
     }
 };
 
