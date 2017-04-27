@@ -116,9 +116,14 @@ export default (config: EntityEditorConfig): Function => {
                 // create mutable operations object with the aim of passing a reference to it into each partial application
                 var mutableOperations: Object = {};
 
-                // get additional operations props passed through config, and make them all return promises
+                // get additional operations props passed through config, and make any functions return promises
                 const additional: Object = Map(additionalOperationProps(props))
-                    .map(fn => (...args) => returnPromise(fn(...args)))
+                    .map(ii => {
+                        if(typeof ii !== "function") {
+                            return ii;
+                        }
+                        return (...args) => returnPromise(ii(...args));
+                    })
                     .toObject();
 
                 operations.forEach((operation: Function, key: string) => {
