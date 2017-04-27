@@ -104,7 +104,7 @@ class BatsItem extends Component {
                     id="diet"
                 />
             </div>
-            <button className="Button Button-grey" onClick={this.back} disabled={!abilities.go}>Back</button>
+            <button className="Button Button-secondary" onClick={this.back} disabled={!abilities.go}>Back</button>
             <button className="Button" onClick={this.save} disabled={!abilities.save}>Save</button>
             {this.props.bat && // only show delete button when we have an item
                 <button className="Button" onClick={this.delete} disabled={!abilities.delete}>Delete</button>

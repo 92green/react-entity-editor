@@ -190,7 +190,7 @@ input {
         padding: .2rem;
     }
 
-    &.Button-grey {
+    &.Button-secondary {
         background-color: #9fc2db;
     }
 
@@ -273,5 +273,6 @@ input {
 
     .Modal_buttonContainer {
         margin-top: .5rem;
+        text-align: right;
     }
 }

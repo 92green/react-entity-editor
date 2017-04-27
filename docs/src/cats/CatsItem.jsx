@@ -92,7 +92,7 @@ class CatsItem extends Component {
             </div>
             <ButtonGoList
                 children="Back"
-                className="Button-grey"
+                className="Button-secondary"
                 entityEditor={entityEditor}
             />
             <ButtonSave
