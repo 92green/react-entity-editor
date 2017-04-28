@@ -41,8 +41,17 @@ class EntityEditorConfig {
             : fromJS(nextConfig);
 
         // merge configs together
+        // only merge Maps, and not workflow
+        const mergeFunction: Function = (oldVal: *, newVal: *, key: *): * => {
+            const doMerge: boolean = Map.isMap(oldVal)
+                && Map.isMap(newVal)
+                && key != "workflow";
+
+            return doMerge ? oldVal.mergeWith(mergeFunction, newVal) : newVal;
+        };
+
         const merged: Object = this._config
-            .mergeDeep(toMerge)
+            .mergeWith(mergeFunction, toMerge)
             .toJS();
 
         return new EntityEditorConfig(merged);

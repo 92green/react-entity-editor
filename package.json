@@ -31,6 +31,9 @@
     "test": "NODE_ENV=test nyc --report-dir=./coverage ava && yarn run check-coverage",
     "test-all": "NODE_ENV=test yarn run lint && yarn run flow && yarn run test"
   },
+  "peerDependencies": {
+    "react": "^15.3.2"
+  },
   "devDependencies": {
     "ava": "0.19.1",
     "babel-cli": "^6.23.0",

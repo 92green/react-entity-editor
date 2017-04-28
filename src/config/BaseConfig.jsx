@@ -14,10 +14,10 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         single: "item"
     },
     actions: {
-        save: {
-            description: "If the item already exists this calls the update operation, or calls create for new items.",
+        create: {
+            description: "Calls the create operation.",
             workflow: {
-                task: "saveOperate",
+                task: "createOperate",
                 next: {
                     onSuccess: {
                         task: "saveSuccess"
@@ -28,19 +28,16 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 }
             }
         },
-        saveNew: {
-            description: "Always calls create to make a new item, regardless of whether the data was loaded from an existing item.",
+        update: {
+            description: "Calls the update operation.",
             workflow: {
-                task: "saveNewConfirm",
-                onYes: {
-                    task: "saveNewOperate",
-                    next: {
-                        onSuccess: {
-                            task: "saveNewSuccess"
-                        },
-                        onError: {
-                            task: "saveError"
-                        }
+                task: "updateOperate",
+                next: {
+                    onSuccess: {
+                        task: "saveSuccess"
+                    },
+                    onError: {
+                        task: "saveError"
                     }
                 }
             }
@@ -64,6 +61,37 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 }
             }
         },
+        save: {
+            description: "If the item already exists this calls the update operation, or calls create for new items.",
+            workflow: {
+                task: "saveOperate",
+                next: {
+                    onSuccess: {
+                        task: "saveSuccess"
+                    },
+                    onError: {
+                        task: "saveError"
+                    }
+                }
+            }
+        },
+        saveNew: {
+            description: "Always calls create to make a new item, regardless of whether the data was loaded from an existing item.",
+            workflow: {
+                task: "saveNewConfirm",
+                onYes: {
+                    task: "createOperate",
+                    next: {
+                        onSuccess: {
+                            task: "saveNewSuccess"
+                        },
+                        onError: {
+                            task: "saveError"
+                        }
+                    }
+                }
+            }
+        },
         go: {
             description: "Navigates to another route or view",
             workflow: {
@@ -77,6 +105,36 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         }
     },
     tasks: {
+        createOperate: {
+            operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
+                if(!actionProps.payload) {
+                    throw `EntityEditor: config.actions.create: actionProps.payload is not defined`;
+                }
+                return operations
+                    .create(actionProps)
+                    .then(() => operations.dirty({dirty: false}));
+            },
+            status: ({item}) => ({
+                title: "Saving",
+                message: <span>Saving {item}...</span>
+            }),
+            statusOutput: "prompt"
+        },
+        updateOperate: {
+            operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
+                if(!actionProps.payload) {
+                    throw `EntityEditor: config.actions.update: actionProps.payload is not defined`;
+                }
+                return operations
+                    .update(actionProps)
+                    .then(() => operations.dirty({dirty: false}));
+            },
+            status: ({item}) => ({
+                title: "Saving",
+                message: <span>Saving {item}...</span>
+            }),
+            statusOutput: "prompt"
+        },
         saveOperate: {
             operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
                 if(!actionProps.payload) {
@@ -119,21 +177,6 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>Are you sure you want to save this as a new {item}?</span>,
                 yes: `Save as new`,
                 no: `Cancel`
-            }),
-            statusOutput: "prompt"
-        },
-        saveNewOperate: {
-            operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
-                if(!actionProps.payload) {
-                    throw `EntityEditor: config.actions.saveNew: actionProps.payload is not defined`;
-                }
-                return operations
-                    .create(actionProps)
-                    .then(() => operations.dirty({dirty: false}));
-            },
-            status: ({item}) => ({
-                title: "Saving",
-                message: <span>Saving {item}...</span>
             }),
             statusOutput: "prompt"
         },
@@ -203,6 +246,18 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         }
     },
     operations: {
+        create: () => (): Promiseable => {
+            console.warn(`"create" operation not defined`);
+        },
+        update: () => (): Promiseable => {
+            console.warn(`"update" operation not defined`);
+        },
+        delete: () => (): Promiseable => {
+            console.warn(`"delete" operation not defined`);
+        },
+        go: () => (): Promiseable => {
+            console.warn(`"go" operation not defined`);
+        },
         dirty: ({setEditorState}) => ({dirty}: {dirty: boolean}): Promiseable => {
             setEditorState({dirty});
         }
