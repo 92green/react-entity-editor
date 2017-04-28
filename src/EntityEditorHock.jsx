@@ -1,6 +1,7 @@
 /* @flow */
 
-import React, {Component} from 'react';
+import React, {Component, PureComponent} from 'react';
+import PropTypes from 'prop-types';
 import {Map} from 'immutable';
 import WorkflowHock from './workflow/WorkflowHock';
 import PromptContainer from './prompt/PromptContainer';
@@ -11,6 +12,12 @@ export default (config: EntityEditorConfig): Function => {
     const additionalOperationProps: Function = config.get('operationProps', () => {});
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
+
+        class PureComposedComponent extends PureComponent {
+            render() {
+                return <ComposedComponent {...this.props} />;
+            }
+        }
 
         class EntityEditorHock extends Component {
 
@@ -299,6 +306,11 @@ export default (config: EntityEditorConfig): Function => {
                 </div>;
             }
         }
+
+        EntityEditorHock.propTypes = {
+            workflow: PropTypes.object.isRequired,
+            passConfig: PropTypes.bool
+        };
 
         const withWorkflowHock: Function = WorkflowHock();
         return withWorkflowHock(EntityEditorHock);
