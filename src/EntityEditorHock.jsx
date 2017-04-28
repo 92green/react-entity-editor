@@ -269,15 +269,25 @@ export default (config: EntityEditorConfig): Function => {
              */
 
             render(): React.Element<any> {
-                const {workflow} = this.props;
+                var {
+                    workflow,
+                    passConfig,
+                    ...filteredProps
+                } = this.props;
+
+                const editorState: Object = this.getEditorState();
                 const statusProps: Object = {
-                    editorState: this.getEditorState(),
+                    editorState,
                     ...config.itemNames()
                 };
 
+                if(passConfig) {
+                    filteredProps.config = config;
+                }
+
                 return <div>
-                    <ComposedComponent
-                        {...this.props}
+                    <PureComposedComponent
+                        {...filteredProps}
                         entityEditor={this.entityEditorProps(statusProps)}
                     />
                     <PromptContainer
