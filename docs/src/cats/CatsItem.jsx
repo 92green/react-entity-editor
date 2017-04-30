@@ -1,116 +1,84 @@
 import React, {Component, PropTypes} from 'react';
 import {EntityEditorPropType} from 'react-entity-editor';
-import ButtonDelete from '../buttons/ButtonDelete';
-import ButtonGoList from '../buttons/ButtonGoList';
-import ButtonSave from '../buttons/ButtonSave';
+import CatsForm from './CatsForm';
 
 class CatsItem extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            form: {}
-        };
 
         // bind methods to this class
-        this.onChangeField = this.onChangeField.bind(this);
+        this.handleSave = this.handleSave.bind(this);
+        this.handleDirty = this.handleDirty.bind(this);
+        this.handleBack = this.handleBack.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
     }
 
-    componentWillMount() {
-        this.setupForm(this.props.cat);
+    handleSave(payload) {
+        // keep in mind that this.props.cat wont exist yet if you're making a new cat
+        const id = this.props.cat ? this.props.cat.id : null;
+
+        // the save action expects a payload and an optional id
+        // save is a short way of calling either create or update
+        // if id is falsey then the save action will call the create operation
+        // or else the save action will call the update operation
+        this.props.entityEditor.actions.save({payload, id});
     }
 
-    componentWillReceiveProps(nextProps) {
-        if(this.props.cat !== nextProps.cat) {
-            this.setupForm(nextProps.cat);
-        }
+    handleDirty(dirty) {
+        // tell entity editor the current dirty status of the form
+        // it uses an operation instead of an action
+        // because operations are done instantly and they wont block other actions from happening
+        // the dirty operation expects a dirty boolean
+        this.props.entityEditor.operations.dirty({dirty});
     }
 
-    componentWillUnmount() {
-        // tell entity editor that it is clean once leaving this component
-        this.props.entityEditor.operations.dirty({dirty: false});
-    }
-
-    setupForm(cat) {
-        // set up form
-        const fields = ['name', 'toy'];
-        var form = {};
-        fields.forEach(field => {
-            form[field] = cat ? cat[field] : "";
+    handleBack(payload) {
+        // the go action expects a view and an optional id
+        this.props.entityEditor.actions.go({
+            view: "list",
+            id: null
         });
-
-        this.state = {
-            form
-        };
-
-        // tell entity editor that the form is clean
-        this.props.entityEditor.operations.dirty({dirty: false});
     }
 
-    onChangeField(field) {
-        return (event) => {
-            // set the new state of the form
-            var form = Object.assign({}, this.state.form);
-            form[field] = event.target.value;
-            this.setState({form});
-
-            // tell entity editor that the form is now dirty,
-            // so that it knows when to warn the user about unsaved changes.
-            // we use the dirty operation for this, which you must pass in an object with a boolean property of 'dirty'
-            this.props.entityEditor.operations.dirty({dirty: true});
-        };
+    handleDelete() {
+        // tell entity editor to delete this item
+        // the delete action expects an id
+        const {id} = this.props.cat;
+        this.props.entityEditor.actions.delete({id});
     }
 
     render() {
         const {cat, entityEditor} = this.props;
         const {item} = entityEditor.names;
-        const {status} = entityEditor;
-
-        // keep in mind that this.props.dog wont exist yet if you're making a new dog
-        const payload = this.state.form;
-        const id = cat ? cat.id : null;
 
         const heading = `${cat ? "Edit" : "New"} ${item}`;
 
         return <div>
             <h3>{heading}</h3>
-            <div className="InputRow">
-                <label htmlFor="name">Name</label>
-                <input
-                    value={this.state.form.name}
-                    onChange={this.onChangeField('name')}
-                    id="name"
-                />
-            </div>
-            <div className="InputRow">
-                <label htmlFor="toy">Toy</label>
-                <input
-                    value={this.state.form.toy}
-                    onChange={this.onChangeField('toy')}
-                    id="toy"
-                />
-            </div>
-            <ButtonGoList
-                children="Back"
-                className="Button-secondary"
-                entityEditor={entityEditor}
+            <CatsForm
+                cat={cat}
+                onSave={this.handleSave}
+                onDirty={this.handleDirty}
+                canSave={entityEditor.actionable}
             />
-            <ButtonSave
-                children="Save"
-                id={id}
-                payload={payload}
-                entityEditor={entityEditor}
-            />
-            {cat && // only show delete button when we have an item
-                <ButtonDelete
-                    children="Delete"
-                    id={id}
-                    entityEditor={entityEditor}
+            <p>
+                <button
+                    children="Back"
+                    onClick={this.handleBack}
+                    className="Button Button-secondary"
                 />
-            }
-            {status && // if a status comes down as props, render it
-                <em>{status.title}</em>
-            }
+                {cat && // only show delete button when we have an item
+                    <button
+                        children="Delete"
+                        onClick={this.handleDelete}
+                        className="Button Button-secondary"
+                    />
+                }
+                {entityEditor.status && // if a status comes down as props, render it
+                    <em>{entityEditor.status.title}</em>
+                }
+            </p>
         </div>;
     }
 }

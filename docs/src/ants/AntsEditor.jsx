@@ -2,7 +2,6 @@ import React, {Component, PropTypes} from 'react';
 import {Route, Switch} from 'react-router-dom';
 import {EntityEditor, EntityEditorPropType} from 'react-entity-editor';
 
-import AntsStore from './AntsStore';
 import AntsEntityEditorConfig from './AntsEntityEditorConfig';
 import AntsList from './AntsList';
 import AntsItem from './AntsItem';
@@ -10,34 +9,28 @@ import Source from '../components/Source';
 
 class AntsEditor extends Component {
     render() {
-        const {match, ants, entityEditor} = this.props;
+        const {ants, entityEditor} = this.props;
 
-        return <div>
-            <h1>Router demo with ants</h1>
-            <p>A standard React Entity Editor example that uses <a href="https://reacttraining.com/react-router/">react-router v4</a> to control the current view instead of the viewState prop found in the other examples.</p>
-            <p><Source exampleDir="ants">Source</Source></p>
+        const antsList = () => <AntsList
+            ants={ants}
+            entityEditor={entityEditor}
+        />;
 
-            <Switch>
-                <Route exact path={`${match.path}`} render={() => {
-                    return <AntsList
-                        ants={ants}
-                        entityEditor={entityEditor}
-                    />;
-                }} />
-                <Route path={`${match.path}/item/:id`} render={({match}) => {
-                    return <AntsItem
-                        ant={ants.find(ant => ant.id == match.params.id)}
-                        entityEditor={entityEditor}
-                    />;
-                }} />
-                <Route path={`${match.path}/item`} render={() => {
-                    return <AntsItem
-                        entityEditor={entityEditor}
-                        isNew
-                    />;
-                }} />
-            </Switch>
-        </div>;
+        const antsEdit = (props) => <AntsItem
+            ant={ants.find(ant => ant.id == props.match.params.id)}
+            entityEditor={entityEditor}
+        />;
+
+        const antsNew = () => <AntsItem
+            entityEditor={entityEditor}
+            isNew
+        />;
+
+        return <Switch>
+            <Route exact path="/ants" render={antsList} />
+            <Route path="/ants/item/:id" render={antsEdit} />
+            <Route path="/ants/item" render={antsNew} />
+        </Switch>;
     }
 }
 
@@ -50,11 +43,10 @@ AntsEditor.propTypes = {
         })
     ).isRequired,
     entityEditor: EntityEditorPropType.isRequired,
-    match: PropTypes.shape({
-        path: PropTypes.string
-    })
+    onCreate: PropTypes.func.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired
 };
 
-const withAntsStore = AntsStore(); // AntsStore is just a stub data store to make the examples work
-const withEntityEditor = EntityEditor(AntsEntityEditorConfig); // this applies React Entity Editor to the editor component
-export default withAntsStore(withEntityEditor(AntsEditor));
+const withEntityEditor = EntityEditor(AntsEntityEditorConfig); // this applies React Entity Editor to the editor component with the ants config
+export default withEntityEditor(AntsEditor);
