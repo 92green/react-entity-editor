@@ -9,7 +9,7 @@ import {EntityEditorConfig} from './config/EntityEditorConfig';
 import {returnPromise} from './utils/Utils';
 
 export default (config: EntityEditorConfig): Function => {
-    const additionalOperationProps: Function = config.get('operationProps', () => {});
+    const selectedOperationProps: Function = config.get('operationProps');
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
@@ -26,6 +26,7 @@ export default (config: EntityEditorConfig): Function => {
             onOperationError: Function;
             setEditorState: Function;
             componentIsMounted: boolean;
+            continueRouteChange: ?Function;
 
             constructor(props: Object) {
                 super(props);
@@ -42,9 +43,16 @@ export default (config: EntityEditorConfig): Function => {
 
             componentWillMount() {
                 this.componentIsMounted = true;
+                config.getIn(['lifecycleMethods', 'componentWillMount'], Map())
+                    .forEach(fn => fn(this, config));
             }
 
-            componentWillReceiveProps(nextProps: Object) {
+            componentDidMount() {
+                config.getIn(['lifecycleMethods', 'componentDidMount'], Map())
+                    .forEach(fn => fn(this, config));
+            }
+
+            componentWillReceiveProps(nextProps: Object, nextState: Object) {
                 const currentTask: ?Map<string, any> = this.getCurrentTask(nextProps);
                 const {end} = nextProps.workflow;
 
@@ -65,15 +73,20 @@ export default (config: EntityEditorConfig): Function => {
                     }
 
                     // if a task has something to do when new task is entered do it here...
-                    const taskFunction: Function = currentTask.get('operate');
-                    if(taskFunction) {
-                        this.operate(taskFunction, nextProps);
+                    const operationName: string = currentTask.get('operation');
+                    if(operationName) {
+                        this.operate(operationName, nextProps);
                     }
                 }
+
+                config.getIn(['lifecycleMethods', 'componentWillReceiveProps'], Map())
+                    .forEach(fn => fn(this, config, nextProps, nextState));
             }
 
             componentWillUnmount() {
                 this.componentIsMounted = false;
+                config.getIn(['lifecycleMethods', 'componentWillUnmount'], Map())
+                    .forEach(fn => fn(this, config));
             }
 
             /*
@@ -92,27 +105,23 @@ export default (config: EntityEditorConfig): Function => {
              * operate
              */
 
-            operate(operateFunction: Function, props: Object) {
-                if(typeof operateFunction != "function") {
-                    throw new Error(`Entity Editor: "task.operate" must be a function`);
-                }
+            operate(operationName: string, props: Object) {
 
                 const nextWorkflow = props.workflow;
                 const {actionProps} = nextWorkflow.meta;
 
-                // create operateProps object to be passed into operate() on a task
-                const operateProps: Object = Map({
-                    operations: this.partiallyApplyOperations(config.get('operations'), props)
-                })
-                    .filter(ii => ii)
-                    .toObject();
+                const operations: Object = this.partiallyApplyOperations(config.get('operations'), props);
 
-                const partiallyAppliedOperateFunction: Function = operateFunction(operateProps);
-                if(typeof partiallyAppliedOperateFunction != "function") {
+                if(!operations.hasOwnProperty(operationName)) {
+                    throw new Error(`Entity Editor: config.operations."${operationName}" does not exist`);
+                }
+
+                const partiallyAppliedOperation: Function = operations[operationName];
+                if(typeof partiallyAppliedOperation != "function") {
                     throw new Error(`Entity Editor: "task.operate" must return a function`);
                 }
 
-                const result: Promiseable = partiallyAppliedOperateFunction(actionProps);
+                const result: Promiseable = partiallyAppliedOperation(actionProps);
                 returnPromise(result)
                     .then(this.onOperationSuccess(actionProps, nextWorkflow), this.onOperationError(actionProps, nextWorkflow));
             }
@@ -123,8 +132,8 @@ export default (config: EntityEditorConfig): Function => {
                 // create mutable operations object with the aim of passing a reference to it into each partial application
                 var mutableOperations: Object = {};
 
-                // get additional operations props passed through config, and make any functions return promises
-                const additional: Object = Map(additionalOperationProps(props))
+                // get operation props passed through config, and make any functions return promises\
+                const entityEditorProps: Object = Map(selectedOperationProps(props))
                     .map(ii => {
                         if(typeof ii !== "function") {
                             return ii;
@@ -137,20 +146,18 @@ export default (config: EntityEditorConfig): Function => {
 
                     // create operationsProps object to be passed into the first operation function
                     // it will contain a reference to mutableOperations which will be updated each iteration
-                    const operationProps: Object = Map({
-                        ...additional,
+                    const operationProps: Object = {
+                        props: entityEditorProps,
                         operations: mutableOperations,
                         setEditorState: this.setEditorState
-                    })
-                        .filter(ii => ii)
-                        .toObject();
+                    };
 
                     // partially apply the callbacks so they have knowledge of the full set of callbacks and any other config they're allowed to receive
                     const partialOperation: Function = operation(operationProps);
 
                     // if not a function then this callback hasn't been set up correctly, error out
                     if(typeof partialOperation != "function") {
-                        throw `Entity Editor: callback "${key} must be a function that returns a 'callback' function, such as (config) => (callbackProps) => { /* return null, promise or false */ }"`;
+                        throw new Error(`Entity Editor: callback "${key} must be a function that returns a 'callback' function"`);
                     }
 
                     // wrap partialOperation in a function that forces the callback to always return a promise
@@ -213,7 +220,7 @@ export default (config: EntityEditorConfig): Function => {
                 if(!currentTask) {
                     return false;
                 }
-                return currentTask.get('blocking',  !!currentTask.get('operate'));
+                return currentTask.get('blocking',  !!currentTask.get('operation'));
             }
 
             /*
@@ -308,7 +315,7 @@ export default (config: EntityEditorConfig): Function => {
         }
 
         EntityEditorHock.propTypes = {
-            workflow: PropTypes.object.isRequired,
+            workflow: PropTypes.object.isRequired, // always provided by WorkflowHock
             passConfig: PropTypes.bool
         };
 
