@@ -1,9 +1,6 @@
 import React, {Component, PropTypes} from 'react';
 import {Link} from 'react-router-dom';
 import {EntityEditorPropType} from 'react-entity-editor';
-import ButtonDelete from '../buttons/ButtonDelete';
-import ButtonGoEdit from '../buttons/ButtonGoEdit';
-import ButtonGoNew from '../buttons/ButtonGoNew';
 
 class AntsList extends Component {
     handleDelete(id) {
