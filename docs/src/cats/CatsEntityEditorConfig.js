@@ -29,8 +29,9 @@ const CatsEntityEditorConfig = BaseConfig.merge({
     operations: {
         /*
          * "Operations" is where you define what happens for each operations
-         * Wer'e basing this config off of BaseConfig, so you need to provide create, update, delete for editing items
-         * and go for navigating between views
+         * We're basing our config off BaseConfig which provides most things for you already
+         * but you'll need to provide create, update and delete functions for editing items
+         * and a go function for navigating between views
          *
          * In each operation the first function signature provides an operationProps object.
          * This contains all the data modifing functions returned from operationProps
@@ -45,43 +46,25 @@ const CatsEntityEditorConfig = BaseConfig.merge({
          * If not, then returning nothing or true will be interpreted as a success,
          * or returning false will be interpreted as an error.
          */
-        create: ({onCreate, onGo}) => ({payload}) => {
-            return onCreate(payload)
-                .then((result) => onGo({ // once created, navigate to the edit page for the new item
+        create: ({props, operations}) => ({payload}) => {
+            return props.onCreate(payload)
+                .then((result) => operations.go({ // once created, navigate to the edit page for the new item
                     id: result.id,
                     view: "item"
                 }));
         },
-        update: ({onUpdate}) => ({id, payload}) => {
-            return onUpdate(id, payload);
+        update: ({props}) => ({id, payload}) => {
+            return props.onUpdate(id, payload);
         },
-        delete: ({onDelete, onGo}) => ({id}) => {
-            return onDelete(id)
-                .then(() => onGo({ // once deleted, navigate to the list page
+        delete: ({props, operations}) => ({id}) => {
+            return props.onDelete(id)
+                .then(() => operations.go({ // once deleted, navigate to the list page
                     id: null,
                     view: "list"
                 }));
         },
-        go: ({onGo}) => ({id, view}) => {
-            return onGo({id, view});
-        }
-    },
-    operationProps: (props) => {
-        /*
-         * "OperationProps" allows you to pass selected function props from your editor component
-         * and make them always available from within your operations.
-         * Here we have all write functions and navigation functions given by the CatsStore.
-         *
-         * ASYNC!
-         * In the cats example we are using the async methods from the CatsStore.
-         * These add a lag to simulate an XHR request, and they each return a promise.
-         * No other code needs to change to accommodate these async functions.
-         */
-        return {
-            onCreate: props.onCreateAsync,
-            onUpdate: props.onUpdateAsync,
-            onDelete: props.onDeleteAsync,
-            onGo: props.onGo
+        go: ({props}) => ({id, view}) => {
+            return props.onGo({id, view});
         }
     }
 });

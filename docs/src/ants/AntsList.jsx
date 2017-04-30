@@ -1,18 +1,21 @@
 import React, {Component, PropTypes} from 'react';
+import {Link} from 'react-router-dom';
 import {EntityEditorPropType} from 'react-entity-editor';
-import ButtonDelete from '../buttons/ButtonDelete';
-import ButtonGoEdit from '../buttons/ButtonGoEdit';
-import ButtonGoNew from '../buttons/ButtonGoNew';
 
 class AntsList extends Component {
+    handleDelete(id) {
+        // the delete action expects an id
+        this.props.entityEditor.actions.delete({id});
+    }
     render() {
         const {ants, entityEditor} = this.props;
         const {item} = entityEditor.names;
 
         return <div>
-            <ButtonGoNew
+            <Link
                 children={`New ${item}`}
-                entityEditor={entityEditor}
+                to="/ants/item"
+                className="Button"
             />
             <table className="Table">
                 <thead>
@@ -29,17 +32,16 @@ class AntsList extends Component {
                             <td>{ant.name}</td>
                             <td>{ant.legs}</td>
                             <td>
-                                <ButtonGoEdit
+                                <Link
                                     children="edit"
-                                    className="Button-small"
-                                    id={id}
-                                    entityEditor={entityEditor}
+                                    to={`/ants/item/${id}`}
+                                    className="Button Button-small"
                                 />
-                                <ButtonDelete
+                                <button
                                     children="delete"
-                                    className="Button-small"
-                                    id={id}
-                                    entityEditor={entityEditor}
+                                    className="Button Button-small Button-secondary"
+                                    onClick={() => this.handleDelete(id)}
+                                    disabled={!entityEditor.actionable}
                                 />
                             </td>
                         </tr>;

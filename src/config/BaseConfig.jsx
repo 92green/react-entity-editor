@@ -106,14 +106,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
     },
     tasks: {
         createOperate: {
-            operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
-                if(!actionProps.payload) {
-                    throw `EntityEditor: config.actions.create: actionProps.payload is not defined`;
-                }
-                return operations
-                    .create(actionProps)
-                    .then(() => operations.dirty({dirty: false}));
-            },
+            operation: "create",
             status: ({item}) => ({
                 title: "Saving",
                 message: <span>Saving {item}...</span>
@@ -121,14 +114,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             statusOutput: "prompt"
         },
         updateOperate: {
-            operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
-                if(!actionProps.payload) {
-                    throw `EntityEditor: config.actions.update: actionProps.payload is not defined`;
-                }
-                return operations
-                    .update(actionProps)
-                    .then(() => operations.dirty({dirty: false}));
-            },
+            operation: "update",
             status: ({item}) => ({
                 title: "Saving",
                 message: <span>Saving {item}...</span>
@@ -136,19 +122,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             statusOutput: "prompt"
         },
         saveOperate: {
-            operate: ({operations}) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
-                if(!actionProps.payload) {
-                    throw `EntityEditor: config.actions.save: actionProps.payload is not defined`;
-                }
-                if(actionProps.id) {
-                    return operations
-                        .update(actionProps)
-                        .then(() => operations.dirty({dirty: false}));
-                }
-                return operations
-                    .create(actionProps)
-                    .then(() => operations.dirty({dirty: false}));
-            },
+            operation: "save",
             status: ({item}) => ({
                 title: "Saving",
                 message: <span>Saving {item}...</span>
@@ -198,14 +172,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             statusOutput: "prompt"
         },
         deleteOperate: {
-            operate: ({operations}) => (actionProps: {id: string}): Promiseable => {
-                if(!actionProps.id) {
-                    throw `EntityEditor: config.actions.delete: actionProps.id is not defined`;
-                }
-                return operations
-                    .delete(actionProps)
-                    .then(() => operations.dirty({dirty: false}));
-            },
+            operation: "delete",
             status: ({item}) => ({
                 title: "Deleting",
                 message: <span>Deleting {item}...</span>
@@ -239,26 +206,32 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             statusOutput: "prompt"
         },
         goOperate: {
-            operate: ({operations}) => (actionProps: Object): Promiseable => {
-                return operations
-                    .go(actionProps);
-            }
+            operation: "go"
         }
     },
     operations: {
-        create: () => (): Promiseable => {
-            console.warn(`"create" operation not defined`);
+        create: ({operations, props, setEditorState}: Object) => (actionProps: Object): Promiseable => {
+            console.warn(`"create" operation not defined, set this in your config`);
         },
-        update: () => (): Promiseable => {
-            console.warn(`"update" operation not defined`);
+        update: ({operations, props, setEditorState}: Object) => (actionProps: Object): Promiseable => {
+            console.warn(`"update" operation not defined, set this in your config`);
         },
-        delete: () => (): Promiseable => {
-            console.warn(`"delete" operation not defined`);
+        delete: ({operations, props, setEditorState}: Object) => (actionProps: Object): Promiseable => {
+            console.warn(`"delete" operation not defined, set this in your config`);
         },
-        go: () => (): Promiseable => {
-            console.warn(`"go" operation not defined`);
+        go: ({operations, props, setEditorState}: Object) => (actionProps: Object): Promiseable => {
+            console.warn(`"go" operation not defined, set this in your config`);
         },
-        dirty: ({setEditorState}) => ({dirty}: {dirty: boolean}): Promiseable => {
+        save: ({operations}: Object) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
+            if(!actionProps.payload) {
+                throw new Error(`EntityEditor: config.operations.save: actionProps.payload is not defined`);
+            }
+            if(actionProps.id) {
+                return operations.update(actionProps);
+            }
+            return operations.create(actionProps);
+        },
+        dirty: ({setEditorState}: Object) => ({dirty}: {dirty: boolean}): Promiseable => {
             setEditorState({dirty});
         }
     },
@@ -269,6 +242,13 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
     components: {
         prompt: (props) => <Modal {...props} />,
         promptContent: (props) => <ModalContent {...props} />
+    },
+    operationProps: ii => ii,
+    lifecycleMethods: {
+        componentWillMount: {},
+        componentDidMount: {},
+        componentWillReceiveProps: {},
+        componentWillUnmount: {}
     }
 });
 
