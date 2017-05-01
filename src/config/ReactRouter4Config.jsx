@@ -45,6 +45,13 @@ function protectRouteChange(entityEditorInstance: Object, config: EntityEditorCo
     // action at the end of the "go" action / workflow
     ee.unblockRouteChange = history.block((nextLocation: Object, action: string): boolean => {
 
+        // if we're going back in history it would be great to warn against unsaved changes being lost
+        // however the current mechanism causes react-router's history to call goBack multiple times.
+        // to prevent this bug from surfacing for now, just don't protect against going back
+        if(action == "POP") {
+            return true;
+        }
+
         // if current task is blocking, that means we're in the middle of an operation
         // and something has tried to change routes
         // we assume this route change was issued by the operation itself
