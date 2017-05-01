@@ -24,11 +24,11 @@ const go: Function = ({props}: Object) => ({continueRouteChange, location}: Obje
         throw new Error(NO_LOCATION_ERROR_MESSAGE);
     }
     history.push(location);
-}
+};
 
 function protectRouteChange(entityEditorInstance: Object, config: EntityEditorConfig) {
     const ee: Object = entityEditorInstance;
-    const {history} = ee.props;
+    const {history} = ee.nextProps;
     if(!history) {
         throw new Error(NO_HISTORY_ERROR_MESSAGE);
     }
@@ -43,37 +43,42 @@ function protectRouteChange(entityEditorInstance: Object, config: EntityEditorCo
     // so we reject react-router's automatic route transition and instead
     // provide an identical one as an actionProp
     // action at the end of the "go" action / workflow
-    ee.unblockRouteChange = history.block((nextLocation: Object): boolean => {
+    ee.unblockRouteChange = history.block((nextLocation: Object, action: string): boolean => {
 
         // if current task is blocking, that means we're in the middle of an operation
         // and something has tried to change routes
         // we assume this route change was issued by the operation itself
         // and therefore do not block it
-        if(ee.isCurrentTaskBlocking()) {
+        if(ee.isCurrentTaskBlocking(ee.nextProps)) {
             return true;
         }
 
         // pass nextLocation to continueRouteChange, which returns a thunk
-        const continueRouteChange = actionProps.continueRouteChange(nextLocation);
+        const continueRouteChange = actionProps.continueRouteChange(nextLocation, action);
         // start the "go" action
         ee.workflowStart("go", config.getIn(["actions", "go"]), {continueRouteChange});
         return false;
     });
 
-    actionProps.continueRouteChange = (nextLocation: Object) => () => {
-        // break out of race condition when browser back / forward requests route change
-        // TODO find root cause and less hacky way of fixing it
-        setTimeout(() => {
-            ee.unblockRouteChange();
-            history.push(nextLocation);
-            protectRouteChange(entityEditorInstance, config);
-        }, 10);
+    actionProps.continueRouteChange = (nextLocation: Object, action: string) => () => {
+        ee.unblockRouteChange();
+        switch(action) {
+            case "PUSH":
+                history.push(nextLocation);
+                break;
+
+            case "REPLACE":
+            case "POP":
+                history.replace(nextLocation);
+                break;
+        }
+        protectRouteChange(entityEditorInstance, config);
     };
 }
 
 function unprotectRouteChange(entityEditorInstance: Object) {
     const ee: Object = entityEditorInstance;
-    ee.unblockRouteChange && ee.unblockRouteChange()
+    ee.unblockRouteChange && ee.unblockRouteChange();
 }
 
 const ReactRouter4Config: EntityEditorConfig = EntityEditorConfig({

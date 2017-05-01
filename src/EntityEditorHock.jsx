@@ -22,6 +22,7 @@ export default (config: EntityEditorConfig): Function => {
         class EntityEditorHock extends Component {
 
             state: Object;
+            nextProps: Object;
             onOperationSuccess: Function;
             onOperationError: Function;
             setEditorState: Function;
@@ -31,6 +32,7 @@ export default (config: EntityEditorConfig): Function => {
             constructor(props: Object) {
                 super(props);
                 this.componentIsMounted = false;
+                this.nextProps = props;
                 this.state = config.get('initialEditorState').toObject();
                 this.onOperationSuccess = this.onOperationSuccess.bind(this);
                 this.onOperationError = this.onOperationError.bind(this);
@@ -43,6 +45,7 @@ export default (config: EntityEditorConfig): Function => {
 
             componentWillMount() {
                 this.componentIsMounted = true;
+                this.nextProps = this.props;
                 config.getIn(['lifecycleMethods', 'componentWillMount'], Map())
                     .forEach(fn => fn(this, config));
             }
@@ -52,7 +55,8 @@ export default (config: EntityEditorConfig): Function => {
                     .forEach(fn => fn(this, config));
             }
 
-            componentWillReceiveProps(nextProps: Object, nextState: Object) {
+            componentWillReceiveProps(nextProps: Object) {
+                this.nextProps = nextProps;
                 const currentTask: ?Map<string, any> = this.getCurrentTask(nextProps);
                 const {end} = nextProps.workflow;
 
@@ -80,7 +84,7 @@ export default (config: EntityEditorConfig): Function => {
                 }
 
                 config.getIn(['lifecycleMethods', 'componentWillReceiveProps'], Map())
-                    .forEach(fn => fn(this, config, nextProps, nextState));
+                    .forEach(fn => fn(this, config, nextProps));
             }
 
             componentWillUnmount() {
