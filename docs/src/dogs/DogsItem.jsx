@@ -14,7 +14,7 @@ class DogsItem extends Component {
         this.handleDelete = this.handleDelete.bind(this);
     }
 
-    handleSave(payload) {
+    handleSave = (payload) => {
         // keep in mind that this.props.dog wont exist yet if you're making a new dog
         const id = this.props.dog ? this.props.dog.id : null;
 
@@ -23,30 +23,36 @@ class DogsItem extends Component {
         // if id is falsey then the save action will call the create operation
         // or else the save action will call the update operation
         this.props.entityEditor.actions.save({payload, id});
-    }
+    };
 
-    handleDirty(dirty) {
-        // tell entity editor the current dirty status of the form
+    handleDirty = () => {
+        // tell entity editor that the form is dirty / has unsaved changes
         // it uses an operation instead of an action
-        // because operations are done instantly and they wont block other actions from happening
-        // the dirty operation expects a dirty boolean
-        this.props.entityEditor.operations.dirty({dirty});
-    }
+        // because operations are done instantly and dont block actions from happening
+        this.props.entityEditor.operations.dirty();
+    };
 
-    handleBack(payload) {
+    handleClean = () => {
+        // tell entity editor that the form is clean / has no unsaved changes
+        // it uses an operation instead of an action
+        // because operations are done instantly and dont block actions from happening
+        this.props.entityEditor.operations.clean();
+    };
+
+    handleBack = (payload) => {
         // the go action expects a view and an optional id
         this.props.entityEditor.actions.go({
             view: "list",
             id: null
         });
-    }
+    };
 
-    handleDelete() {
+    handleDelete = () => {
         // tell entity editor to delete this item
         // the delete action expects an id
         const {id} = this.props.dog;
         this.props.entityEditor.actions.delete({id});
-    }
+    };
 
     render() {
         const {dog, entityEditor} = this.props;
@@ -60,6 +66,7 @@ class DogsItem extends Component {
                 dog={dog}
                 onSave={this.handleSave}
                 onDirty={this.handleDirty}
+                onClean={this.handleClean}
                 canSave={entityEditor.actionable}
             />
             <p>

@@ -7,10 +7,6 @@ class AntsForm extends Component {
         this.state = {
             form: {}
         };
-
-        // bind methods to this class
-        this.handleChangeField = this.handleChangeField.bind(this);
-        this.handleSave = this.handleSave.bind(this);
     }
 
     componentWillMount() {
@@ -19,13 +15,10 @@ class AntsForm extends Component {
 
     componentWillReceiveProps(nextProps) {
         if(this.props.ant !== nextProps.ant) {
+            // mark the form as clean
+            this.props.onClean();
             this.setupForm(nextProps.ant);
         }
-    }
-
-    componentWillUnmount() {
-        // if the form unmounts, mark the form as no longer dirty
-        this.props.onDirty(false);
     }
 
     setupForm(ant) {
@@ -37,12 +30,9 @@ class AntsForm extends Component {
         });
 
         this.setState({form});
-
-        // mark the form as clean
-        this.props.onDirty(false);
     }
 
-    handleChangeField(field) {
+    handleChangeField = (field) => {
         return (event) => {
             // set the new state of the form
             var form = Object.assign({}, this.state.form);
@@ -96,9 +86,10 @@ AntsForm.propTypes = {
         name: PropTypes.string,
         legs: PropTypes.string
     }),
-    onSave: PropTypes.func,
-    onDirty: PropTypes.func,
-    canSave: PropTypes.bool
+    onSave: PropTypes.func.isRequired,
+    onDirty: PropTypes.func.isRequired,
+    onClean: PropTypes.func.isRequired,
+    canSave: PropTypes.bool.isRequired
 };
 
 export default AntsForm;

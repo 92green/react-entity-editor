@@ -5,16 +5,7 @@ import AntsForm from './AntsForm';
 
 class AntsItem extends Component {
 
-    constructor(props) {
-        super(props);
-
-        // bind methods to this class
-        this.handleSave = this.handleSave.bind(this);
-        this.handleDirty = this.handleDirty.bind(this);
-        this.handleDelete = this.handleDelete.bind(this);
-    }
-
-    handleSave(payload) {
+    handleSave = (payload) => {
         // keep in mind that this.props.ant wont exist yet if you're making a new ant
         const id = this.props.ant ? this.props.ant.id : null;
 
@@ -23,22 +14,28 @@ class AntsItem extends Component {
         // if id is falsey then the save action will call the create operation
         // or else the save action will call the update operation
         this.props.entityEditor.actions.save({payload, id});
-    }
+    };
 
-    handleDirty(dirty) {
-        // tell entity editor the current dirty status of the form
+    handleDirty = () => {
+        // tell entity editor that the form is dirty / has unsaved changes
         // it uses an operation instead of an action
-        // because operations are done instantly and they wont block other actions from happening
-        // the dirty operation expects a dirty boolean
-        this.props.entityEditor.operations.dirty({dirty});
-    }
+        // because operations are done instantly and dont block actions from happening
+        this.props.entityEditor.operations.dirty();
+    };
 
-    handleDelete() {
+    handleClean = () => {
+        // tell entity editor that the form is clean / has no unsaved changes
+        // it uses an operation instead of an action
+        // because operations are done instantly and dont block actions from happening
+        this.props.entityEditor.operations.clean();
+    };
+
+    handleDelete = () => {
         // tell entity editor to delete this item
         // the delete action expects an id
         const {id} = this.props.ant;
         this.props.entityEditor.actions.delete({id});
-    }
+    };
 
     render() {
         const {ant, entityEditor} = this.props;
@@ -52,6 +49,7 @@ class AntsItem extends Component {
                 ant={ant}
                 onSave={this.handleSave}
                 onDirty={this.handleDirty}
+                onClean={this.handleClean}
                 canSave={entityEditor.actionable}
             />
             <p>

@@ -4,17 +4,7 @@ import CatsForm from './CatsForm';
 
 class CatsItem extends Component {
 
-    constructor(props) {
-        super(props);
-
-        // bind methods to this class
-        this.handleSave = this.handleSave.bind(this);
-        this.handleDirty = this.handleDirty.bind(this);
-        this.handleBack = this.handleBack.bind(this);
-        this.handleDelete = this.handleDelete.bind(this);
-    }
-
-    handleSave(payload) {
+    handleSave = (payload) => {
         // keep in mind that this.props.cat wont exist yet if you're making a new cat
         const id = this.props.cat ? this.props.cat.id : null;
 
@@ -23,30 +13,36 @@ class CatsItem extends Component {
         // if id is falsey then the save action will call the create operation
         // or else the save action will call the update operation
         this.props.entityEditor.actions.save({payload, id});
-    }
+    };
 
-    handleDirty(dirty) {
-        // tell entity editor the current dirty status of the form
+    handleDirty = () => {
+        // tell entity editor that the form is dirty / has unsaved changes
         // it uses an operation instead of an action
-        // because operations are done instantly and they wont block other actions from happening
-        // the dirty operation expects a dirty boolean
-        this.props.entityEditor.operations.dirty({dirty});
-    }
+        // because operations are done instantly and dont block actions from happening
+        this.props.entityEditor.operations.dirty();
+    };
 
-    handleBack(payload) {
+    handleClean = () => {
+        // tell entity editor that the form is clean / has no unsaved changes
+        // it uses an operation instead of an action
+        // because operations are done instantly and dont block actions from happening
+        this.props.entityEditor.operations.clean();
+    };
+
+    handleBack = (payload) => {
         // the go action expects a view and an optional id
         this.props.entityEditor.actions.go({
             view: "list",
             id: null
         });
-    }
+    };
 
-    handleDelete() {
+    handleDelete = () => {
         // tell entity editor to delete this item
         // the delete action expects an id
         const {id} = this.props.cat;
         this.props.entityEditor.actions.delete({id});
-    }
+    };
 
     render() {
         const {cat, entityEditor} = this.props;
@@ -60,6 +56,7 @@ class CatsItem extends Component {
                 cat={cat}
                 onSave={this.handleSave}
                 onDirty={this.handleDirty}
+                onClean={this.handleClean}
                 canSave={entityEditor.actionable}
             />
             <p>
