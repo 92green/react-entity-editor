@@ -52,13 +52,15 @@ class AntsForm extends Component {
             // when a change is made, mark the form as dirty
             // (this is a little crude, it should only mark the form as dirty
             // if the form state differs from its original state)
-            this.props.onDirty(true);
+            this.props.onDirty();
         };
-    }
+    };
 
-    handleSave() {
+    handleSave = () => {
         this.props.onSave(this.state.form);
-    }
+        // we dont mark the form as dirty here because we wait for the update to finish
+        // at which point new props will come down and setupForm() will be called again
+    };
 
     render() {
         return <div>
