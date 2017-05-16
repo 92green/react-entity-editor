@@ -28,8 +28,8 @@
     "flow": "flow check",
     "lint": "eslint src --ext js,jsx",
     "lint-fix": "eslint src --ext js,jsx --fix",
-    "test": "NODE_ENV=test nyc --report-dir=./coverage ava && yarn run check-coverage",
-    "test-all": "NODE_ENV=test yarn run lint && yarn run flow && yarn run test"
+    "test-disabled": "NODE_ENV=test nyc --report-dir=./coverage ava && yarn run check-coverage",
+    "test-all-disabled": "NODE_ENV=test yarn run lint && yarn run flow && yarn run test"
   },
   "peerDependencies": {
     "react": "^15.3.2"
