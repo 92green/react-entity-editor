@@ -24,14 +24,14 @@ dependencies:
   override:
     - yarn install
 
-  test:
-    override:
-      - yarn run test-all
+test:
+  override:
+    - yarn run test-all
 
 deployment:
   master:
     branch: master
-    owner: dxinteractive
+    owner: bigdatr
     commands:
       - git config --global user.email Damien Clarke
       - git config --global user.name Damien Clarke
