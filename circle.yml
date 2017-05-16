@@ -28,6 +28,10 @@ dependencies:
 #   override:
 #     - yarn run test-all
 
+  test:
+    override:
+      - "true"
+
 deployment:
   master:
     branch: master
