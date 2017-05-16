@@ -12,7 +12,6 @@ class PromptContainer extends Component {
         super(props);
         this.promptOnYes = this.promptOnYes.bind(this);
         this.promptOnNo = this.promptOnNo.bind(this);
-       // this.promptTaskFallback = this.promptTaskFallback.bind(this);
     }
 
     promptOnYes() {

@@ -98,7 +98,12 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 task: "goConfirm",
                 next: {
                     onYes: {
-                        task: "goOperate"
+                        task: "cleanOperate",
+                        next: {
+                            onSuccess: {
+                                task: "goOperate"
+                            }
+                        }
                     }
                 }
             }
@@ -207,6 +212,9 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         },
         goOperate: {
             operation: "go"
+        },
+        cleanOperate: {
+            operation: "clean"
         }
     },
     operations: {
@@ -231,8 +239,11 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             }
             return operations.create(actionProps);
         },
-        dirty: ({setEditorState}: Object) => ({dirty}: {dirty: boolean}): Promiseable => {
-            setEditorState({dirty});
+        dirty: ({setEditorState}: Object) => (): Promiseable => {
+            setEditorState({dirty: true});
+        },
+        clean: ({setEditorState}: Object) => (): Promiseable => {
+            setEditorState({dirty: false});
         }
     },
     initialEditorState: {

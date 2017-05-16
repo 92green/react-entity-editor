@@ -7,10 +7,6 @@ class DogsForm extends Component {
         this.state = {
             form: {}
         };
-
-        // bind methods to this class
-        this.handleChangeField = this.handleChangeField.bind(this);
-        this.handleSave = this.handleSave.bind(this);
     }
 
     componentWillMount() {
@@ -19,13 +15,10 @@ class DogsForm extends Component {
 
     componentWillReceiveProps(nextProps) {
         if(this.props.dog !== nextProps.dog) {
+            // mark the form as clean
+            this.props.onClean();
             this.setupForm(nextProps.dog);
         }
-    }
-
-    componentWillUnmount() {
-        // if the form unmounts, mark the form as no longer dirty
-        this.props.onDirty(false);
     }
 
     setupForm(dog) {
@@ -37,12 +30,9 @@ class DogsForm extends Component {
         });
 
         this.setState({form});
-
-        // mark the form as clean
-        this.props.onDirty(false);
     }
 
-    handleChangeField(field) {
+    handleChangeField = (field) => {
         return (event) => {
             // set the new state of the form
             var form = Object.assign({}, this.state.form);
@@ -52,13 +42,15 @@ class DogsForm extends Component {
             // when a change is made, mark the form as dirty
             // (this is a little crude, it should only mark the form as dirty
             // if the form state differs from its original state)
-            this.props.onDirty(true);
+            this.props.onDirty();
         };
-    }
+    };
 
-    handleSave() {
+    handleSave = () => {
         this.props.onSave(this.state.form);
-    }
+        // we dont mark the form as dirty here because we wait for the update to finish
+        // at which point new props will come down and setupForm() will be called again
+    };
 
     render() {
         return <div>
@@ -94,9 +86,10 @@ DogsForm.propTypes = {
         name: PropTypes.string,
         toy: PropTypes.string
     }),
-    onSave: PropTypes.func,
-    onDirty: PropTypes.func,
-    canSave: PropTypes.bool
+    onSave: PropTypes.func.isRequired,
+    onDirty: PropTypes.func.isRequired,
+    onClean: PropTypes.func.isRequired,
+    canSave: PropTypes.bool.isRequired
 };
 
 export default DogsForm;
