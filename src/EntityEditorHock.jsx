@@ -14,7 +14,7 @@ export default (config: EntityEditorConfig): Function => {
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
         class PureComposedComponent extends PureComponent {
-            render() {
+            render(): React.Element<*> {
                 return <ComposedComponent {...this.props} />;
             }
         }
@@ -138,7 +138,7 @@ export default (config: EntityEditorConfig): Function => {
 
                 // get operation props passed through config, and make any functions return promises\
                 const entityEditorProps: Object = Map(selectedOperationProps(props))
-                    .map(ii => {
+                    .map((ii: *): * => {
                         if(typeof ii !== "function") {
                             return ii;
                         }
