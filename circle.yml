@@ -24,9 +24,9 @@ dependencies:
   override:
     - yarn install
 
-test:
-  override:
-    - yarn run test-all
+# test:
+#   override:
+#     - yarn run test-all
 
 deployment:
   master:
