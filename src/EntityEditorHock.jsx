@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, {Component, PureComponent} from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Map} from 'immutable';
 import WorkflowHock from './workflow/WorkflowHock';
@@ -13,30 +13,17 @@ export default (config: EntityEditorConfig): Function => {
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
 
-        class PureComposedComponent extends PureComponent {
-            render(): React.Element<*> {
-                return <ComposedComponent {...this.props} />;
-            }
-        }
-
         class EntityEditorHock extends Component {
 
             state: Object;
             nextProps: Object;
-            onOperationSuccess: Function;
-            onOperationError: Function;
-            setEditorState: Function;
             componentIsMounted: boolean;
-            continueRouteChange: ?Function;
 
             constructor(props: Object) {
                 super(props);
                 this.componentIsMounted = false;
                 this.nextProps = props;
                 this.state = config.get('initialEditorState').toObject();
-                this.onOperationSuccess = this.onOperationSuccess.bind(this);
-                this.onOperationError = this.onOperationError.bind(this);
-                this.setEditorState = this.setEditorState.bind(this);
             }
 
             /*
@@ -97,19 +84,19 @@ export default (config: EntityEditorConfig): Function => {
              * editor state
              */
 
-            getEditorState(): Object {
+            getEditorState: Function = (): Object => {
                 return this.state;
-            }
+            };
 
-            setEditorState(newState: Object) {
+            setEditorState: Function = (newState: Object) => {
                 this.setState(newState);
-            }
+            };
 
             /*
              * operate
              */
 
-            operate(operationName: string, props: Object) {
+            operate: Function = (operationName: string, props: Object) => {
 
                 const nextWorkflow = props.workflow;
                 const {actionProps} = nextWorkflow.meta;
@@ -130,7 +117,7 @@ export default (config: EntityEditorConfig): Function => {
                     .then(this.onOperationSuccess(actionProps, nextWorkflow), this.onOperationError(actionProps, nextWorkflow));
             }
 
-            partiallyApplyOperations(operations: Map<string,Function>, props: Object): Object {
+            partiallyApplyOperations: Function = (operations: Map<string,Function>, props: Object): Object => {
                 // TOD MEMOIZE THIS ON PROP CHANGE
 
                 // create mutable operations object with the aim of passing a reference to it into each partial application
@@ -169,9 +156,9 @@ export default (config: EntityEditorConfig): Function => {
                 });
 
                 return mutableOperations;
-            }
+            };
 
-            onOperationSuccess({onSuccess}: ActionProps, nextWorkflow: Object): any {
+            onOperationSuccess: Function = ({onSuccess}: ActionProps, nextWorkflow: Object): any => {
                 return (result: any) => {
                     if(!this.componentIsMounted || this.props.workflow.name != nextWorkflow.name) {
                         return;
@@ -179,9 +166,9 @@ export default (config: EntityEditorConfig): Function => {
                     onSuccess && onSuccess(result);
                     this.props.workflow.next("onSuccess", this.props.workflow.end);
                 };
-            }
+            };
 
-            onOperationError({onError}: ActionProps, nextWorkflow: Object): any {
+            onOperationError: Function = ({onError}: ActionProps, nextWorkflow: Object): any => {
                 return (result: any) => {
                     if(!this.componentIsMounted || this.props.workflow.name != nextWorkflow.name) {
                         return;
@@ -189,13 +176,13 @@ export default (config: EntityEditorConfig): Function => {
                     onError && onError(result);
                     this.props.workflow.next("onError", this.props.workflow.end);
                 };
-            }
+            };
 
             /*
              * workflow
              */
 
-            workflowStart(actionName: string, actionConfig: Object, actionProps: Object = {}) {
+            workflowStart: Function = (actionName: string, actionConfig: Object, actionProps: Object = {}) => {
                 if(this.isCurrentTaskBlocking()) {
                     const {name, task} = this.props.workflow;
                     console.warn(`Entity Editor: cannot start new "${actionName}" action while "${name}" action is blocking with task "${task}".`);
@@ -207,16 +194,16 @@ export default (config: EntityEditorConfig): Function => {
                     throw new Error(`Entity Editor: A workflow must be defined on the config object for ${actionName}`);
                 }
                 this.props.workflow.start(workflow.toJS(), actionName, {actionProps});
-            }
+            };
 
-            getCurrentTask(props: ?Object): ?Object {
+            getCurrentTask: Function = (props: ?Object): ?Object => {
                 if(!props) {
                     props = this.props;
                 }
                 return config.getIn(['tasks', props.workflow.task]);
-            }
+            };
 
-            isCurrentTaskBlocking(props: ?Object): boolean {
+            isCurrentTaskBlocking: Function = (props: ?Object): boolean => {
                 if(!props) {
                     props = this.props;
                 }
@@ -225,7 +212,7 @@ export default (config: EntityEditorConfig): Function => {
                     return false;
                 }
                 return currentTask.get('blocking',  !!currentTask.get('operation'));
-            }
+            };
 
             /*
              * prop calculation
@@ -304,7 +291,7 @@ export default (config: EntityEditorConfig): Function => {
                 }
 
                 return <div>
-                    <PureComposedComponent
+                    <ComposedComponent
                         {...filteredProps}
                         entityEditor={this.entityEditorProps(statusProps)}
                     />
