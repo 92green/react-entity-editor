@@ -12,16 +12,20 @@ class ModalContent extends Component {
             no,
             onYes,
             onNo,
-            classNames
+            classNameTitle,
+            classNameBody,
+            classNameButtonContainer,
+            classNameButtonYes,
+            classNameButtonNo
         } = this.props;
 
         return <div>
-            {title && <div className={classNames.modalTitle}>{title}</div>}
-            <div className={classNames.modalBody}>
+            {title && <div className={classNameTitle}>{title}</div>}
+            <div className={classNameBody}>
                 {children}
-                <div className={classNames.modalButtonContainer}>
-                    {no ? <button className={classNames.modalButtonSecondary} onClick={onNo}>{no}</button> : null}
-                    {yes ? <button className={classNames.modalButton} onClick={onYes}>{yes}</button> : null}
+                <div className={classNameButtonContainer}>
+                    {no ? <button className={classNameButtonNo} onClick={onNo}>{no}</button> : null}
+                    {yes ? <button className={classNameButtonYes} onClick={onYes}>{yes}</button> : null}
                 </div>
             </div>
         </div>;
@@ -34,23 +38,19 @@ ModalContent.propTypes = {
     no: PropTypes.string,
     onYes: PropTypes.func,
     onNo: PropTypes.func,
-    classNames: PropTypes.shape({
-        modalTitle: PropTypes.string,
-        modalBody: PropTypes.string,
-        modalButtonContainer: PropTypes.string,
-        modalButton: PropTypes.string,
-        modalButtonSecondary: PropTypes.string
-    })
+    classNameTitle: PropTypes.string,
+    classNameBody: PropTypes.string,
+    classNameButtonContainer: PropTypes.string,
+    classNameButton: PropTypes.string,
+    classNameButtonNo: PropTypes.string
 };
 
 ModalContent.defaultProps = {
-    classNames: {
-        modalTitle: "Modal_title",
-        modalBody: "Modal_body",
-        modalButtonContainer: "Modal_buttonContainer",
-        modalButton: "Button Button-primary",
-        modalButtonSecondary: "Button Button-secondary"
-    }
+    classNameTitle: "Modal_title",
+    classNameBody: "Modal_body",
+    classNameButtonContainer: "Modal_buttonContainer",
+    classNameButtonYes: "Button Button-primary",
+    classNameButtonNo: "Button Button-secondary"
 };
 
 export default ModalContent;
