@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, {Component, PureComponent} from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Map} from 'immutable';
 import WorkflowHock from './workflow/WorkflowHock';
@@ -12,12 +12,6 @@ export default (config: EntityEditorConfig): Function => {
     const selectedOperationProps: Function = config.get('operationProps');
 
     return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
-
-        class PureComposedComponent extends PureComponent {
-            render(): React.Element<*> {
-                return <ComposedComponent {...this.props} />;
-            }
-        }
 
         class EntityEditorHock extends Component {
 
@@ -304,7 +298,7 @@ export default (config: EntityEditorConfig): Function => {
                 }
 
                 return <div>
-                    <PureComposedComponent
+                    <ComposedComponent
                         {...filteredProps}
                         entityEditor={this.entityEditorProps(statusProps)}
                     />

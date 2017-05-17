@@ -249,10 +249,13 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
     initialEditorState: {
         dirty: false
     },
-    // add different statuses in here with components inside
-    components: {
-        prompt: (props) => <Modal {...props} />,
-        promptContent: (props) => <ModalContent {...props} />
+    prompt: {
+        props: {},
+        component: (props) => <Modal {...props} />
+    },
+    promptContent: {
+        props: {},
+        component: (props) => <ModalContent {...props} />
     },
     operationProps: ii => ii,
     lifecycleMethods: {

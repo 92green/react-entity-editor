@@ -13,7 +13,8 @@ class Modal extends Component {
             no,
             onYes,
             onNo,
-            classNames
+            classNameModal,
+            classNameContent
         } = this.props;
 
         var propsForChildren: Object = {
@@ -26,8 +27,8 @@ class Modal extends Component {
         return <ReactModal
             isOpen={open}
             onRequestClose={onNo}
-            className={classNames.modalContent}
-            overlayClassName={classNames.modal}
+            className={classNameContent}
+            overlayClassName={classNameModal}
             contentLabel={title || (no ? "Confirm" : "Alert")}
             children={childrenWithProps}
         />;
@@ -42,22 +43,13 @@ Modal.propTypes = {
     onYes: PropTypes.func,
     onNo: PropTypes.func,
     onRequestClose: PropTypes.func,
-    classNames: PropTypes.shape({
-        modal: PropTypes.string,
-        modalContent: PropTypes.string
-    })
+    classNameModal: PropTypes.string,
+    classNameContent: PropTypes.string
 };
 
 Modal.defaultProps = {
-    classNames: {
-        modal: "Modal",
-        modalContent: "Modal_content",
-        modalTitle: "Modal_title",
-        modalBody: "Modal_body",
-        modalButtonContainer: "Modal_buttonContainer",
-        modalButton: "Button Button-primary",
-        modalButtonSecondary: "Button Button-secondary"
-    }
+    classNameModal: "Modal",
+    classNameContent: "Modal_content"
 };
 
 export default Modal;

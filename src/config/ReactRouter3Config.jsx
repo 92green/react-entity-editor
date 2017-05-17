@@ -6,8 +6,9 @@ import {fromJS, Map, List} from 'immutable';
 
 import EntityEditorConfig from './EntityEditorConfig';
 
-const NO_HISTORY_ERROR_MESSAGE: string = 'Entity Editor: history prop must be passed to editor when using ReactRouter4Config';
-const NO_LOCATION_ERROR_MESSAGE: string = 'Entity Editor: location must be specified in actionProps when using ReactRouter4Config';
+const NO_HISTORY_ERROR_MESSAGE: string = 'Entity Editor: history prop must be passed to editor when using ReactRouter3Config';
+const NO_ROUTE_ERROR_MESSAGE: string = 'Entity Editor: route prop must be passed to editor when using ReactRouter3Config';
+const NO_LOCATION_ERROR_MESSAGE: string = 'Entity Editor: location must be specified in actionProps when using ReactRouter3Config';
 
 const go: Function = ({props}: Object) => ({continueRouteChange, location}: Object): Promiseable => {
     if(continueRouteChange) {
@@ -26,9 +27,13 @@ const go: Function = ({props}: Object) => ({continueRouteChange, location}: Obje
 
 function protectRouteChange(entityEditorInstance: Object, config: EntityEditorConfig) {
     const ee: Object = entityEditorInstance;
-    const {history} = ee.nextProps;
+    const {history, route, routes} = ee.nextProps;
+
     if(!history) {
         throw new Error(NO_HISTORY_ERROR_MESSAGE);
+    }
+    if(!route) {
+        throw new Error(NO_ROUTE_ERROR_MESSAGE);
     }
 
     ee.unblockRouteChange && ee.unblockRouteChange();
@@ -41,12 +46,12 @@ function protectRouteChange(entityEditorInstance: Object, config: EntityEditorCo
     // so we reject react-router's automatic route transition and instead
     // provide an identical one as an actionProp
     // action at the end of the "go" action / workflow
-    ee.unblockRouteChange = history.block((nextLocation: Object, action: string): boolean => {
+    ee.unblockRouteChange = history.listenBefore((nextLocation: Object): boolean => {
 
         // if we're going back in history it would be great to warn against unsaved changes being lost
         // however the current mechanism causes react-router's history to call goBack multiple times.
         // to prevent this bug from surfacing for now, just don't protect against going back
-        if(action == "POP") {
+        if(nextLocation.action == "POP") {
             return true;
         }
 
@@ -59,7 +64,7 @@ function protectRouteChange(entityEditorInstance: Object, config: EntityEditorCo
         }
 
         // pass nextLocation to continueRouteChange, which returns a thunk
-        const continueRouteChange = actionProps.continueRouteChange(nextLocation, action);
+        const continueRouteChange = actionProps.continueRouteChange(nextLocation, nextLocation.action);
         // start the "go" action
         ee.workflowStart("go", config.getIn(["actions", "go"]), {continueRouteChange});
         return false;
@@ -86,18 +91,18 @@ function unprotectRouteChange(entityEditorInstance: Object) {
     ee.unblockRouteChange && ee.unblockRouteChange();
 }
 
-const ReactRouter4Config: EntityEditorConfig = EntityEditorConfig({
+const ReactRouter3Config: EntityEditorConfig = EntityEditorConfig({
     operations: {
         go
     },
     lifecycleMethods: {
         componentWillMount: {
-            reactRouter4: protectRouteChange
+            reactRouter3: protectRouteChange
         },
         componentWillUnmount: {
-            reactRouter4: unprotectRouteChange
+            reactRouter3: unprotectRouteChange
         }
     }
 });
 
-export default ReactRouter4Config;
+export default ReactRouter3Config;

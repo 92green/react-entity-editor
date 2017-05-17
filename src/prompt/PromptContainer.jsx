@@ -2,6 +2,7 @@
 
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import {Map} from 'immutable';
 
 class PromptContainer extends Component {
 
@@ -31,31 +32,40 @@ class PromptContainer extends Component {
             promptProps
         } = this.props;
 
-
         const workflowTask: ?Object =  config.getIn(['tasks', task]);
         const promptOpen: boolean = !!workflowTask
             && workflowTask.get('status')
             && workflowTask.get('statusOutput') == "prompt";
 
-        var promptDetails: ?Object = null;
+        const configPromptProps: Object = config
+            .getIn(['prompt', 'props'], Map())
+            .toObject();
 
+        const configPromptContentProps: Object = config
+            .getIn(['promptContent', 'props'], Map())
+            .toObject();
+
+        var promptDetails: Object = {};
         if(promptOpen && workflowTask) {
             promptDetails = workflowTask.get('status')(promptProps);
         }
 
-        const Prompt: ReactClass<any> = config.getIn(['components', 'prompt']);
-        const PromptContent: ReactClass<any> = config.getIn(['components', 'promptContent']);
+        const Prompt: ReactClass<any> = config.getIn(['prompt', 'component']);
+        const PromptContent: ReactClass<any> = config.getIn(['promptContent', 'component']);
 
         return <Prompt
+            {...configPromptProps}
             {...promptDetails}
             open={promptOpen}
             onYes={this.promptOnYes}
             onNo={this.promptOnNo}
         >
             {promptDetails &&
-                <PromptContent {...promptDetails}>
-                    {promptDetails && promptDetails.message}
-                </PromptContent>
+                <PromptContent
+                    {...configPromptContentProps}
+                    {...promptDetails}
+                    children={promptDetails && promptDetails.message}
+                />
             }
         </Prompt>;
     }
