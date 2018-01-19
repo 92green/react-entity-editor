@@ -8,8 +8,6 @@ import {HashRouter, Route, Switch} from 'react-router-dom';
 import AppHandler from 'components/AppHandler';
 import ErrorHandler from 'components/ErrorHandler';
 import HomePage from 'pages/HomePage';
-import DogsExample from 'dogs/DogsExample';
-import CatsExample from 'cats/CatsExample';
 import AntsExample from 'ants/AntsExample';
 
 const appElement = document.getElementById('app');
@@ -20,8 +18,6 @@ ReactDOM.render((
             <AppHandler>
                 <Switch>
                     <Route exact path="/" component={HomePage} />
-                    <Route path="/dogs" component={DogsExample} />
-                    <Route path="/cats" component={CatsExample} />
                     <Route path="/ants" component={AntsExample} />
                     <Route component={ErrorHandler} />
                 </Switch>

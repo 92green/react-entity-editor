@@ -52,6 +52,10 @@ class AntsForm extends Component {
         // at which point new props will come down and setupForm() will be called again
     };
 
+    handleSaveError = () => {
+        this.props.onSave(null);
+    };
+
     render() {
         return <div>
             <div className="InputRow">
@@ -74,6 +78,12 @@ class AntsForm extends Component {
                 children="Save"
                 className="Button Button-primary"
                 onClick={this.handleSave}
+                disabled={!this.props.canSave}
+            />
+            <button
+                children="Save with an error"
+                className="Button Button-primary"
+                onClick={this.handleSaveError}
                 disabled={!this.props.canSave}
             />
         </div>;

@@ -3,9 +3,10 @@
 /* eslint-disable no-console */
 
 import React from 'react';
-import {fromJS, Map, List} from 'immutable';
 
 import EntityEditorConfig from './EntityEditorConfig';
+import EntityEditorHock from '../EntityEditorHock';
+import EntityEditorState from '../EntityEditorState';
 import Modal from '../modal/Modal';
 import ModalContent from '../modal/ModalContent';
 
@@ -232,7 +233,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         },
         save: ({operations}: Object) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
             if(!actionProps.payload) {
-                throw new Error(`EntityEditor: config.operations.save: actionProps.payload is not defined`);
+                return Promise.reject(`EntityEditor: config.operations.save: actionProps.payload is not defined`);
             }
             if(actionProps.id) {
                 return operations.update(actionProps);
@@ -249,14 +250,10 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
     initialEditorState: {
         dirty: false
     },
-    prompt: {
-        props: {},
-        component: (props) => <Modal {...props} />
-    },
-    promptContent: {
-        props: {},
-        component: (props) => <ModalContent {...props} />
-    },
+    composeComponents: (config) => [
+        EntityEditorState(config),
+        EntityEditorHock(config)
+    ],
     operationProps: ii => ii,
     lifecycleMethods: {
         componentWillMount: {},

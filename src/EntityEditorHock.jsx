@@ -1,22 +1,32 @@
 /* @flow */
 
-import React, {Component} from 'react';
+import React from 'react';
+import type {ComponentType, Element} from 'react';
 import PropTypes from 'prop-types';
 import {Map} from 'immutable';
-import WorkflowHock from './workflow/WorkflowHock';
-import PromptContainer from './prompt/PromptContainer';
+import Workflow from './Workflow';
 import {EntityEditorConfig} from './config/EntityEditorConfig';
 import {returnPromise} from './utils/Utils';
+
+type Props = {
+    entityEditorState: Object
+};
+
+type ChildProps = {
+    entityEditor: Object
+};
 
 export default (config: EntityEditorConfig): Function => {
     const selectedOperationProps: Function = config.get('operationProps');
 
-    return (ComposedComponent: ReactClass<any>): ReactClass<any> => {
+    return (Component: ComponentType<Props>): ComponentType<ChildProps> => {
 
-        class EntityEditorHock extends Component {
+        return class EntityEditorHock extends React.Component {
 
-            state: Object;
-            nextProps: Object;
+            static propTypes = {
+                entityEditorState: PropTypes.object.isRequired
+            };
+
             onOperationSuccess: Function;
             onOperationError: Function;
             setEditorState: Function;
@@ -27,10 +37,6 @@ export default (config: EntityEditorConfig): Function => {
                 super(props);
                 this.componentIsMounted = false;
                 this.nextProps = props;
-                this.state = config.get('initialEditorState').toObject();
-                this.onOperationSuccess = this.onOperationSuccess.bind(this);
-                this.onOperationError = this.onOperationError.bind(this);
-                this.setEditorState = this.setEditorState.bind(this);
             }
 
             /*
@@ -52,20 +58,22 @@ export default (config: EntityEditorConfig): Function => {
             componentWillReceiveProps(nextProps: Object) {
                 this.nextProps = nextProps;
                 const currentTask: ?Map<string, any> = this.getCurrentTask(nextProps);
-                const {end} = nextProps.workflow;
+
+                let thisWorkflow = this.getWorkflow(this.props);
+                let nextWorkflow = this.getWorkflow(nextProps);
 
                 // if changing to a new task...
-                if(currentTask && this.props.workflow.task !== nextProps.workflow.task) {
+                if(currentTask && thisWorkflow.get('task') !== nextWorkflow.get('task')) {
 
                     // if skip() exists for this task and returns a string, then go there
                     const skip: Function = currentTask.get('skip');
                     if(skip) {
                         const skipProps: Object = {
-                            editorState: this.getEditorState()
+                            editorState: this.getState(nextProps).editor
                         };
                         const skipTo: ?string = skip(skipProps);
                         if(skipTo && typeof skipTo == "string") {
-                            this.props.workflow.next(skipTo, end);
+                            nextWorkflow.next(skipTo);
                             return;
                         }
                     }
@@ -91,22 +99,26 @@ export default (config: EntityEditorConfig): Function => {
              * editor state
              */
 
-            getEditorState(): Object {
-                return this.state;
-            }
+            getState = (props: Object): Object => {
+                return props.entityEditorState;
+            };
 
-            setEditorState(newState: Object) {
-                this.setState(newState);
-            }
+            setState = (newState: Object) => {
+                this.props.entityEditorStateChange(newState);
+            };
+
+            setEditorState = (newState: Object) => {
+                this.props.entityEditorStateChange({
+                    editor: newState
+                });
+            };
 
             /*
              * operate
              */
 
-            operate(operationName: string, props: Object) {
-
-                const nextWorkflow = props.workflow;
-                const {actionProps} = nextWorkflow.meta;
+            operate = (operationName: string, props: Object) => {
+                const {actionProps} = this.getWorkflow(props).get('meta') || {};
 
                 const operations: Object = this.partiallyApplyOperations(config.get('operations'), props);
 
@@ -120,11 +132,13 @@ export default (config: EntityEditorConfig): Function => {
                 }
 
                 const result: Promiseable = partiallyAppliedOperation(actionProps);
-                returnPromise(result)
-                    .then(this.onOperationSuccess(actionProps, nextWorkflow), this.onOperationError(actionProps, nextWorkflow));
-            }
+                returnPromise(result).then(
+                    this.onOperationSuccess(actionProps, props),
+                    this.onOperationError(actionProps, props)
+                );
+            };
 
-            partiallyApplyOperations(operations: Map<string,Function>, props: Object): Object {
+            partiallyApplyOperations = (operations: Map<string,Function>, props: Object): Object => {
                 // TOD MEMOIZE THIS ON PROP CHANGE
 
                 // create mutable operations object with the aim of passing a reference to it into each partial application
@@ -163,54 +177,87 @@ export default (config: EntityEditorConfig): Function => {
                 });
 
                 return mutableOperations;
-            }
+            };
 
-            onOperationSuccess({onSuccess}: ActionProps, nextWorkflow: Object): any {
+            onOperationSuccess = ({onSuccess}: ActionProps, props: Object): any => {
                 return (result: any) => {
-                    if(!this.componentIsMounted || this.props.workflow.name != nextWorkflow.name) {
+                    let prevWorkflow = this.getWorkflow(props);
+                    let thisWorkflow = this.getWorkflow(this.props);
+
+                    if(!this.componentIsMounted || thisWorkflow.get('name') !== prevWorkflow.get('name')) {
                         return;
                     }
+
                     onSuccess && onSuccess(result);
-                    this.props.workflow.next("onSuccess", this.props.workflow.end);
+                    thisWorkflow.next("onSuccess", (meta) => ({...meta, result}));
                 };
-            }
+            };
 
-            onOperationError({onError}: ActionProps, nextWorkflow: Object): any {
+            onOperationError = ({onError}: ActionProps, props: Object): any => {
                 return (result: any) => {
-                    if(!this.componentIsMounted || this.props.workflow.name != nextWorkflow.name) {
+                    let prevWorkflow = this.getWorkflow(props);
+                    let thisWorkflow = this.getWorkflow(this.props);
+
+                    if(!this.componentIsMounted || thisWorkflow.get('name') !== prevWorkflow.get('name')) {
                         return;
                     }
+
                     onError && onError(result);
-                    this.props.workflow.next("onError", this.props.workflow.end);
+                    thisWorkflow.next("onError", (meta) => ({...meta, result}));
                 };
-            }
+            };
 
             /*
              * workflow
              */
 
-            workflowStart(actionName: string, actionConfig: Object, actionProps: Object = {}) {
+            getWorkflow = (props: Object): Object => {
+                return Workflow(
+                    this.getState(props).workflow,
+                    (workflow) => this.setState({workflow})
+                );
+            };
+
+            workflowStart = (actionName: string, actionConfig: Object, actionProps: Object = {}) => {
+                let workflow = this.getWorkflow(this.props);
+
                 if(this.isCurrentTaskBlocking()) {
-                    const {name, task} = this.props.workflow;
+                    const {name, task} = workflow.get();
                     console.warn(`Entity Editor: cannot start new "${actionName}" action while "${name}" action is blocking with task "${task}".`);
                     return;
                 }
 
-                const workflow: Object = actionConfig.get('workflow');
-                if(!workflow) {
+                const workflowData: Object = actionConfig.get('workflow');
+                if(!workflowData) {
                     throw new Error(`Entity Editor: A workflow must be defined on the config object for ${actionName}`);
                 }
-                this.props.workflow.start(workflow.toJS(), actionName, {actionProps});
-            }
 
-            getCurrentTask(props: ?Object): ?Object {
-                if(!props) {
-                    props = this.props;
-                }
-                return config.getIn(['tasks', props.workflow.task]);
-            }
+                workflow.start(workflowData.toJS(), actionName, {actionProps});
+            };
 
-            isCurrentTaskBlocking(props: ?Object): boolean {
+            getCurrentTask = (props: Object): ?Object => {
+                return config.getIn(['tasks', this.getWorkflow(props).get('task')]);
+            };
+
+            getNextSteps = (props: Object): ?Object => {
+                let workflow = this.getWorkflow(props);
+                let nextSteps = workflow.get('nextSteps') || [];
+
+                let onYes = nextSteps.includes('onYes')
+                    ? (metaUpdater: Function = ii => ii) => workflow.next('onYes', metaUpdater)
+                    : () => workflow.end();
+
+                let onNo = nextSteps.includes('onNo')
+                    ? (metaUpdater: Function = ii => ii) => workflow.next('onNo', metaUpdater)
+                    : () => workflow.end();
+
+                return {
+                    onYes,
+                    onNo
+                };
+            };
+
+            isCurrentTaskBlocking = (props: ?Object): boolean => {
                 if(!props) {
                     props = this.props;
                 }
@@ -218,16 +265,14 @@ export default (config: EntityEditorConfig): Function => {
                 if(!currentTask) {
                     return false;
                 }
-                return currentTask.get('blocking',  !!currentTask.get('operation'));
-            }
+                return currentTask.get('blocking', !!currentTask.get('operation'));
+            };
 
             /*
              * prop calculation
              */
 
-            entityEditorProps(statusProps: Object): Object {
-
-                // actions
+            entityEditorProps = (): Object => {
 
                 const actions: Object = config
                     .get('actions', Map())
@@ -236,88 +281,48 @@ export default (config: EntityEditorConfig): Function => {
                     })
                     .toObject();
 
-                // operations
-
-                const operations: Object = this.partiallyApplyOperations(config.get('operations'), this.props);
-
-                // actionable
-
                 const actionable: boolean = !this.isCurrentTaskBlocking();
-
-                // status
-
-                const currentWorkflow: ?Object = this.getCurrentTask();
-                const statusAsProps: boolean = !!currentWorkflow
-                    && currentWorkflow.get('status')
-                    && currentWorkflow.get('statusOutput') == "props";
-
-                var status: ?Object = null;
-                if(statusAsProps && currentWorkflow) {
-                    status = currentWorkflow.get('status')(statusProps);
-                    status.action = this.props.workflow.name;
-                    status.task = this.props.workflow.task;
-                }
-
-                // names
-
+                const currentTask: ?Object = this.getCurrentTask(this.props);
                 const names: Object = config.itemNames();
-
-                // editor state
-
-                const state: Object = statusProps.editorState;
+                const nextSteps: Object = this.getNextSteps(this.props);
+                const operations: Object = this.partiallyApplyOperations(config.get('operations'), this.props);
+                const {result} = (this.getWorkflow(this.props).get('meta') || {});
+                const state: Object = this.getState(this.props).editor;
+                const status: ?Object = currentTask && currentTask.get('status')
+                    ? currentTask.get('status')({
+                        ...names,
+                        nextSteps,
+                        result,
+                        state
+                    })
+                    : null;
 
                 return {
                     actions,
-                    operations,
                     actionable,
-                    status,
                     names,
-                    state
+                    nextSteps,
+                    operations,
+                    state,
+                    status
                 };
-            }
+            };
 
             /*
              * render
              */
 
-            render(): React.Element<any> {
-                var {
-                    workflow,
-                    passConfig,
-                    ...filteredProps
+            render(): Element<*> {
+                let {
+                    entityEditorState,
+                    ...rest
                 } = this.props;
 
-                const editorState: Object = this.getEditorState();
-                const statusProps: Object = {
-                    editorState,
-                    ...config.itemNames()
-                };
-
-                if(passConfig) {
-                    filteredProps.config = config;
-                }
-
-                return <div>
-                    <ComposedComponent
-                        {...filteredProps}
-                        entityEditor={this.entityEditorProps(statusProps)}
-                    />
-                    <PromptContainer
-                        workflow={workflow}
-                        config={config}
-                        promptProps={statusProps}
-                        blocking={this.isCurrentTaskBlocking()}
-                    />
-                </div>;
+                return <Component
+                    {...rest}
+                    entityEditor={this.entityEditorProps()}
+                />;
             }
         }
-
-        EntityEditorHock.propTypes = {
-            workflow: PropTypes.object.isRequired, // always provided by WorkflowHock
-            passConfig: PropTypes.bool
-        };
-
-        const withWorkflowHock: Function = WorkflowHock();
-        return withWorkflowHock(EntityEditorHock);
     };
 };

@@ -1,5 +1,12 @@
-import {BaseConfig, ReactRouter4Config} from 'react-entity-editor';
+import React from 'react';
+import {
+    BaseConfig,
+    ReactRouter4Config,
+    EntityEditorState,
+    EntityEditorHock
+} from 'react-entity-editor';
 
+import EntityEditorModal from 'react-entity-editor/lib/modal/Modal';
 //
 // IMPORTANT:
 // for proper react router integration you must merge in the react router 4 config
@@ -39,6 +46,9 @@ const AntsEntityEditorConfig = BaseConfig
              * or returning false will be interpreted as an error.
              */
             create: ({props, operations}) => ({payload}) => {
+                // here you can call a function to create your item
+                // in this example we call a function that we passed down via props
+
                 return props.onCreate(payload)
                     // once created, navigate to the edit page for the new item
                     // the actionProps here accept a react-router location object
@@ -49,9 +59,14 @@ const AntsEntityEditorConfig = BaseConfig
                     }));
             },
             update: ({props}) => ({id, payload}) => {
+                // here you can call a function to create your item
+                // in this example we call a function that we passed down via props
                 return props.onUpdate(id, payload);
             },
             delete: ({props, operations}) => ({id}) => {
+                // here you can call a function to create your item
+                // in this example we call a function that we passed down via props
+
                 return props.onDelete(id)
                     // once deleted, navigate to the list page
                     // the actionProps here accept a react-router location object
@@ -61,7 +76,36 @@ const AntsEntityEditorConfig = BaseConfig
                         }
                     }));
             }
-        }
+        },
+        tasks: {
+            saveSuccess: {
+                status: ({Item, result}) => ({
+                    title: "Saved",
+                    message: <span>
+                        {Item} saved.
+                        <pre>{JSON.stringify(result, null, 4)}</pre>
+                    </span>,
+                    yes: "Okay"
+                }),
+                statusOutput: "prompt"
+            },
+            saveError: {
+                status: ({Item, result}) => ({
+                    title: "Saved",
+                    message: <span>
+                        {Item} had an error.
+                        <pre>{JSON.stringify(result, null, 4)}</pre>
+                    </span>,
+                    yes: "Okay"
+                }),
+                statusOutput: "prompt"
+            }
+        },
+        composeComponents: (config) => [
+            EntityEditorState(config),
+            EntityEditorHock(config),
+            EntityEditorModal()
+        ]
     });
 
 export default AntsEntityEditorConfig;
