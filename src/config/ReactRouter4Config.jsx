@@ -2,8 +2,6 @@
 /* eslint-disable no-unused-vars */
 
 import React from 'react';
-import {fromJS, Map, List} from 'immutable';
-
 import EntityEditorConfig from './EntityEditorConfig';
 
 const NO_HISTORY_ERROR_MESSAGE: string = 'Entity Editor: history prop must be passed to editor when using ReactRouter4Config';

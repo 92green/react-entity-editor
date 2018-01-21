@@ -2,15 +2,16 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 
-import {fromJS, Map} from 'immutable';
-import {returnPromise} from '../utils/Utils';
+import assignWith from 'lodash/assignWith';
+import get from 'lodash/get';
+import isObject from 'lodash/isObject';
 
 class EntityEditorConfig {
 
-    _config: Map<string, any>;
+    _config: Object;
 
     constructor(config: Object) {
-        this._config = fromJS(config);
+        this._config = config;
     }
 
     static isEntityEditorConfig(obj: any): boolean {
@@ -24,12 +25,12 @@ class EntityEditorConfig {
     }
 
     get(key: string, notSetValue: any): any {
-        return this._config.get(key, notSetValue);
+        return get(this._config, key, notSetValue);
     }
 
 
     getIn(searchKeyPath: Array<string>, notSetValue: any): any {
-        return this._config.getIn(searchKeyPath, notSetValue);
+        return get(this._config, searchKeyPath, notSetValue);
     }
 
     merge(nextConfig: Object|EntityEditorConfig|Function): EntityEditorConfig {
@@ -37,35 +38,32 @@ class EntityEditorConfig {
             nextConfig = nextConfig(this);
         }
 
-        const toMerge: Map<string, any> = EntityEditorConfig.isEntityEditorConfig(nextConfig)
+        const toMerge: Object = EntityEditorConfig.isEntityEditorConfig(nextConfig)
             ? nextConfig._config
-            : fromJS(nextConfig);
+            : nextConfig;
 
         // merge configs together
-        // only merge Maps, and not workflow
+        // only merge plain objects, and not workflow
         const mergeFunction: Function = (oldVal: *, newVal: *, key: *): * => {
-            const doMerge: boolean = Map.isMap(oldVal)
-                && Map.isMap(newVal)
-                && key != "workflow";
+            const doMerge: boolean = isObject(oldVal)
+                && isObject(newVal)
+                && key !== "workflow";
 
-            return doMerge ? oldVal.mergeWith(mergeFunction, newVal) : newVal;
+            return doMerge ? assignWith(oldVal, newVal, mergeFunction) : newVal;
         };
 
-        const merged: Object = this._config
-            .mergeWith(mergeFunction, toMerge)
-            .toJS();
-
+        const merged: Object = assignWith(this._config, toMerge, mergeFunction);
         return new EntityEditorConfig(merged);
     }
 
-    data(): Map<string, any> {
+    data(): Object {
         return this._config;
     }
 
     itemNames(): Object {
         const ucfirst: Function = (str) => str.charAt(0).toUpperCase() + str.slice(1);
-        const item: string = this._config.getIn(['item', 'single'], 'item');
-        const items: string = this._config.getIn(['item', 'plural'], `${item}s`);
+        const item: string = get(this._config, ['item', 'single'], 'item');
+        const items: string = get(this._config, ['item', 'plural'], `${item}s`);
         return {
             item,
             items,
