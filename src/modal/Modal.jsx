@@ -6,10 +6,8 @@ import ReactModal from 'react-modal';
 import ModalContent from './ModalContent';
 
 export default (config: ModalConfig = {}): Function => {
-
-    // TODO use stampy style Hock()
-
     const {
+        appElement,
         className = "Modal",
         classNameContent = "Modal_content",
         content: Content = ModalContent
@@ -24,6 +22,10 @@ export default (config: ModalConfig = {}): Function => {
             };
 
             onRequestClose = () => this.props.entityEditor.nextSteps.onNo();
+
+            componentWillMount() {
+                appElement && ReactModal.setAppElement(appElement);
+            }
 
             render(): React.Element<any> {
                 let {
