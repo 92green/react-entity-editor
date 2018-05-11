@@ -86,8 +86,7 @@ const AntsEntityEditorConfig = BaseConfig
                         <pre>{JSON.stringify(result, null, 4)}</pre>
                     </span>,
                     yes: "Okay"
-                }),
-                statusOutput: "prompt"
+                })
             },
             saveError: {
                 status: ({Item, result}) => ({
@@ -97,8 +96,7 @@ const AntsEntityEditorConfig = BaseConfig
                         <pre>{JSON.stringify(result, null, 4)}</pre>
                     </span>,
                     yes: "Okay"
-                }),
-                statusOutput: "prompt"
+                })
             }
         },
         composeComponents: (config) => [
