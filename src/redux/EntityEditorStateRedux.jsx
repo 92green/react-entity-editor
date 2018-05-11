@@ -1,8 +1,9 @@
 /* @flow */
 
 import React from 'react';
-import StateHock from 'stampy/lib/hock/StateHock';
 import Compose from 'stampy/lib/util/Compose';
+import {connect} from 'react-redux';
+import {initialState} from '../EntityEditorState';
 
 type Props = {};
 type ChildProps = {
@@ -40,18 +41,24 @@ function ShallowMergeChanges(Component) {
     }
 }
 
-export const initialState = (config: EntityEditorConfig) => ({
-    editor: config.get('initialEditorState'),
-    workflow: null
-});
-
 export default function EntityEditorState(config: EntityEditorConfig): Function {
+    let editorKey = "thing";
     return Compose(
-        StateHock({
-            valueProp: () => 'entityEditorState',
-            onChangeProp: () => 'entityEditorStateChange',
-            initialState: () => initialState(config)
-        }),
+        connect((state) => ({
+            entityEditorState: state.entityEditor[editorKey] || initialState(config)
+        })),
+        (Component) => (props) => {
+            return <Component
+                {...props}
+                entityEditorStateChange={(state) => props.dispatch({
+                    type: "ENTITY_EDITOR_SET",
+                    payload: {
+                        editorKey,
+                        state
+                    }
+                })}
+            />;
+        },
         ShallowMergeChanges
     );
 }
