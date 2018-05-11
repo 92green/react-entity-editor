@@ -6,6 +6,7 @@ import AnimalStore from '../components/AnimalStore';
 const AntsStore = () => AnimalStore({
     animalName: "ant",
     animalNamePlural: "ants",
+    asyncDelay: 500,
     initialState: {
         animals: [
             {

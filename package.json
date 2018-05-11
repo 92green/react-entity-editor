@@ -33,7 +33,8 @@
     "test-all": "echo \"No tests yet\""
   },
   "peerDependencies": {
-    "react": "^15.3.2"
+    "react": "^15.3.2",
+    "react-modal": "^1.7.3"
   },
   "devDependencies": {
     "ava": "0.19.1",
@@ -53,6 +54,7 @@
     "jsdoc-react-proptypes": "^1.0.1",
     "jsdonk": "0.4.18",
     "nyc": "^10.0.0",
+    "prop-types": "^15.5.8",
     "proxyquire": "^1.7.10",
     "sinon": "^2.1.0"
   },
@@ -98,7 +100,7 @@
     ]
   },
   "dependencies": {
-    "prop-types": "^15.5.8",
-    "react-modal": "^1.7.3"
+    "lodash": "^4.17.4",
+    "stampy": "^0.35.1"
   }
 }

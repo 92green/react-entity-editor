@@ -3,9 +3,10 @@
 /* eslint-disable no-console */
 
 import React from 'react';
-import {fromJS, Map, List} from 'immutable';
 
 import EntityEditorConfig from './EntityEditorConfig';
+import EntityEditorHock from '../EntityEditorHock';
+import EntityEditorState from '../EntityEditorState';
 import Modal from '../modal/Modal';
 import ModalContent from '../modal/ModalContent';
 
@@ -115,40 +116,35 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
             status: ({item}) => ({
                 title: "Saving",
                 message: <span>Saving {item}...</span>
-            }),
-            statusOutput: "prompt"
+            })
         },
         updateOperate: {
             operation: "update",
             status: ({item}) => ({
                 title: "Saving",
                 message: <span>Saving {item}...</span>
-            }),
-            statusOutput: "prompt"
+            })
         },
         saveOperate: {
             operation: "save",
             status: ({item}) => ({
                 title: "Saving",
                 message: <span>Saving {item}...</span>
-            }),
-            statusOutput: "prompt"
+            })
         },
         saveSuccess: {
             status: ({Item}) => ({
                 title: "Saved",
                 message: <span>{Item} saved.</span>,
                 yes: "Okay"
-            }),
-            statusOutput: "prompt"
+            })
         },
         saveError: {
             status: ({item}) => ({
                 title: "Error",
                 message: <span>An error has occurred, this {item} could not be saved right now.</span>,
                 yes: "Okay"
-            }),
-            statusOutput: "prompt"
+            })
         },
         saveNewConfirm: {
             status: ({item}) => ({
@@ -156,16 +152,14 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>Are you sure you want to save this as a new {item}?</span>,
                 yes: `Save as new`,
                 no: `Cancel`
-            }),
-            statusOutput: "prompt"
+            })
         },
         saveNewSuccess: {
             status: ({item}) => ({
                 title: "Saved",
                 message: <span>New {item} saved.</span>,
                 yes: "Okay"
-            }),
-            statusOutput: "prompt"
+            })
         },
         deleteConfirm: {
             status: ({item}) => ({
@@ -173,32 +167,28 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>Are you sure you want to delete this {item}?</span>,
                 yes: `Delete`,
                 no: `Cancel`
-            }),
-            statusOutput: "prompt"
+            })
         },
         deleteOperate: {
             operation: "delete",
             status: ({item}) => ({
                 title: "Deleting",
                 message: <span>Deleting {item}...</span>
-            }),
-            statusOutput: "prompt"
+            })
         },
         deleteSuccess: {
             status: ({Item}) => ({
                 title: "Deleted",
                 message: <span>{Item} deleted.</span>,
                 yes: "Okay"
-            }),
-            statusOutput: "prompt"
+            })
         },
         deleteError: {
             status: ({item}) => ({
                 title: "Error",
                 message: <span>An error has occurred, this {item} could not be deleted right now.</span>,
                 yes: "Okay"
-            }),
-            statusOutput: "prompt"
+            })
         },
         goConfirm: {
             skip: ({editorState}) => editorState.dirty ? null : "onYes",
@@ -207,11 +197,11 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
                 message: <span>You have unsaved changes. What would you like to do?</span>,
                 yes: "Discard changes",
                 no: "Keep editing"
-            }),
-            statusOutput: "prompt"
+            })
         },
         goOperate: {
-            operation: "go"
+            operation: "go",
+            preSuccess: true // progress to next success step just before firing operation
         },
         cleanOperate: {
             operation: "clean"
@@ -232,7 +222,7 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
         },
         save: ({operations}: Object) => (actionProps: {id: ?string, payload: Object}): Promiseable => {
             if(!actionProps.payload) {
-                throw new Error(`EntityEditor: config.operations.save: actionProps.payload is not defined`);
+                return Promise.reject(`EntityEditor: config.operations.save: actionProps.payload is not defined`);
             }
             if(actionProps.id) {
                 return operations.update(actionProps);
@@ -249,14 +239,10 @@ const BaseConfig: EntityEditorConfig = EntityEditorConfig({
     initialEditorState: {
         dirty: false
     },
-    prompt: {
-        props: {},
-        component: (props) => <Modal {...props} />
-    },
-    promptContent: {
-        props: {},
-        component: (props) => <ModalContent {...props} />
-    },
+    composeComponents: (config) => [
+        EntityEditorState(config),
+        EntityEditorHock(config)
+    ],
     operationProps: ii => ii,
     lifecycleMethods: {
         componentWillMount: {},

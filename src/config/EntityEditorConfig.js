@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 
-import {fromJS, List, Map} from 'immutable';
+import {fromJS, Map} from 'immutable';
 import {returnPromise} from '../utils/Utils';
 
 class EntityEditorConfig {
@@ -26,6 +26,7 @@ class EntityEditorConfig {
     get(key: string, notSetValue: any): any {
         return this._config.get(key, notSetValue);
     }
+
 
     getIn(searchKeyPath: Array<string>, notSetValue: any): any {
         return this._config.getIn(searchKeyPath, notSetValue);

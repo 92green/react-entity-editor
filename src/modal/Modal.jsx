@@ -1,55 +1,58 @@
 /* @flow */
 
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import ReactModal from 'react-modal';
+import ModalContent from './ModalContent';
 
-class Modal extends Component {
-    render(): React.Element<any> {
-        const {
-            children,
-            open,
-            title,
-            no,
-            onYes,
-            onNo,
-            classNameModal,
-            classNameContent
-        } = this.props;
+export default (config: ModalConfig = {}): Function => {
+    const {
+        appElement,
+        className = "Modal",
+        classNameContent = "Modal_content",
+        content: Content = ModalContent
+    } = config;
 
-        var propsForChildren: Object = {
-            onYes,
-            onNo
-        };
+    return (Component: ReactClass<any>): ReactClass<any> => {
 
-        const childrenWithProps: React.Element<any> = React.Children.map(children, kid => React.cloneElement(kid, propsForChildren));
+        return class EntityEditorModalHock extends React.Component {
 
-        return <ReactModal
-            isOpen={open}
-            onRequestClose={onNo}
-            className={classNameContent}
-            overlayClassName={classNameModal}
-            contentLabel={title || (no ? "Confirm" : "Alert")}
-            children={childrenWithProps}
-        />;
-    }
-}
+            static propTypes = {
+                entityEditor: PropTypes.object // TODO make a prop types file with one defintion for each
+            };
 
-Modal.propTypes = {
-    open: PropTypes.bool,
-    title: PropTypes.string,
-    yes: PropTypes.string,
-    no: PropTypes.string,
-    onYes: PropTypes.func,
-    onNo: PropTypes.func,
-    onRequestClose: PropTypes.func,
-    classNameModal: PropTypes.string,
-    classNameContent: PropTypes.string
+            onRequestClose = () => this.props.entityEditor.nextSteps.onNo();
+
+            componentWillMount() {
+                appElement && ReactModal.setAppElement(appElement);
+            }
+
+            render(): React.Element<any> {
+                let {
+                    status,
+                    nextSteps
+                } = this.props.entityEditor;
+
+                let contentLabel = status
+                    ? status.title || (status.no ? "Confirm" : "Alert")
+                    : "";
+
+                return <div>
+                    <Component {...this.props} />
+                    <ReactModal
+                        isOpen={!!status}
+                        onRequestClose={this.onRequestClose}
+                        className={classNameContent}
+                        overlayClassName={className}
+                        contentLabel={contentLabel}
+                    >
+                        <Content
+                            status={status}
+                            nextSteps={nextSteps}
+                        />
+                    </ReactModal>
+                </div>;
+            }
+        }
+    };
 };
-
-Modal.defaultProps = {
-    classNameModal: "Modal",
-    classNameContent: "Modal_content"
-};
-
-export default Modal;

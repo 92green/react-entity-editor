@@ -1,56 +1,68 @@
 /* @flow */
 
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
-class ModalContent extends Component {
+export default class ModalContent extends React.Component {
+
+    static propTypes = {
+        status: PropTypes.shape({
+            title: PropTypes.node,
+            message: PropTypes.node,
+            yes: PropTypes.node,
+            no: PropTypes.node
+        }),
+        step: PropTypes.shape({
+            onYes: PropTypes.func,
+            onNo: PropTypes.func
+        }),
+        classNameTitle: PropTypes.string,
+        classNameBody: PropTypes.string,
+        classNameButtonContainer: PropTypes.string,
+        classNameButton: PropTypes.string,
+        classNameButtonNo: PropTypes.string
+    };
+
+    static defaultProps = {
+        classNameTitle: "Modal_title",
+        classNameBody: "Modal_body",
+        classNameButtonContainer: "Modal_buttonContainer",
+        classNameButtonYes: "Button Button-primary",
+        classNameButtonNo: "Button Button-secondary"
+    };
+
+    onNo = () => {
+        this.props.nextSteps.onNo();
+    };
+
+    onYes = () => {
+        this.props.nextSteps.onYes();
+    };
+
     render(): React.Element<any> {
         const {
-            title,
-            children,
-            yes,
-            no,
-            onYes,
-            onNo,
             classNameTitle,
             classNameBody,
             classNameButtonContainer,
             classNameButtonYes,
-            classNameButtonNo
+            classNameButtonNo,
+            status: {
+                title,
+                message,
+                yes,
+                no
+            }
         } = this.props;
 
         return <div>
             {title && <div className={classNameTitle}>{title}</div>}
             <div className={classNameBody}>
-                {children}
+                {message}
                 <div className={classNameButtonContainer}>
-                    {no ? <button className={classNameButtonNo} onClick={onNo}>{no}</button> : null}
-                    {yes ? <button className={classNameButtonYes} onClick={onYes}>{yes}</button> : null}
+                    {no && <button className={classNameButtonNo} onClick={this.onNo}>{no}</button>}
+                    {yes && <button className={classNameButtonYes} onClick={this.onYes}>{yes}</button>}
                 </div>
             </div>
         </div>;
     }
 }
-
-ModalContent.propTypes = {
-    title: PropTypes.string,
-    yes: PropTypes.string,
-    no: PropTypes.string,
-    onYes: PropTypes.func,
-    onNo: PropTypes.func,
-    classNameTitle: PropTypes.string,
-    classNameBody: PropTypes.string,
-    classNameButtonContainer: PropTypes.string,
-    classNameButton: PropTypes.string,
-    classNameButtonNo: PropTypes.string
-};
-
-ModalContent.defaultProps = {
-    classNameTitle: "Modal_title",
-    classNameBody: "Modal_body",
-    classNameButtonContainer: "Modal_buttonContainer",
-    classNameButtonYes: "Button Button-primary",
-    classNameButtonNo: "Button Button-secondary"
-};
-
-export default ModalContent;

@@ -65,9 +65,9 @@ class AntsItem extends Component {
                         className="Button Button-secondary"
                     />
                 }
-                {entityEditor.status && // if a status comes down as props, render it
+                {/*entityEditor.status && // if a status comes down as props, render it
                     <em>{entityEditor.status.title}</em>
-                }
+                */}
             </p>
         </div>;
     }
