@@ -48,6 +48,8 @@ export default (config: EntityEditorConfig): Function => {
                 this.nextProps = this.props;
                 config.getIn(['lifecycleMethods', 'componentWillMount'], Map())
                     .forEach(fn => fn(this, config));
+
+                this.startTask(this.props);
             }
 
             componentDidMount() {
@@ -57,32 +59,12 @@ export default (config: EntityEditorConfig): Function => {
 
             componentWillReceiveProps(nextProps: Object) {
                 this.nextProps = nextProps;
-                const currentTask: ?Map<string, any> = this.getCurrentTask(nextProps);
-
                 let thisWorkflow = this.getWorkflow(this.props);
                 let nextWorkflow = this.getWorkflow(nextProps);
 
                 // if changing to a new task...
-                if(currentTask && thisWorkflow.get('task') !== nextWorkflow.get('task')) {
-
-                    // if skip() exists for this task and returns a string, then go there
-                    const skip: Function = currentTask.get('skip');
-                    if(skip) {
-                        const skipProps: Object = {
-                            editorState: this.getState(nextProps).editor
-                        };
-                        const skipTo: ?string = skip(skipProps);
-                        if(skipTo && typeof skipTo == "string") {
-                            nextWorkflow.next(skipTo);
-                            return;
-                        }
-                    }
-
-                    // if a task has something to do when new task is entered do it here...
-                    const operationName: string = currentTask.get('operation');
-                    if(operationName) {
-                        this.operate(operationName, nextProps);
-                    }
+                if(thisWorkflow.get('task') !== nextWorkflow.get('task')) {
+                    this.startTask(nextProps);
                 }
 
                 config.getIn(['lifecycleMethods', 'componentWillReceiveProps'], Map())
@@ -94,6 +76,33 @@ export default (config: EntityEditorConfig): Function => {
                 config.getIn(['lifecycleMethods', 'componentWillUnmount'], Map())
                     .forEach(fn => fn(this, config));
             }
+
+            startTask = (props: Object) => {
+                const currentTask: ?Map<string, any> = this.getCurrentTask(props);
+                if(!currentTask) {
+                    return;
+                }
+
+                // if skip() exists for this task and returns a string, then go there
+                const skip: Function = currentTask.get('skip');
+
+                if(skip) {
+                    const skipProps: Object = {
+                        editorState: this.getState(props).editor
+                    };
+                    const skipTo: ?string = skip(skipProps);
+                    if(skipTo && typeof skipTo == "string") {
+                        this.getWorkflow(props).next(skipTo);
+                        return;
+                    }
+                }
+
+                // if a task has something to do when new task is entered do it here...
+                const operationName: string = currentTask.get('operation');
+                if(operationName) {
+                    this.operate(operationName, props);
+                }
+            };
 
             /*
              * editor state
@@ -129,6 +138,13 @@ export default (config: EntityEditorConfig): Function => {
                 const partiallyAppliedOperation: Function = operations[operationName];
                 if(typeof partiallyAppliedOperation != "function") {
                     throw new Error(`Entity Editor: "task.operate" must return a function`);
+                }
+
+                const currentTask: ?Map<string, any> = this.getCurrentTask(props);
+                if(currentTask && currentTask.get('preSuccess')) {
+                    this.onOperationSuccess(actionProps, this.props, props)();
+                    partiallyAppliedOperation(actionProps);
+                    return;
                 }
 
                 const result: Promiseable = partiallyAppliedOperation(actionProps);
@@ -179,10 +195,10 @@ export default (config: EntityEditorConfig): Function => {
                 return mutableOperations;
             };
 
-            onOperationSuccess = ({onSuccess}: ActionProps, props: Object): any => {
+            onOperationSuccess = ({onSuccess}: ActionProps, prevProps: Object, thisProps: ?Object): any => {
                 return (result: any) => {
-                    let prevWorkflow = this.getWorkflow(props);
-                    let thisWorkflow = this.getWorkflow(this.props);
+                    let prevWorkflow = this.getWorkflow(prevProps);
+                    let thisWorkflow = this.getWorkflow(thisProps || this.props);
 
                     if(!this.componentIsMounted || thisWorkflow.get('name') !== prevWorkflow.get('name')) {
                         return;
