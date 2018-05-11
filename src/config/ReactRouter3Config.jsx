@@ -7,7 +7,6 @@ import {fromJS, Map, List} from 'immutable';
 import EntityEditorConfig from './EntityEditorConfig';
 
 const NO_HISTORY_ERROR_MESSAGE: string = 'Entity Editor: history prop must be passed to editor when using ReactRouter3Config';
-const NO_ROUTE_ERROR_MESSAGE: string = 'Entity Editor: route prop must be passed to editor when using ReactRouter3Config';
 const NO_LOCATION_ERROR_MESSAGE: string = 'Entity Editor: location must be specified in actionProps when using ReactRouter3Config';
 
 const go: Function = ({props}: Object) => ({continueRouteChange, location}: Object): Promiseable => {
@@ -31,9 +30,6 @@ function protectRouteChange(entityEditorInstance: Object, config: EntityEditorCo
 
     if(!history) {
         throw new Error(NO_HISTORY_ERROR_MESSAGE);
-    }
-    if(!route) {
-        throw new Error(NO_ROUTE_ERROR_MESSAGE);
     }
 
     ee.unblockRouteChange && ee.unblockRouteChange();
