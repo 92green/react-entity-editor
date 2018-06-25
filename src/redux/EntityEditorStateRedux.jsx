@@ -42,7 +42,7 @@ function ShallowMergeChanges(Component) {
 }
 
 export default function EntityEditorState(config: EntityEditorConfig): Function {
-    let editorKey = "thing";
+    let editorKey = config.get('id');
     return Compose(
         connect((state) => ({
             entityEditorState: state.entityEditor[editorKey] || initialState(config)
