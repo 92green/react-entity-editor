@@ -127,7 +127,7 @@ export default (config: EntityEditorConfig): Function => {
              */
 
             operate = (operationName: string, props: Object) => {
-                const {actionProps} = this.getWorkflow(props).get('meta') || {};
+                const {actionProps, result} = this.getWorkflow(props).get('meta') || {};
 
                 const operations: Object = this.partiallyApplyOperations(config.get('operations'), props);
 
@@ -147,11 +147,13 @@ export default (config: EntityEditorConfig): Function => {
                     return;
                 }
 
-                const result: Promiseable = partiallyAppliedOperation(actionProps);
-                returnPromise(result).then(
-                    this.onOperationSuccess(actionProps, props),
-                    this.onOperationError(actionProps, props)
-                );
+                returnPromise(
+                    partiallyAppliedOperation({...actionProps, result})
+                )
+                    .then(
+                        this.onOperationSuccess(actionProps, props),
+                        this.onOperationError(actionProps, props)
+                    );
             };
 
             partiallyApplyOperations = (operations: Map<string,Function>, props: Object): Object => {
