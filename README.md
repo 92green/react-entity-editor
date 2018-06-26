@@ -1,6 +1,6 @@
 # react-entity-editor
 
-*Almost ready!™*
+*Never ready!™*
 
 ### Early stages of development, please prepare for large amounts of changes until version 1.0.0.
 
